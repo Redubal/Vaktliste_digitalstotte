@@ -150,14 +150,18 @@ function parseEndringer(sheetName, team) {
   return rows(sheetName)
     .slice(1)
     .filter((r) => r[1] && String(r[1]).trim())
-    .map((r, i) => {
+    .flatMap((r, i) => {
       const name = String(r[1]).trim();
       const brukerId = brukerIdByName.get(name.toLowerCase());
       if (!brukerId) throw new Error(`${sheetName}: ingen bruker med navn på rad ${i + 2}`);
       const radId = orNull(r[10]) ?? `${slugify(team).toUpperCase()}-AUTO-${i}`;
+      // Rad-ID skal være unik. Gjenbrukt ID: første rad beholdes, de andre hoppes over.
+      if (usedEndringIds.has(radId)) {
+        warnings.push(`Endring-id ${radId} er brukt flere ganger i ${sheetName} (rad ${i + 2}), raden er hoppet over`);
+        return [];
+      }
       const id = uniqueId(radId, usedEndringIds);
-      if (id !== radId) warnings.push(`Endring-id ${radId} er brukt flere ganger i Excel, ny rad fikk ${id}`);
-      return {
+      return [{
         id,
         brukerId,
         lokasjonId: lokasjonId(r[7], `endring ${id}`),
@@ -169,7 +173,7 @@ function parseEndringer(sheetName, team) {
         toTime: serialToTime(r[5]),
         type: orNull(r[6]),
         comment: orNull(r[8]),
-      };
+      }];
     });
 }
 const endringer = [
