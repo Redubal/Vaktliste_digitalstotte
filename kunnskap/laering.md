@@ -1,5 +1,18 @@
 # Læringslogg
 
+## 2026-09-30 — Fase 1, delvis verifisering
+
+**Evaluering av forrige økts punkter:**
+- `[dev-server-først]` ikke utløst (bruker kjørte serveren selv) — videreføres, Fase 2 kan utløse det
+- `[persondata-i-plan]` ikke utløst (ingen ny import planlagt) — videreføres, Fase 3 kan utløse det
+
+**Nye punkter:**
+- `[celle-på-td]` Aldri `display: flex/block` på `td`/`tr`/`th`; legg stilen på en `div` inni. Belegg: `.celle` på `<td>` stablet hele uka i én kolonne; tsc, lint og build så ingenting, bare brukeren så det i nettleseren.
+
+**Fasesnitt:** Fase 1 fikk plass i én økt, rettelsen kom i en kort oppfølging. Snittet holder.
+
+Issue til pakkerepoet: ikke aktuelt.
+
 ## 2026-09-30 — etter Fase 1
 
 Ingen tidligere punkter å evaluere (første faseslutt).

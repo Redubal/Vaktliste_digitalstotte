@@ -138,11 +138,13 @@ export function UkeplanClient({ ansatte, endringer, dager }: Props) {
                           .join(" ")
                       : undefined;
                     return (
-                      <td key={celle.iso} className={CELLE_KLASSE[type]} title={tooltip}>
-                        <span className="celle-tekst">{celle.primær}</span>
-                        {celle.endring && celle.endring.newLocation && (
-                          <span className="celle-badge">{celle.endring.type}</span>
-                        )}
+                      <td key={celle.iso} title={tooltip}>
+                        <div className={CELLE_KLASSE[type]}>
+                          <span className="celle-tekst">{celle.primær}</span>
+                          {celle.endring && celle.endring.newLocation && (
+                            <span className="celle-badge">{celle.endring.type}</span>
+                          )}
+                        </div>
                       </td>
                     );
                   })}

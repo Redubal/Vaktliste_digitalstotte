@@ -1,0 +1,27 @@
+{
+  "extraKnownMarketplaces": {
+    "claude-code-skills": {
+      "source": {
+        "source": "github",
+        "repo": "vestfoldfylke/claude-code-skills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "faseflyt@claude-code-skills": true
+  },
+  "permissions": {
+    "allow": [
+      "Read(~/.claude/plugins/cache/claude-code-skills/**/.claude-plugin/**)",
+      "Read(~/.claude/plugins/marketplaces/claude-code-skills/**/.claude-plugin/**)",
+      "Bash(git status:*)",
+      "Bash(git log:*)"
+    ],
+    "deny": [
+      "Bash(npx playwright:*)",
+      "Bash(npx puppeteer:*)",
+      "Bash(npm install*playwright*)",
+      "Bash(npm install*puppeteer*)"
+    ]
+  }
+}

@@ -18,6 +18,7 @@ Fase 1 ikke maler oss inn i et hjørne.
 
 - **Beslutning (SR, formål):** Kombinasjon: ansatt-katalog + ukeplan-visning — appen skal på sikt erstatte Excel, ikke bare visualisere den.
 - **Beslutning (SR, database):** Utsettes — bruker sjekker om SQLite/Node-pakker kan installeres på Vestfold-maskinen. Fase 1 bruker JSON-filer, database introduseres i Fase 3.
+- **Beslutning (SR, database 2026-09-30):** Ingen tilgang til database nå, så data lagres i JSON-filer inntil videre. Fase 3 (SQLite/Prisma) kan ikke startes før tilgang er avklart; Fase 2 er upåvirket.
 - **Beslutning (SR, omfang):** Bygges i faser (Fase 1 MVP først), ikke alt på én gang.
 - **Beslutning (SR, Fase 1-scope):** Bare ukeplan-visning per team i Fase 1. «Min plan», admin-CRUD, endringsflyt og SSO kommer i senere faser.
 - **Beslutning (SR, auth Fase 1+2):** «Velg deg selv»-dropdown til Entra SSO er på plass. Enklest å teste med flere identiteter under utvikling.

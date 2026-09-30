@@ -43,3 +43,6 @@ next-env.d.ts
 # persondata (navn, e-post, fravær) — genereres med `npm run import`
 /data/
 *.xlsx
+
+# Claude Code (per maskin)
+.claude/settings.local.json

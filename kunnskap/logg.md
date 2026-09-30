@@ -1,6 +1,17 @@
 # Logg
 
-## 2026-09-30 — Fase 1: Ukeplan per team (skrevet, verifisering hos bruker)
+## 2026-09-30 — Fase 1: Ukeplan per team (skrevet, verifisering delvis hos bruker)
+
+**Etter verifisering (senere økt, samme dag):**
+- Bruker åpnet siden og så ukeplanen for Øst i uke 39: celler lå stablet loddrett i første dagskolonne. Årsak: `.celle` (`display: flex`) lå på `<td>`. Rettet ved å legge klassen på en `div` inni cellen (`components/UkeplanClient.tsx`). Bruker bekreftet «ble bra» på nytt skjermbilde.
+- Observert: merknaden «Samling 1.år bli kjent» over 23. sep kommer fra arket `Dager` i Excel (via `data/dager.json`). Bruker hadde selv lagt den inn.
+- Faseflyt-oppsettet ble fullført i `app/`: `sikkerhet.md`, `arkitektur.md`, `TODO.md`, `.claude/settings.json`, `.claude/skills/README.md`, faseflyt-avsnitt i `CLAUDE.md`.
+- **Beslutning (SR, database 2026-09-30):** ingen databasetilgang nå, så JSON i `data/` inntil videre. Blokkerer bare Fase 3.
+- **Beslutning (Claude, persondata):** løsningen skal ende med reelle persondata i appen, så den er ikke en ren prototype. Behandlingsgrunnlag er ført som `TODO.md` punkt 1. Persondata-deny-settet (`Read(data/**)` m.fl.) er tilbudt, ikke skrevet.
+- Ikke verifisert: uke 32 (Syk), uke 41, team Vest/Begge, Ansatte-fanen, årsskifte 2026→2027. Bruker svarte at de ikke hadde fått beskjed om å sjekke dette (økten startet i mappa over `app/`, så STATUS-listen ble aldri lest). Fasen kollapses derfor ikke i planen ennå.
+- Funn: fase-start ble kjørt fra mappa over `app/` og fant ingen STATUS. Repoet og `kunnskap/` ligger i `app/`.
+- Sjekk: `tsc --noEmit` og `npm run lint` rene rett etter celle-rettelsen; `npm run build` kjørt i fase-slutt: OK (kompilerte, 3 sider generert).
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 2 treff. `data/` og `*.xlsx` er ikke tracket. Ny STATUS: 32 linjer.
 
 **Levert:**
 - `npm run import` (`scripts/import-excel.mjs`) leser Excel-fila og skriver `data/ansatte|endringer|dager|lokasjoner.json` (47 / 303 / 20 / 14 rader).
