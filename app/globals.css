@@ -36,6 +36,8 @@ body {
 }
 
 .page-shell {
+  /* body er flex-kolonne: uten width krymper auto-marg sidebredden til innholdet. */
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 40px 20px 64px;
@@ -380,7 +382,14 @@ tbody tr:nth-child(even) {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  min-width: 900px;
+  /* Fast layout: kolonnebredden følger ikke innholdet, så den endres ikke fra uke til uke. */
+  table-layout: fixed;
+  min-width: 880px;
+}
+
+.ukeplan-table th,
+.ukeplan-table td {
+  overflow-wrap: anywhere;
 }
 
 .ukeplan-table th,
@@ -402,7 +411,7 @@ tbody tr:nth-child(even) {
 }
 
 .ukeplan-table .col-person {
-  min-width: 180px;
+  width: 190px;
   background: var(--panel);
   position: sticky;
   left: 0;
@@ -415,13 +424,10 @@ tbody tr:nth-child(even) {
 }
 
 .ukeplan-table .col-home {
-  min-width: 130px;
+  width: 140px;
   color: var(--muted);
 }
 
-.ukeplan-table .col-day {
-  min-width: 130px;
-}
 
 .day-head {
   display: flex;
@@ -537,6 +543,125 @@ tbody tr:nth-child(even) {
   padding: 24px;
 }
 
+/* --- Månedsoversikt --- */
+
+.forklaring {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.forklaring li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.maaned-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  min-width: 0;
+}
+
+.maaned-table th,
+.maaned-table td {
+  padding: 6px 0;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.maaned-table .col-person {
+  width: 150px;
+  padding: 6px 8px;
+  text-align: left;
+  background: var(--panel);
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  box-shadow: 1px 0 0 var(--border);
+}
+
+.maaned-table thead th {
+  background: var(--panel-alt);
+}
+
+.maaned-table thead .col-person {
+  z-index: 3;
+}
+
+.maaned-table .person-name {
+  font-size: 0.85rem;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.maaned-table .col-mdag--uke {
+  border-left: 2px solid var(--border);
+}
+
+.mdag-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.15;
+  font-size: 0.72rem;
+}
+
+.mdag-navn {
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.mdag-nr {
+  color: var(--heading);
+  font-weight: 700;
+}
+
+.mdag-merke {
+  width: 6px;
+  height: 6px;
+  margin-top: 2px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.prikk {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+.prikk--lokasjon {
+  background: #d9e3ec;
+}
+
+.prikk--endring-lokasjon {
+  background: #5b9bd5;
+}
+
+.prikk--endring-status {
+  background: #f2c94c;
+}
+
+.prikk--fri {
+  background: #9ab548;
+}
+
+.prikk--utenfor {
+  background: repeating-linear-gradient(45deg, #f6f6f6, #f6f6f6 3px, #dcdcdc 3px, #dcdcdc 6px);
+}
+
 /* --- Responsivt --- */
 
 @media (max-width: 768px) {
@@ -561,8 +686,60 @@ tbody tr:nth-child(even) {
   }
 }
 
+@media (max-width: 768px) {
+  .page-shell {
+    padding: 20px 12px 40px;
+  }
+
+  .ukeplan-toolbar {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .ukeplan-table {
+    min-width: 540px;
+  }
+
+  .ukeplan-table .col-person {
+    width: 112px;
+  }
+
+  .ukeplan-table th,
+  .ukeplan-table td {
+    padding: 8px 6px;
+    font-size: 0.82rem;
+  }
+
+  /* Fast lokasjon vises allerede i cellene; kolonnen tar for mye plass på smal skjerm. */
+  .ukeplan-table .col-home {
+    display: none;
+  }
+
+  .celle {
+    padding: 6px;
+  }
+
+  .maaned-table {
+    min-width: 640px;
+  }
+
+  .maaned-table .col-person {
+    width: 96px;
+  }
+}
+
 @media (max-width: 480px) {
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+
+  .select-field {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .uke-btn {
+    flex: 1 1 auto;
+    padding: 12px 10px;
   }
 }

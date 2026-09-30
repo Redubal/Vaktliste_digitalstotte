@@ -151,6 +151,8 @@ Skriptet er idempotent — kjøres på nytt hver gang Excel oppdateres. Excel-fi
 5. **Ansatte-tab:** Klikk «Ansatte». Dagens visning (søk, team-filter, statistikk-kort, tabell) skal fungere uendret.
 6. **Uke-navigering:** «Forrige/neste uke» beveger seg riktig én uke om gangen. «I dag»-knappen hopper til inneværende ISO-uke. Prøv å navigere over årsskiftet 2026→2027 for å sjekke ISO-uke-håndtering.
 7. **Type-check:** `npx tsc --noEmit` og `npm run lint` uten feil.
+8. **Måned-fane (lagt til 2026-09-30):** «Måned» viser rutenett per hverdag med forklaring; Team og Forrige/Neste/I dag virker. Fra måned til måned og mellom fanene Ukeplan, Måned og Ansatte skal sidebredden og kolonnene ikke endre seg.
+9. **Mobil:** på smal skjerm (F12, mobilvisning) scroller tabellene sidelengs med navnekolonnen stående, og knappene er lette å trykke på.
 
 ### Åpent, følges opp i Fase 2+
 

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Vaktliste — Digitale tjenester",
+  title: "Digital Støtte - Vaktlista",
   description: "Ukeplan og ansatt-katalog for team Øst og Vest, Vestfold fylkeskommune.",
 };
 

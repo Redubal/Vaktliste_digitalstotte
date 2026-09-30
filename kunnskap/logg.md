@@ -1,5 +1,18 @@
 # Logg
 
+## 2026-09-30 (senere økt) — Fase 1: data normalisert, månedsvisning, layout
+
+- Levert: `data/*.json` er nå fem tabeller (`brukere`, `lokasjoner`, `oppsett`, `endringer`, `dager`) med `id` og fremmednøkler, `null` for tomt og `HH:MM` for klokkeslett. `lib/vaktlista.ts` slår dem sammen til `Ansatt`/`Endring` for UI. Sammenlignet mot gamle filer: 0 avvik (47 ansatte, 303 endringer).
+- Levert: fane «Måned» (`components/MaanedClient.tsx`, `beregnMaaned` i `lib/ukeplan.ts`); ukeplanen bruker nå de samme cellefunksjonene. Fast tabellbredde (`table-layout: fixed`), `width: 100%` på `.page-shell`, mobilregler. «Kilde: Excel-arbeidsbok» fjernet, ny overskrift «Digital Støtte - Vaktlista».
+- **Beslutning (bruker, team):** team er bare Øst og Vest; importen stopper på alt annet.
+- **Beslutning (bruker, lokasjoner):** bare lokasjoner fra arket Lokasjoner gjelder, PUS fjernes (tre endringer får lokasjonId null). Tolkning av «stor forbokstav»: navn får stor forbokstav ved import.
+- Funn (belegg: importkjøring): Excel bruker rad-id-er flere ganger (OST-0232 tre ganger, 0234, 0238, 0241). Nye rader får suffiks; bør rettes i Excel.
+- Funn (hypotese, ikke sett i nettleser): sidebredden var ulik mellom faner fordi `body` er flex-kolonne og `margin: 0 auto` krymper siden til innholdet. `width: 100%` er lagt til, men brukeren har ikke bekreftet.
+- Remote satt opp: https://github.com/Redubal/Vaktliste_digitalstotte.git, `master` pushet (7b08521 = data-normaliseringen).
+- Ikke verifisert hos bruker: Måned-fanen, lik bredde mellom faner og uker, mobilvisning, og restlisten fra forrige innslag.
+- Sjekk: `tsc --noEmit`, `npm run lint` og `npm run build` grønne etter månedsvisningen; etterpå bare overskriftstekst, der `tsc` og `lint` ble kjørt grønt. Ikke kjørt på nytt i fase-slutt.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 2 treff. `data/` og `*.xlsx` er ikke tracket. Ny STATUS: 33 linjer.
+- fase-slutt: 15:12–15:14, 2 min.
 ## 2026-09-30 — Fase 1: Ukeplan per team (skrevet, verifisering delvis hos bruker)
 
 **Etter verifisering (senere økt, samme dag):**

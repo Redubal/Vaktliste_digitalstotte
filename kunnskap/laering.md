@@ -1,5 +1,19 @@
 # Læringslogg
 
+## 2026-09-30 (senere økt) — Fase 1, data og layout
+
+**Evaluering av forrige økts punkter:**
+- `[celle-på-td]` fulgt (månedsvisningen la stilen på `span`/`div` inni `td`/`th`) — strykes som innarbeidet
+- `[dev-server-først]` ikke utløst (ingen dev-server startet) — videreføres, Fase 2 kan utløse det
+- `[persondata-i-plan]` ikke utløst (ingen nytt register, bare omstrukturering av eksisterende, `data/` fortsatt ignorert) — videreføres, Fase 3 kan utløse det
+
+**Nye punkter:**
+- `[lange-edits-via-fil]` Lange kodeendringer gjøres med Write/Edit, ikke som `node -e` med sitert kode i Bash. Belegg: en slik kommando med enkeltanførselstegn i innholdet ga «unexpected EOF» og ingenting ble kjørt; det kostet en ekstra runde.
+
+**Fasesnitt:** økten fikk plass uten `/compact`. Snittet holder.
+
+Issue til pakkerepoet: ikke aktuelt.
+
 ## 2026-09-30 — Fase 1, delvis verifisering
 
 **Evaluering av forrige økts punkter:**

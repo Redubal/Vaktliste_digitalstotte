@@ -52,6 +52,36 @@ function inActivePeriod(person: Ansatt, dagIso: string): boolean {
   return true;
 }
 
+function godkjentePerPerson(endringer: Endring[]): Map<string, Endring[]> {
+  const map = new Map<string, Endring[]>();
+  for (const e of endringer) {
+    if (e.status !== "Godkjent") continue;
+    const arr = map.get(e.personId);
+    if (arr) arr.push(e);
+    else map.set(e.personId, [e]);
+  }
+  return map;
+}
+
+function beregnCelle(person: Ansatt, dagIso: string, personEndringer: Endring[]): UkeplanCelle {
+  if (!inActivePeriod(person, dagIso)) {
+    return { iso: dagIso, primær: "—", utenforPeriode: true };
+  }
+  const match = personEndringer.find((e) => overlapsDate(e.fromDate, e.toDate, dagIso));
+  if (match) return { iso: dagIso, primær: endringLabel(match), endring: match };
+  return { iso: dagIso, primær: person.location || "—" };
+}
+
+function sorterAnsatte(ansatte: Ansatt[], team: TeamFilter): Ansatt[] {
+  return [...ansatte].sort((a, b) => {
+    if (team === "Begge" && a.team !== b.team) return a.team.localeCompare(b.team, "nb");
+    const ao = a.sortOrder ?? Number.POSITIVE_INFINITY;
+    const bo = b.sortOrder ?? Number.POSITIVE_INFINITY;
+    if (ao !== bo) return ao - bo;
+    return a.name.localeCompare(b.name, "nb");
+  });
+}
+
 export function beregnUkeplan(opts: {
   team: TeamFilter;
   aar: number;
@@ -73,42 +103,14 @@ export function beregnUkeplan(opts: {
     }
   }
 
-  const godkjentePerPerson = new Map<string, Endring[]>();
-  for (const e of opts.endringer) {
-    if (e.status !== "Godkjent") continue;
-    const arr = godkjentePerPerson.get(e.personId);
-    if (arr) arr.push(e);
-    else godkjentePerPerson.set(e.personId, [e]);
-  }
+  const endringerPerPerson = godkjentePerPerson(opts.endringer);
 
-  const rader: UkeplanRad[] = opts.ansatte
+  const rader: UkeplanRad[] = sorterAnsatte(opts.ansatte, opts.team)
     .filter((p) => opts.team === "Begge" || p.team === opts.team)
-    .filter((p) => {
-      const week = dagIso.some((d) => inActivePeriod(p, d));
-      return week;
-    })
-    .sort((a, b) => {
-      if (opts.team === "Begge" && a.team !== b.team) {
-        return a.team.localeCompare(b.team, "nb");
-      }
-      const ao = a.sortOrder ?? Number.POSITIVE_INFINITY;
-      const bo = b.sortOrder ?? Number.POSITIVE_INFINITY;
-      if (ao !== bo) return ao - bo;
-      return a.name.localeCompare(b.name, "nb");
-    })
+    .filter((p) => dagIso.some((d) => inActivePeriod(p, d)))
     .map((person) => {
-      const personEndringer = godkjentePerPerson.get(person.id) ?? [];
-      const celler: UkeplanCelle[] = dagIso.map((di) => {
-        if (!inActivePeriod(person, di)) {
-          return { iso: di, primær: "—", utenforPeriode: true };
-        }
-        const match = personEndringer.find((e) => overlapsDate(e.fromDate, e.toDate, di));
-        if (match) {
-          return { iso: di, primær: endringLabel(match), endring: match };
-        }
-        return { iso: di, primær: person.location || "—" };
-      });
-      return { person, celler };
+      const personEndringer = endringerPerPerson.get(person.id) ?? [];
+      return { person, celler: dagIso.map((di) => beregnCelle(person, di, personEndringer)) };
     });
 
   return {
@@ -145,4 +147,52 @@ export function nesteUke(aar: number, uke: number): { aar: number; uke: number }
   const next = addDays(isoWeekToMonday(aar, uke), 7);
   const { year, week } = isoWeek(next);
   return { aar: year, uke: week };
+}
+
+export type Maaned = {
+  aar: number;
+  maaned: number; // 1–12
+  dager: Date[]; // man–fre
+  merknader: string[][];
+  rader: UkeplanRad[];
+};
+
+/** Forenklet månedsoversikt: samme celleregler som ukeplanen, men bare hverdager og én rad per person. */
+export function beregnMaaned(opts: {
+  team: TeamFilter;
+  aar: number;
+  maaned: number;
+  ansatte: Ansatt[];
+  endringer: Endring[];
+  dager: Dag[];
+}): Maaned {
+  const dager: Date[] = [];
+  for (let d = new Date(Date.UTC(opts.aar, opts.maaned - 1, 1)); d.getUTCMonth() === opts.maaned - 1; d = addDays(d, 1)) {
+    const dow = d.getUTCDay();
+    if (dow !== 0 && dow !== 6) dager.push(d);
+  }
+  const dagIso = dager.map(iso);
+
+  const merknader: string[][] = dagIso.map((di) =>
+    opts.dager.filter((d) => overlapsDate(d.fromDate, d.toDate, di)).map((d) => d.comment),
+  );
+
+  const endringerPerPerson = godkjentePerPerson(opts.endringer);
+  const rader: UkeplanRad[] = sorterAnsatte(opts.ansatte, opts.team)
+    .filter((p) => opts.team === "Begge" || p.team === opts.team)
+    .filter((p) => dagIso.some((d) => inActivePeriod(p, d)))
+    .map((person) => {
+      const personEndringer = endringerPerPerson.get(person.id) ?? [];
+      return { person, celler: dagIso.map((di) => beregnCelle(person, di, personEndringer)) };
+    });
+
+  return { aar: opts.aar, maaned: opts.maaned, dager, merknader, rader };
+}
+
+export function forrigeMaaned(aar: number, maaned: number): { aar: number; maaned: number } {
+  return maaned === 1 ? { aar: aar - 1, maaned: 12 } : { aar, maaned: maaned - 1 };
+}
+
+export function nesteMaaned(aar: number, maaned: number): { aar: number; maaned: number } {
+  return maaned === 12 ? { aar: aar + 1, maaned: 1 } : { aar, maaned: maaned + 1 };
 }

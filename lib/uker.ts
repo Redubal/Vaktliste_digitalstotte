@@ -96,6 +96,10 @@ export function formatDayNumber(date: Date): string {
   return `${date.getUTCDate()}. ${NB_MONTHS_SHORT[date.getUTCMonth()]}`;
 }
 
+export function formatMonthName(aar: number, maaned: number): string {
+  return `${NB_MONTHS_LONG[maaned - 1]} ${aar}`;
+}
+
 export function formatWeekRange(monday: Date): string {
   const friday = addDays(monday, 4);
   const sameMonth = monday.getUTCMonth() === friday.getUTCMonth();

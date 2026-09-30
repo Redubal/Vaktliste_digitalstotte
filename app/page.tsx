@@ -1,3 +1,4 @@
+import { MaanedClient } from "@/components/MaanedClient";
 import { Tabs } from "@/components/Tabs";
 import { UkeplanClient } from "@/components/UkeplanClient";
 import { VaktlisteClient } from "@/components/VaktlisteClient";
@@ -14,10 +15,9 @@ export default function Home() {
     <main className="page-shell">
       <header className="page-header">
         <div>
-          <p className="eyebrow">Vaktliste • Vestfold</p>
-          <h1>Digitale tjenester 2026/2027</h1>
+          <p className="eyebrow">Digitale tjenester 2026/2027</p>
+          <h1>Digital Støtte - Vaktlista</h1>
         </div>
-        <div className="badge">Kilde: Excel-arbeidsbok</div>
       </header>
 
       <Tabs
@@ -28,6 +28,13 @@ export default function Home() {
             label: "Ukeplan",
             content: (
               <UkeplanClient ansatte={ansatte} endringer={endringer} dager={dager} />
+            ),
+          },
+          {
+            id: "maaned",
+            label: "Måned",
+            content: (
+              <MaanedClient ansatte={ansatte} endringer={endringer} dager={dager} />
             ),
           },
           {
