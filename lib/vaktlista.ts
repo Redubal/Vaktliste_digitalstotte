@@ -9,6 +9,12 @@ export type Bruker = {
   id: string;
   name: string;
   upn: string | null;
+  /**
+   * Admintilgang, bevisst atskilt fra jobbrollen i `Oppsett.role`.
+   * Valgfri i typen fordi eksisterende datafiler er skrevet uten feltet.
+   * Byttes mot en Entra-gruppe når SSO kommer.
+   */
+  erAdministrator?: boolean;
 };
 
 export type Lokasjon = {
@@ -63,6 +69,7 @@ export type Ansatt = {
   comment: string;
   upn: string;
   sortOrder: number | null;
+  erAdministrator: boolean;
 };
 
 export type Endring = {
@@ -130,6 +137,7 @@ export function getAnsatte(): Ansatt[] {
           comment: o.comment ?? "",
           upn: bruker.upn ?? "",
           sortOrder: o.sortOrder,
+          erAdministrator: bruker.erAdministrator === true,
         },
       ];
     })

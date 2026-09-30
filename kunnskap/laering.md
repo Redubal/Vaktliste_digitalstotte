@@ -1,5 +1,20 @@
 # Læringslogg
 
+## 2026-09-30 (kveldsøkt) — Admin planlagt, Fase 2 skrevet
+
+**Evaluering av forrige økts punkter:**
+- `[dev-server-først]` fulgt (porten ble sjekket med `netstat` før noe ble startet) — strykes som innarbeidet
+- `[persondata-i-plan]` fulgt (planen sier at `data/` og sikkerhetskopiene står utenfor git, og Claude leste aldri `data/`) — strykes som innarbeidet
+- `[lange-edits-via-fil]` fulgt (all kode skrevet med Write/Edit) — strykes som innarbeidet
+
+**Nye punkter:**
+- `[historikk-omskriving-push-først]` Før historikk skrives om, avklar at den nye kan sendes ut. Belegg: `filter-branch` kjørte, men force-pushen ble blokkert, så lokal og GitHub spriker 6/6 og vanlig push avvises.
+- `[rammen-først]` Når brukeren nevner Excel som kilde, spør om Excel fortsatt er fasit før datamodellen planlegges. Belegg: hele første planutkast og designoppdraget bygde på at Excel var fasit; bruker måtte rette det to ganger.
+
+**Fasesnitt:** økten fikk plass uten `/compact`, men rommet planlegging, historikkrydding og ikke-verifisert kode. Fase 2 er liten nok. Planen er snittet i seks små faser, se `plan.md`.
+
+Issue til pakkerepoet: ikke aktuelt.
+
 ## 2026-09-30 (senere økt) — Fase 1, data og layout
 
 **Evaluering av forrige økts punkter:**

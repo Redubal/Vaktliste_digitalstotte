@@ -1,5 +1,22 @@
 # Logg
 
+## 2026-09-30 (kveldsøkt) — Admin planlagt, Fase 2 skrevet (verifisering hos bruker)
+
+- Levert: plan for admin-grensesnitt godkjent (Fase 2–7 i `plan.md`, ny datamodell i `arkitektur.md`). Fase 2 kodet: identitetsvelger (`components/IdentitetsVelger.tsx`, kapsel `vaktliste-identitet`, `lib/identitet.ts`), `erAdministrator` på bruker (`lib/vaktlista.ts`), fanene velges på serveren i `app/page.tsx` (Ansatte-fane bare for admin), `/admin` (`app/admin/page.tsx`) som sender andre tilbake til forsiden.
+- **Beslutning (bruker, ramme):** appen får en egen datamodell og kopierer ikke Excel. Excel blir en engangsinnlasting. Begrunnelse fra bruker: «vi skal bygge noe nytt, men med samme funksjonalitet». Claude hadde først lagt til grunn at Excel fortsatt var fasit; rettet underveis.
+- **Beslutning (bruker, admintilgang):** eget felt på brukeren, atskilt fra jobbrolle. Ståle og Espen er administratorer, alle andre ansatt.
+- **Beslutning (bruker, sletting):** nektes når raden er i bruk, med beskjed om hvem som bruker den.
+- **Beslutning (bruker, Ansatte i admin):** kan endre rolle og team. Legge til og fjerne kommer fra Entra.
+- **Beslutning (bruker, Fast lokasjon):** ikke egen kolonne, det er standard arbeidssted og vises allerede i cellene. Ført i `TODO.md` punkt 2.
+- **Beslutning (bruker, e-post i historikken):** jobbadressen skulle ut av commitene, siden GitHub ikke skal brukes i fylket. Seks commits omskrevet lokalt med `git filter-branch`.
+- Funn (observert, git): etter omskrivingen spriker lokal historikk og `origin/master` 6/6. `git push --force-with-lease` ble blokkert av Claude Code. GitHub har fortsatt de gamle commitene med jobbadressen.
+- Funn (observert, måling): Node 26.8.2 på denne maskinen importerer `.ts` direkte. STATUS påsto det motsatte; rettet. Det lar valideringen deles mellom appen og innlastingsskriptet.
+- Funn (observert, curl mot kjørende dev-server): velgeren rendres, og `/admin` svarer 307 uten valgt identitet.
+- Funn (hypotese): bruker meldte «admin fungerer ikke». Mest sannsynlig er ingen identitet valgt i nedtrekkslisten, eller `erAdministrator` ikke satt i `brukere.json`. Avgjøres ved å telle flagget i fila (kommando gitt til bruker, svar ikke mottatt).
+- Sjekk: `tsc --noEmit` og `npm run lint` grønne etter siste kodeendring. Etterpå bare `TODO.md` og `kunnskap/`; ikke kjørt på nytt.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 2 treff. `data/` har 0 tracket filer. Ny STATUS: 34 linjer. `plan.md` er 173 linjer (over 150) og kollapses når Fase 1 er verifisert.
+- fase-slutt: 21:21–21:22, 1 min.
+
 ## 2026-09-30 (senere økt) — Fase 1: data normalisert, månedsvisning, layout
 
 - Levert: `data/*.json` er nå fem tabeller (`brukere`, `lokasjoner`, `oppsett`, `endringer`, `dager`) med `id` og fremmednøkler, `null` for tomt og `HH:MM` for klokkeslett. `lib/vaktlista.ts` slår dem sammen til `Ansatt`/`Endring` for UI. Sammenlignet mot gamle filer: 0 avvik (47 ansatte, 303 endringer).

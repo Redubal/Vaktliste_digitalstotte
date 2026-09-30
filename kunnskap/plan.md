@@ -34,6 +34,18 @@ Fase 1 ikke maler oss inn i et hjørne.
 | 4 | Entra ID SSO (NextAuth med Azure AD-provider). Bytter dropdown mot ekte identitet. Admin-gruppe styres i Entra. | SQLite |
 | 5 | Deploy (Azure App Service eller lignende Vestfold-godkjent hosting). Backup-strategi for SQLite-fila, eller migrering til PostgreSQL. | SQLite → evt. Postgres |
 
+### Admin-fasene (godkjent 2026-09-30, erstatter rekkefølgen i tabellen over)
+
+**Beslutning (bruker, ramme):** appen får egen datamodell (se `arkitektur.md`), Excel er en engangsinnlasting. Gamle Fase 2 («Min plan») skyves bak disse, og Fase 3–5 i tabellen (SQLite, Entra, deploy) kommer etterpå.
+Ansatt ser bare Ukeplan og Måned. Administrator (Ståle, Espen) ser i tillegg Ansatte og Admin. Legge til endringer tas senere.
+
+- **Fase 2 — Hvem er du.** Skrevet 2026-09-30. `### Verifisering:` Velg deg selv i nedtrekkslisten: du ser Ukeplan, Måned, Ansatte og en Admin-knapp. Velg en kollega som ikke er administrator: Ansatte og Admin er borte, og http://localhost:3000/admin sender deg til forsiden. (Krever `"erAdministrator": true` på deg i `data/brukere.json`.)
+- **Fase 3 — Lokasjoner kan redigeres.** Skrivelaget bygges her (`lib/domene.ts`, `lib/lager.ts`, `app/admin/handlinger.ts`). Verifisering: legg til, endre og slett en lokasjon i Admin; endringen vises i Ansatte; sletting av en lokasjon i bruk nektes med beskjed om hvem som bruker den.
+- **Fase 4 — Roller.** Ny tabell, `rolleId` på oppsett. Verifisering: rollene fra dagens data vises i Admin; nytt navn slår gjennom i Ansatte; rolle i bruk kan ikke slettes.
+- **Fase 5 — Endringstyper og statuser.** Rører ukeplanberegningen (`lib/ukeplan.ts:58` og `:129`). Verifisering: ukeplanen ser ut som før; døp om «Godkjent» og planen er uendret; skru av «vises i plan» og radene forsvinner; ny type med kategori «fravær» får fri-farge.
+- **Fase 6 — Team.** Tyngst: `Team` fra union til data, «Begge» blir filter. Berører `vaktlista.ts`, `ukeplan.ts`, begge klientfilene og de to team-kortene i `VaktlisteClient.tsx`. Felle: objektnøkkel `acc[person.team]` ved `:28` må bli `team.id`. Verifisering: alt ser ut som før; nytt tredje team i Admin dukker opp i teamvelgeren.
+- **Fase 7 — Ansattes rolle, team og lokasjon.** Verifisering: endre team på en ansatt, og personen flytter seg i Ukeplan med en gang.
+
 ---
 
 ## Fase 1 — Ukeplan-visning per team (denne planen)

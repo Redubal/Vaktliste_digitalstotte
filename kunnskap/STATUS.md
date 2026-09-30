@@ -4,30 +4,31 @@
 **Gjenstående:** `TODO.md` i rotkatalogen
 
 ## Tilstand
-Fase 1 (ukeplan per team) er skrevet, men ikke ferdig verifisert. Bruker har sett Øst i uke 39. Senere i fasen kom: data normalisert til fem JSON-tabeller, fane «Måned», fast tabellbredde, mobilregler og ny overskrift. Gjenstår hos bruker: uke 32 («Syk»), uke 41 (høstferie), team Vest/Begge, Ansatte-fane, årsskifte, Måned-fanen, lik bredde mellom faner/uker, mobilvisning (se plan.md Verifisering 1–9).
+Fase 1 (ukeplan per team) er skrevet, men ikke ferdig verifisert (se plan.md Verifisering 1–9: uke 32, uke 41, Vest/Begge, årsskifte, Måned, lik bredde, mobil).
+Admin er planlagt (plan.md, «Admin-fasene», datamodell i arkitektur.md). Fase 2 «Hvem er du» er skrevet: identitetsvelger, `erAdministrator`, serverstyrte faner og `/admin`. Bruker meldte «admin fungerer ikke»; årsaken er ikke funnet.
 Stack: Next.js 16.3.7 (nytt API, les `node_modules/next/dist/docs/` før kode), React 19, Tailwind v4.
-Git-repoet ligger i `app/`, remote: github.com/Redubal/Vaktliste_digitalstotte, gren `master`.
+Git-repoet ligger i `app/`, remote: github.com/Redubal/Vaktliste_digitalstotte (privat), gren `master`.
 
 ## Verifisert
-- `tsc --noEmit` og `npm run lint` rent etter siste kodeendring; `npm run build` kjørt i fase-slutt (se logg).
-- Ukeplan for Øst vises riktig med endring, «Fri» og skolekalender-merknad (bruker, uke 39).
-- Normaliserte data gir samme ansatte/endringer som før (0 avvik mot gamle filer).
+- `tsc --noEmit` og `npm run lint` rene etter siste kodeendring.
+- Identitetsvelgeren rendres, og `/admin` svarer 307 uten valgt identitet (curl mot dev-serveren).
+- Ukeplan for Øst vises riktig (bruker, uke 39). Normaliserte data: 0 avvik mot gamle filer.
 
 ## Neste
-Bruker sjekker resten av Fase 1 på http://localhost:3000 (plan.md Verifisering 1–9). Deretter: kollaps Fase 1 i planen og start Fase 2, «Min plan» + «Velg deg selv»-dropdown (planmodus først, fasen er ikke skissert i detalj i planen).
+Finn hvorfor admin ikke virker: bruker kjører `node -e "const b=require('./data/brukere.json'); console.log(b.filter(x=>x.erAdministrator===true).length+' av '+b.length)"` i `app/`. `0` = flagget mangler (skal stå som `true` uten anførselstegn på Ståle og Espen); `2` = velg deg selv i nedtrekkslisten. Deretter Fase 2-verifiseringen i plan.md, så Fase 3 (lokasjoner, skrivelaget).
 
 ## Arbeidsmåte neste økt
-- `[dev-server-først]` Sjekk om dev-server alt kjører på port 3000 før `npm run dev`.
-- `[persondata-i-plan]` Planer som importerer registre må avklare `.gitignore` for uttrekket.
-- `[lange-edits-via-fil]` Lange kodeendringer med Write/Edit, ikke `node -e` med sitert kode i Bash.
+- `[historikk-omskriving-push-først]` Før historikk skrives om: avklar at den kan sendes ut.
+- `[rammen-først]` Spør om Excel fortsatt er fasit før datamodell planlegges.
 
 ## Det en ny økt må vite
-- Åpne Claude Code i `app/`: repoet, `kunnskap/` og CLAUDE.md ligger der, mappa over er tom.
-- Excel-fila `Vaktliste_2026-2027_Team_Ost_og_Vest.xlsx` ligger i `app/` (ikke i git). `npm run import` regenererer `data/*.json` (fem tabeller med id/fremmednøkler, se plan.md Datamodell). Team er bare Øst/Vest; bare lokasjoner fra arket Lokasjoner gjelder; Excel gjenbruker noen rad-id-er (rettes i Excel).
-- Excel er source of truth i Fase 1; ukeplan-cellene regnes ut, importeres ikke. Merknader over datoene kommer fra arket `Dager`.
-- Bare endringer med status «Godkjent» vises i ukeplanen.
-- Persondata-regel: `data/` og xlsx er ikke i git.
-- Node-skript kan ikke importere `.ts` direkte (mangler filendelse); test via `next dev`/`build`.
-- Data har navn, e-post og sykefravær: aldri lim ekte rader inn i logg, STATUS eller plan.
-- Ingen database tilgjengelig nå: JSON i `data/` til SR sier fra (blokkerer Fase 3). Reelle persondata i appen krever avklart behandlingsgrunnlag, se `TODO.md` punkt 1.
+- **Git spriker:** jobbadressen ble byttet ut i seks commits lokalt (`filter-branch`), men force-push ble ikke gjort. Lokal og GitHub har hver sine 6 commits; vanlig `git push` avvises. Bruker velger: kjør `git push --force-with-lease` selv i Git Bash, eller `git reset --hard origin/master` og behold jobbadressen. Gammel historikk ligger som `refs/original/`. Repoet er satt til `mrredubal@gmail.com` lokalt.
+- Åpne Claude Code i `app/`: repoet, `kunnskap/` og CLAUDE.md ligger der.
+- **Ikke kjør `npm run import` nå:** den skriver over `data/brukere.json` og fjerner `erAdministrator`. Excel-fila `Vaktliste_2026-2027_Team_Ost_og_Vest.xlsx` ligger i `app/` (ikke i git).
+- Admin er egne sider under `/admin`, ikke en fane. Nye sider som leser fra disk trenger `export const dynamic = "force-dynamic"`.
+- «Velg deg selv» er ikke sikkerhet; hvem som helst kan velge en administrator. Erstattes av Entra.
+- Node 26.8.2 importerer `.ts` direkte (målt), så validering kan deles med innlastingsskriptet. Ingen imports i delte filer.
+- Bare endringer med status «Godkjent» vises i ukeplanen (hardkodet i `lib/ukeplan.ts:58`, omlegges i Fase 5).
+- Data har navn, e-post og sykefravær: aldri lim ekte rader inn i logg, STATUS eller plan; `data/` og xlsx er ikke i git.
+- Ingen database nå: JSON i `data/` (blokkerer SQLite). Reelle persondata i appen krever behandlingsgrunnlag, se `TODO.md` punkt 1. `TODO.md` punkt 2: fjern «Fast lokasjon»-kolonnen.
 - Persondata-deny-settet (`Read(data/**)` m.fl.) er tilbudt i `.claude/settings.json`, ikke besluttet.
