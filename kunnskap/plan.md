@@ -44,12 +44,15 @@ Vise ukeplanen for team Øst, Vest og Begge i en Excel-liknende tabell (personer
 
 ### Datamodell (som JSON i `app/data/`)
 
-Fire filer, alle genererte fra Excel-fila én gang av et importskript:
+Fem filer, genererte fra Excel-fila av importskriptet. Normalisert med surrogatnøkler (`id`) og fremmednøkler, slik at de kan lastes rett inn i en database (Fase 3):
 
-- `ansatte.json` — utvider dagens `vaktliste.json` med `id` (stabil kortnøkkel, f.eks. `ost-ismail`).
-- `endringer.json` — alle rader fra `Endringer Øst` + `Endringer Vest` sammenslått, med `status`, `person` (matches til `ansatte.id` ved navn), `fraDato`, `tilDato`, `type`, `nyLokasjon`, `kommentar`, `team`.
-- `dager.json` — skolekalender-merknader fra `Dager`-arket: `{fraDato, tilDato, kommentar}[]`.
-- `lokasjoner.json` — kanonisk lokasjonsliste fra `Lokasjoner`-arket med team-tilhørighet.
+- `brukere.json` — `{id, name, upn}`. `id` er navnet som slug (`ismail-x`), uten team, så en bruker kan bytte team.
+- `lokasjoner.json` — `{id, name, team}`.
+- `oppsett.json` — `{id, brukerId, team, role, lokasjonId, activeFrom, activeTo, sortOrder, comment}`: hvor og hvordan en bruker er satt opp i en periode. Én rad per bruker nå; flere rader per bruker gir historikk senere.
+- `endringer.json` — `{id, brukerId, lokasjonId, status, team, fromDate, toDate, fromTime, toTime, type, comment}`. `team` er arket raden ble registrert på. `id` er Excel-radId, med suffiks der Excel gjenbruker den.
+- `dager.json` — skolekalender-merknader: `{id, fromDate, toDate, comment}`.
+
+Tomme verdier er `null`, ikke `""`. `lib/vaktlista.ts` slår radene sammen til visningstypene `Ansatt` og `Endring` som UI-et bruker.
 
 Excel-datoer (serial numbers som `46300`) konverteres til ISO `YYYY-MM-DD` under import.
 
@@ -83,10 +86,7 @@ app/
   scripts/
     import-excel.mjs          # ny — kjøres med `npm run import`
   data/
-    ansatte.json              # erstatter vaktliste.json (samme innhold + id)
-    endringer.json            # ny
-    dager.json                # ny
-    lokasjoner.json           # ny
+    brukere.json, lokasjoner.json, oppsett.json, endringer.json, dager.json
   lib/
     vaktlista.ts              # utvid: getEmployees, getEndringer, getDager, getLokasjoner
     ukeplan.ts                # ny — beregner ukeplan for gitt team + uke
@@ -144,7 +144,7 @@ Skriptet er idempotent — kjøres på nytt hver gang Excel oppdateres. Excel-fi
 
 ### Verifisering
 
-1. **Import:** Kjør `npm run import` i `app/`. Kontroller at de fire JSON-filene genereres og at `endringer.json` inneholder rader fra begge team med gjenkjennelige `person`-referanser (navn matcher en `ansatte.id`).
+1. **Import:** Kjør `npm run import` i `app/`. Kontroller at de fem JSON-filene genereres og at `endringer.json` inneholder rader fra begge team der `brukerId` finnes i `brukere.json`.
 2. **Dev-server:** `npm run dev`, åpne http://localhost:3000.
 3. **Ukeplan-tab (default):** Uke 41 2026 (03.-09. oktober) skal vise «Høstferie skole»-badge over hele uka og alle Øst-ansatte på sine faste lokasjoner. Bytt team til Vest, deretter Begge, og bekreft at radene endres.
 4. **Endring flettes inn:** Naviger til en uke der en godkjent endring finnes (f.eks. Lukasz syk 03.-19. aug 2026, `OST-0001`). Cellene for Lukasz i den perioden skal vise «Syk» med badge-styling, ikke «Fylkeshuset».

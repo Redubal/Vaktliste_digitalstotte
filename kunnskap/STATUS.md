@@ -23,7 +23,7 @@ Bruker sjekker resten av Fase 1 på http://localhost:3000 (listen under Tilstand
 
 ## Det en ny økt må vite
 - Åpne Claude Code i `app/`: repoet, `kunnskap/` og CLAUDE.md ligger der, mappa over er tom.
-- Excel-fila `Vaktliste_2026-2027_Team_Ost_og_Vest.xlsx` ligger i `app/` (ikke i git). `npm run import` regenererer `data/*.json`.
+- Excel-fila `Vaktliste_2026-2027_Team_Ost_og_Vest.xlsx` ligger i `app/` (ikke i git). `npm run import` regenererer `data/*.json` (brukere, lokasjoner, oppsett, endringer, dager: normalisert for en senere database, se plan.md Datamodell).
 - Excel er source of truth i Fase 1; ukeplan-cellene regnes ut, importeres ikke. Merknader over datoene kommer fra arket `Dager`.
 - Bare endringer med status «Godkjent» vises i ukeplanen.
 - Node-skript kan ikke importere `.ts` direkte (mangler filendelse); test via `next dev`/`build`.

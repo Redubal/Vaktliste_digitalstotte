@@ -132,7 +132,7 @@ export function UkeplanClient({ ansatte, endringer, dager }: Props) {
                           celle.endring.type,
                           celle.endring.newLocation ? `→ ${celle.endring.newLocation}` : null,
                           celle.endring.comment || null,
-                          `(${celle.endring.radId})`,
+                          `(${celle.endring.id})`,
                         ]
                           .filter(Boolean)
                           .join(" ")
