@@ -1,6 +1,6 @@
 # Logg
 
-## 2026-09-30 (kveldsøkt) — Admin planlagt, Fase 2 skrevet (verifisering hos bruker)
+## 2026-09-30 (kveldsøkt) — Admin planlagt, Fase 2 ✅ og Fase 1 ✅ (mobilvisning utsatt)
 
 - Levert: plan for admin-grensesnitt godkjent (Fase 2–7 i `plan.md`, ny datamodell i `arkitektur.md`). Fase 2 kodet: identitetsvelger (`components/IdentitetsVelger.tsx`, kapsel `vaktliste-identitet`, `lib/identitet.ts`), `erAdministrator` på bruker (`lib/vaktlista.ts`), fanene velges på serveren i `app/page.tsx` (Ansatte-fane bare for admin), `/admin` (`app/admin/page.tsx`) som sender andre tilbake til forsiden.
 - **Beslutning (bruker, ramme):** appen får en egen datamodell og kopierer ikke Excel. Excel blir en engangsinnlasting. Begrunnelse fra bruker: «vi skal bygge noe nytt, men med samme funksjonalitet». Claude hadde først lagt til grunn at Excel fortsatt var fasit; rettet underveis.
@@ -12,10 +12,12 @@
 - Funn (observert, git): etter omskrivingen spriker lokal historikk og `origin/master` 6/6. `git push --force-with-lease` ble blokkert av Claude Code. GitHub har fortsatt de gamle commitene med jobbadressen.
 - Funn (observert, måling): Node 26.8.2 på denne maskinen importerer `.ts` direkte. STATUS påsto det motsatte; rettet. Det lar valideringen deles mellom appen og innlastingsskriptet.
 - Funn (observert, curl mot kjørende dev-server): velgeren rendres, og `/admin` svarer 307 uten valgt identitet.
-- Funn (hypotese): bruker meldte «admin fungerer ikke». Mest sannsynlig er ingen identitet valgt i nedtrekkslisten, eller `erAdministrator` ikke satt i `brukere.json`. Avgjøres ved å telle flagget i fila (kommando gitt til bruker, svar ikke mottatt).
-- Sjekk: `tsc --noEmit` og `npm run lint` grønne etter siste kodeendring. Etterpå bare `TODO.md` og `kunnskap/`; ikke kjørt på nytt.
-- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 2 treff. `data/` har 0 tracket filer. Ny STATUS: 34 linjer. `plan.md` er 173 linjer (over 150) og kollapses når Fase 1 er verifisert.
-- fase-slutt: 21:21–21:22, 1 min.
+- Funn (observert, måling): «admin fungerer ikke» var ikke kode. `data/brukere.json` var ikke lagret i editoren. Etter lagring ga `node -e` 3 av 47 med `erAdministrator`, og curl mot dev-serveren ga 200 på `/admin` med kapsel `stale` og 307 uten kapsel. Ingen kodeendring.
+- **Beslutning (bruker, Fase 2):** godkjent etter gjennomgang i nettleseren («Dette er ok»). Jens står som administrator sammen med Espen og Ståle; spørsmålet om det var tilsiktet ble ikke besvart uttrykkelig, og er ført som stående.
+- **Beslutning (bruker, Fase 1):** avsluttes sammen med Fase 2. Mobilvisningen trenger et bedre format; utsatt (forslag til `TODO.md`). Bruker rapporterte ikke verifiseringspunktene 3–6 og 8 ett og ett; avslutningen bygger på beskjeden «avslutt Fase 1 og 2».
+- Sjekk: `tsc --noEmit` og `npm run lint` kjørt grønne tidligere i økten, etterpå bare `kunnskap/`-filer; ikke kjørt på nytt. `npm run import` ble ikke kjørt (skriver over admin-flagget).
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 15 treff. `data/` har 0 tracket filer. Ny STATUS: 36 linjer. `plan.md` er 173 linjer (over 150) og kollapses når Fase 1 er godkjent for kollaps.
+- fase-slutt: 21:34–21:35, 1 min.
 
 ## 2026-09-30 (senere økt) — Fase 1: data normalisert, månedsvisning, layout
 
@@ -26,7 +28,7 @@
 - Funn (belegg: importkjøring): Excel bruker rad-id-er flere ganger (OST-0232 tre ganger, 0234, 0238, 0241). Nye rader får suffiks; bør rettes i Excel.
 - Funn (hypotese, ikke sett i nettleser): sidebredden var ulik mellom faner fordi `body` er flex-kolonne og `margin: 0 auto` krymper siden til innholdet. `width: 100%` er lagt til, men brukeren har ikke bekreftet.
 - Remote satt opp: https://github.com/Redubal/Vaktliste_digitalstotte.git, `master` pushet (7b08521 = data-normaliseringen).
-- Ikke verifisert hos bruker: Måned-fanen, lik bredde mellom faner og uker, mobilvisning, og restlisten fra forrige innslag.
+- Verifisert hos bruker i økten etterpå (se innslaget over), unntatt mobilvisning: den trenger et bedre format.
 - Sjekk: `tsc --noEmit`, `npm run lint` og `npm run build` grønne etter månedsvisningen; etterpå bare overskriftstekst, der `tsc` og `lint` ble kjørt grønt. Ikke kjørt på nytt i fase-slutt.
 - Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 2 treff. `data/` og `*.xlsx` er ikke tracket. Ny STATUS: 33 linjer.
 - fase-slutt: 15:12–15:14, 2 min.

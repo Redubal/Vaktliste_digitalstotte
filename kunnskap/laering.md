@@ -1,5 +1,18 @@
 # Læringslogg
 
+## 2026-09-30 (avslutning Fase 1 og 2) — Admin verifisert
+
+**Evaluering av forrige økts punkter:**
+- `[historikk-omskriving-push-først]` ikke utløst (ingen historikk skrevet om) — videreføres, git-valget ligger fortsatt åpent
+- `[rammen-først]` ikke utløst (ingen datamodell planlagt) — videreføres, Fase 3 kan utløse det
+
+**Nye punkter:**
+- `[status-i-undermappe]` Finner `fase-start` ikke `kunnskap/STATUS.md`, let i undermapper (`*/kunnskap/STATUS.md`) og si hvor den ligger, før `nytt-prosjekt` foreslås. Belegg: økten ble åpnet i rotkatalogen, `fase-start` foreslo oppsett, brukeren kalte `nytt-prosjekt`, og prosjektet lå ferdig i `app/`. Oppsettet ble stoppet før noe ble skrevet.
+
+**Fasesnitt:** Fase 1 og 2 fikk plass i én økt uten `/compact`. «Admin fungerer ikke» var en `brukere.json` som ikke var lagret i editoren; ingen kodeendring.
+
+Issue til pakkerepoet: godkjent av bruker, men ikke opprettet (`gh` er ikke installert på maskinen). Tekst: «fase-start bør lete i undermapper (`*/kunnskap/STATUS.md`) før den foreslår nytt oppsett».
+
 ## 2026-09-30 (kveldsøkt) — Admin planlagt, Fase 2 skrevet
 
 **Evaluering av forrige økts punkter:**

@@ -4,22 +4,24 @@
 **Gjenstående:** `TODO.md` i rotkatalogen
 
 ## Tilstand
-Fase 1 (ukeplan per team) er skrevet, men ikke ferdig verifisert (se plan.md Verifisering 1–9: uke 32, uke 41, Vest/Begge, årsskifte, Måned, lik bredde, mobil).
-Admin er planlagt (plan.md, «Admin-fasene», datamodell i arkitektur.md). Fase 2 «Hvem er du» er skrevet: identitetsvelger, `erAdministrator`, serverstyrte faner og `/admin`. Bruker meldte «admin fungerer ikke»; årsaken er ikke funnet.
+Fase 1 (ukeplan per team og Måned) og Fase 2 («Hvem er du») er ✅ verifisert av bruker 2026-09-30. Forbehold: mobilvisningen trenger et bedre format (utsatt, `TODO.md`).
+«Admin fungerer ikke» var en `data/brukere.json` som ikke var lagret; ingen kodeendring. Administratorer: Espen, Ståle og Jens.
+Admin er planlagt i plan.md («Admin-fasene», datamodell i arkitektur.md). Neste fase er Fase 3.
 Stack: Next.js 16.3.7 (nytt API, les `node_modules/next/dist/docs/` før kode), React 19, Tailwind v4.
 Git-repoet ligger i `app/`, remote: github.com/Redubal/Vaktliste_digitalstotte (privat), gren `master`.
 
 ## Verifisert
-- `tsc --noEmit` og `npm run lint` rene etter siste kodeendring.
-- Identitetsvelgeren rendres, og `/admin` svarer 307 uten valgt identitet (curl mot dev-serveren).
+- `tsc --noEmit` og `npm run lint` rene (kjørt ved faseslutt).
+- `/admin` gir 200 med kapsel `vaktliste-identitet=stale` og 307 uten identitet (curl mot dev-serveren). Bruker bekreftet Fase 2-verifiseringen i nettleseren.
 - Ukeplan for Øst vises riktig (bruker, uke 39). Normaliserte data: 0 avvik mot gamle filer.
 
 ## Neste
-Finn hvorfor admin ikke virker: bruker kjører `node -e "const b=require('./data/brukere.json'); console.log(b.filter(x=>x.erAdministrator===true).length+' av '+b.length)"` i `app/`. `0` = flagget mangler (skal stå som `true` uten anførselstegn på Ståle og Espen); `2` = velg deg selv i nedtrekkslisten. Deretter Fase 2-verifiseringen i plan.md, så Fase 3 (lokasjoner, skrivelaget).
+Fase 3 — Lokasjoner kan redigeres i Admin. Skrivelaget bygges her (`lib/domene.ts`, `lib/lager.ts`, `app/admin/handlinger.ts`). Verifiseringen står i plan.md. Avgjør git-valget under først.
 
 ## Arbeidsmåte neste økt
 - `[historikk-omskriving-push-først]` Før historikk skrives om: avklar at den kan sendes ut.
 - `[rammen-først]` Spør om Excel fortsatt er fasit før datamodell planlegges.
+- `[status-i-undermappe]` Finner `fase-start` ikke STATUS: let i undermapper før `nytt-prosjekt` foreslås.
 
 ## Det en ny økt må vite
 - **Git spriker:** jobbadressen ble byttet ut i seks commits lokalt (`filter-branch`), men force-push ble ikke gjort. Lokal og GitHub har hver sine 6 commits; vanlig `git push` avvises. Bruker velger: kjør `git push --force-with-lease` selv i Git Bash, eller `git reset --hard origin/master` og behold jobbadressen. Gammel historikk ligger som `refs/original/`. Repoet er satt til `mrredubal@gmail.com` lokalt.

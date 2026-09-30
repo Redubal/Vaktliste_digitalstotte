@@ -27,3 +27,9 @@ Fjern kolonnen fra `components/UkeplanClient.tsx`, og vurder samtidig om
 `.col-home`-regelen i mobilvisningen kan gå ut. Sjekk om Måned-fanen har samme
 dobbeltføring. Meldt under Fase 2; hører hjemme i en egen liten fase eller som
 opprydding i en fase som uansett rører ukeplantabellen.
+
+## 3. Mobilvisning trenger et bedre format
+
+Ukeplan og Måned er tabeller som scroller sidelengs på smal skjerm.
+**Beslutning (bruker, 2026-09-30):** vi må finne et bedre format for mobil; tas
+etter Fase 3. Kom opp under verifiseringen av Fase 1, punkt 9.
