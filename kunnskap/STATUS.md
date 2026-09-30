@@ -16,7 +16,7 @@ Git-repoet ligger i `app/`, remote: github.com/Redubal/Vaktliste_digitalstotte (
 - Ukeplan for Øst vises riktig (bruker, uke 39). Normaliserte data: 0 avvik mot gamle filer.
 
 ## Neste
-Fase 3 — Lokasjoner kan redigeres i Admin. Skrivelaget bygges her (`lib/domene.ts`, `lib/lager.ts`, `app/admin/handlinger.ts`). Verifiseringen står i plan.md. Avgjør git-valget under først.
+Fase 3 — Lokasjoner kan redigeres i Admin. Skrivelaget bygges her (`lib/domene.ts`, `lib/lager.ts`, `app/admin/handlinger.ts`). Verifiseringen står i plan.md.
 
 ## Arbeidsmåte neste økt
 - `[historikk-omskriving-push-først]` Før historikk skrives om: avklar at den kan sendes ut.
@@ -24,7 +24,7 @@ Fase 3 — Lokasjoner kan redigeres i Admin. Skrivelaget bygges her (`lib/domene
 - `[status-i-undermappe]` Finner `fase-start` ikke STATUS: let i undermapper før `nytt-prosjekt` foreslås.
 
 ## Det en ny økt må vite
-- **Git spriker:** jobbadressen ble byttet ut i seks commits lokalt (`filter-branch`), men force-push ble ikke gjort. Lokal og GitHub har hver sine 6 commits; vanlig `git push` avvises. Bruker velger: kjør `git push --force-with-lease` selv i Git Bash, eller `git reset --hard origin/master` og behold jobbadressen. Gammel historikk ligger som `refs/original/`. Repoet er satt til `mrredubal@gmail.com` lokalt.
+- **Git er i orden:** jobbadressen er byttet ut i historikken (`filter-branch`). Bruker slettet GitHub-repoet og la det inn på nytt tomt, så `git push -u origin master` gikk gjennom uten force (2026-09-30). Gammel historikk ligger lokalt som `refs/original/`. Repoet er satt til `mrredubal@gmail.com` lokalt.
 - Åpne Claude Code i `app/`: repoet, `kunnskap/` og CLAUDE.md ligger der.
 - **Ikke kjør `npm run import` nå:** den skriver over `data/brukere.json` og fjerner `erAdministrator`. Excel-fila `Vaktliste_2026-2027_Team_Ost_og_Vest.xlsx` ligger i `app/` (ikke i git).
 - Admin er egne sider under `/admin`, ikke en fane. Nye sider som leser fra disk trenger `export const dynamic = "force-dynamic"`.
