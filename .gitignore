@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# persondata (navn, e-post, fravær) — genereres med `npm run import`
+/data/
+*.xlsx
