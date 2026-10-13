@@ -18,7 +18,7 @@ export type UkeplanCelle = {
   primær: string;
   /** Alle endringer som treffer dagen (ikke avviste): hele dagen først, så etter klokkeslett. */
   endringer: Endring[];
-  /** Den første av `endringer`. Måned bruker bare denne fram til den får delt firkant (Fase 36). */
+  /** Den første av `endringer`. */
   endring?: Endring;
   utenforPeriode?: boolean;
   /** Dagen er merket fri i Admin → Dager og personen har ingen egen endring den dagen. */
@@ -74,12 +74,16 @@ function synligePerPerson(endringer: Endring[]): Map<string, Endring[]> {
 
 /** Cella viser en endring som venter på godkjenning. */
 export function venterPaaGodkjenning(celle: UkeplanCelle): boolean {
-  return !celle.utenforPeriode && celle.endring?.virkning === "venter";
+  return !celle.utenforPeriode && celle.endringer.some((e) => e.virkning === "venter");
 }
 
 /** Cella viser en godkjent endring for den som har valgt seg selv. Andres godkjente får ikke merke. */
 export function egenGodkjent(celle: UkeplanCelle, jegId: string | null): boolean {
-  return jegId !== null && !celle.utenforPeriode && celle.endring?.virkning === "godkjent" && celle.endring.personId === jegId;
+  return (
+    jegId !== null &&
+    !celle.utenforPeriode &&
+    celle.endringer.some((e) => e.virkning === "godkjent" && e.personId === jegId)
+  );
 }
 
 function erFridag(dager: Dag[], dagIso: string): boolean {

@@ -1,5 +1,18 @@
 # Logg
 
+## 2026-10-14 — Fase 36 ✅ Flere endringer i Måned (delt firkant)
+
+- **Verifisert av Ståle:** skrev «ok, ser bra ut» etter å ha sett Måned med dagen som har flere endringer (han nevnte «4 i eksemplet», så tallet i hjørnet er sett). Han sa ikke hvert punkt for seg. **Ikke oppgitt:** mobilkalenderen (`.mkal`, smalt vindu), klikk som åpner dagens liste (planens tredje punkt), dag med nøyaktig to endringer, og ringen for «venter» på en dag med flere endringer.
+- **Levert (koden):** `prikkStil` i `MaanedClient.tsx` tegner en delt firkant (`linear-gradient`, 50/50) av endringenes farger når dagen har to eller flere; `antallFor` gir `data-antall` når det er flere enn to, og `.prikk[data-antall]::after` i `globals.css` viser tallet i hjørnet. `tittelFor` gir én linje per endring (type, klokkeslett, kommentar, status) for flere endringer. Klikket trengte ingen ny kode: `aapneFor` sender allerede `celle.endringer` til vinduet fra Fase 35.
+- **Endret i `lib/ukeplan.ts`:** `venterPaaGodkjenning` og `egenGodkjent` ser på alle `celle.endringer` (`some`), ikke bare `celle.endring`. Ukeplan har ikke flere endringer gjennom disse (den tegner flere linje for linje), så dens ring er uendret.
+- **Beslutning (Ståle, status i tooltip):** Ståle så at «godkjent» sto bare på hans egne endringer, ikke på andres. Administratorer ser nå «godkjent» på alle i tooltipen; ansatte bare på sine egne. Begrunnelse fra ham: han vil se den statusen som til enhver tid er der. Utført av Claude etter tolkning av meldingen; Ståle sa ikke eksplisitt at «tooltipen» var stedet, men svarte «ok, ser bra ut» etterpå.
+- **Beslutning (Ståle, ringen):** den grønne ringen blir bare rundt egne godkjente endringer. Begrunnelse: «holder». Ikke utvidet til administratorer.
+- **Overraskelse:** første versjon viste «godkjent» bare for egne endringer i listen med flere; Ståle skrev at det sto «ingenting» ved fire endringer. Jeg gjettet at det gjaldt tooltipen i Måned og rettet det, uten å spørre; gjetningen traff (han svarte med neste ønske om andres status).
+- **Ikke gjort:** `node_modules/next/dist/docs/` ikke lest (bare klientkomponent og CSS, ingen nye API-er); `next build` ikke kjørt. Fargene i `DEL_FARGE` dupliserer `.prikk--*` i CSS (kommentert i koden); endres en farge, må begge steder rettes.
+- **Sjekk:** `tsc --noEmit` og `npm run lint` grønne kl. 00:04, etter siste kodeendring. `next build` ikke kjørt.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 7 treff. Datauttrekk i git 0.
+- STATUS: 43 linjer. fase-slutt: 00:03–00:04, 1 min (målt til commit; klarsignal på planendring ventet inn).
+
 ## 2026-10-13 — Fase 35 ✅ Klokkeslett og flere endringer samme dag i Ukeplan (planlagt som Fase 35–37 i samme økt)
 
 - **Verifisert av Ståle:** skjermbilder av Ukeplan på bred og smal skjerm viste 13. oktober med fire linjer (Ferie, Fri, 08:00–12:00 Avspasering, 11:00–16:00 Mappeoppgave), alle godkjente, hver i sin farge, i både tabell og kort. Han skrev «ser bra ut» om tidsfeltene og «det ble bra» om dagnavnet. **Ikke oppgitt:** «Rett» fra dagens liste, en vanlig ansatt (ikke administrator) som legger inn endring nummer to, «Godkjenn»/«Avvis» på en linje i en celle med flere, og å rette en endring som har klokkeslett. At «Ny endring samme dag» ble brukt er sluttet ut fra at fire endringer fantes samme dag; han sa det ikke.

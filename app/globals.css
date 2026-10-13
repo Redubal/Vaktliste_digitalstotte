@@ -1223,6 +1223,27 @@ button.mkal-dag {
   vertical-align: middle;
 }
 
+/* Flere enn to endringer samme dag: firkanten er delt i to, og antallet står i hjørnet. */
+.prikk[data-antall] {
+  position: relative;
+}
+
+.prikk[data-antall]::after {
+  content: attr(data-antall);
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  min-width: 11px;
+  padding: 0 2px;
+  border-radius: 6px;
+  background: #1f2933;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 11px;
+  text-align: center;
+}
+
 .prikk--lokasjon {
   background: #d9e3ec;
 }

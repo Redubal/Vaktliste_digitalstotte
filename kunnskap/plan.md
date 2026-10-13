@@ -180,16 +180,7 @@ ikke klokkeslett, og klikk på en dag åpner bare den ene endringen.
 
 Fase 35 ✅ 2026-10-13 — detaljer i logg
 
-**Fase 36 — Flere endringer i Måned.**
-- `prikkKlasse`/`tittelFor` i `MaanedClient.tsx` og `.prikk` i CSS gir en delt firkant: to farger,
-  og et lite tall ved flere enn to. Det gjelder både tabellen og `.mkal`.
-- Tooltipen lister alle endringene med tider.
-- Klikk åpner samme dagliste som i Ukeplan.
-- Den grønne ringen og stiplingen for «venter» virker fortsatt.
-
-**Verifisering:** du åpner Måned og ser dagen fra Fase 35 som en firkant med to farger; du holder
-musa over og ser begge endringene med tider; du klikker og ser dagens liste med «Ny endring samme
-dag».
+Fase 36 ✅ 2026-10-14 — detaljer i logg
 
 **Fase 37 — Varsel ved overlapp.**
 - `overlapper`/`finnOverlapp` i `lib/domene.ts`.

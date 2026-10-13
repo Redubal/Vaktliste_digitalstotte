@@ -1,5 +1,15 @@
 # Læringslogg
 
+## 2026-10-14 (avslutning Fase 36) — Flere endringer i Måned
+
+**Evaluering av forrige økts punkter:**
+- `[nåtid-om-planlagt]` — ikke utløst: jeg beskrev ikke noe ubygget i nåtid. Videreføres, for Fase 37 (varsel) er ikke bygget.
+- `[forelder-layout]` — ikke utløst: firkanten har samme størrelse, tallet er `position: absolute` utenfor flyten, og ingen celle ble høyere. Videreføres, for Fase 37 legger merker i celler.
+
+**Nye punkter:** ingen. Rettelsene Ståle ba om (status på andres endringer) var ønsker, ikke brudd.
+
+**Fasesnitt:** 36 fikk plass i én økt uten `/compact`. Ingen deling foreslått.
+
 ## 2026-10-13 (avslutning Fase 35) — Klokkeslett og flere endringer samme dag
 
 **Evaluering av forrige økts punkter:**

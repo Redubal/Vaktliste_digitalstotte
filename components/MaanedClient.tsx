@@ -1,16 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import type { Ansatt, Dag, Endring, Team } from "@/lib/vaktlista";
 import {
   ALLE_TEAM,
   beregnMaaned,
   classifyCelle,
+  classifyEndring,
   egenFarge,
   egenGodkjent,
   forrigeMaaned,
   nesteMaaned,
+  tidTekst,
   venterPaaGodkjenning,
   type CelleType,
   type TeamFilter,
@@ -43,15 +45,51 @@ function prikkKlasse(celle: UkeplanCelle, jegId: string | null): string {
   return PRIKK_KLASSE[classifyCelle(celle)] + merke;
 }
 
-function tittelFor(celle: UkeplanCelle, dag: Date, jegId: string | null): string {
+// Samme farger som `.prikk--*` i globals.css; trengs her fordi en delt firkant bygges som fargeovergang.
+const DEL_FARGE = { "endring-lokasjon": "#5b9bd5", "endring-status": "#f2c94c", fri: "#9ab548" } as const;
+
+/** Delt firkant (to første endringer) når dagen har flere; ellers endringstypens egen farge. */
+function prikkStil(celle: UkeplanCelle): CSSProperties | undefined {
+  if (!celle.utenforPeriode && celle.endringer.length >= 2) {
+    const [a, b] = celle.endringer.map((e) => e.farge ?? DEL_FARGE[classifyEndring(e)]);
+    return { background: `linear-gradient(90deg, ${a} 50%, ${b} 50%)` };
+  }
+  const farge = egenFarge(celle);
+  return farge ? { background: farge } : undefined;
+}
+
+/** Tallet i hjørnet: bare når flere enn to endringer deler firkanten. */
+function antallFor(celle: UkeplanCelle): number | undefined {
+  return !celle.utenforPeriode && celle.endringer.length > 2 ? celle.endringer.length : undefined;
+}
+
+function tittelFor(celle: UkeplanCelle, dag: Date, jegId: string | null, erAdmin: boolean): string {
+  const dato = `${formatDayShort(dag)} ${dag.getUTCDate()}.`;
+  // «godkjent» står på egne endringer; administratorer ser det på alle.
+  const godkjent = (e: Endring) => e.virkning === "godkjent" && (erAdmin || e.personId === jegId);
+  if (!celle.utenforPeriode && celle.endringer.length >= 2) {
+    // Én linje per endring (nettleserens tooltip viser linjeskift), med klokkeslett og status.
+    const linjer = celle.endringer.map((e) =>
+      [
+        e.newLocation ? `${e.newLocation} (${e.type})` : e.type || "Endring",
+        tidTekst(e),
+        e.comment || null,
+        e.virkning === "venter" ? "venter på godkjenning" : null,
+        godkjent(e) ? "godkjent" : null,
+      ]
+        .filter(Boolean)
+        .join(" · "),
+    );
+    return [dato, ...linjer].join("\n");
+  }
   const e = celle.endring;
   return [
-    `${formatDayShort(dag)} ${dag.getUTCDate()}.`,
+    dato,
     celle.primær,
     e && e.newLocation ? e.type : null,
     e?.comment || null,
     venterPaaGodkjenning(celle) ? "venter på godkjenning" : null,
-    egenGodkjent(celle, jegId) ? "godkjent" : null,
+    e && !celle.utenforPeriode && godkjent(e) ? "godkjent" : null,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -248,12 +286,13 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
                   </th>
                   {rad.celler.map((celle, i) => {
                     const dag = plan.dager[i];
-                    const tittel = tittelFor(celle, dag, jegId);
+                    const tittel = tittelFor(celle, dag, jegId, erAdmin);
                     const aapne = aapneFor(rad.person, celle);
                     const prikk = (
                       <span
                         className={prikkKlasse(celle, jegId)}
-                        style={egenFarge(celle) ? { background: egenFarge(celle)! } : undefined}
+                        style={prikkStil(celle)}
+                        data-antall={antallFor(celle)}
                         aria-label={aapne ? undefined : tittel}
                       />
                     );
@@ -319,11 +358,12 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
                   ))}
                   {rad.celler.map((celle, i) => {
                     const dag = plan.dager[i];
-                    const tittel = tittelFor(celle, dag, jegId);
+                    const tittel = tittelFor(celle, dag, jegId, erAdmin);
                     const aapne = aapneFor(rad.person, celle);
                     const felles = {
                       className: `mkal-dag ${prikkKlasse(celle, jegId)}`,
-                      style: egenFarge(celle) ? { background: egenFarge(celle)! } : undefined,
+                      style: prikkStil(celle),
+                      "data-antall": antallFor(celle),
                       title: tittel,
                     };
                     return aapne ? (
