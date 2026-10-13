@@ -1,12 +1,21 @@
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import XLSX from "xlsx";
+import { SKJEMA_VERSJON } from "../lib/domene.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const APP_ROOT = resolve(__dirname, "..");
 const EXCEL_PATH = resolve(APP_ROOT, "Vaktliste_2026-2027_Team_Ost_og_Vest.xlsx");
 const DATA_DIR = resolve(APP_ROOT, "data");
+const MAL = resolve(DATA_DIR, "vaktliste.json");
+
+// Appen eier dataene etter første innlasting; en ny import ville slette alt som er endret i Admin.
+if (existsSync(MAL) && !process.argv.includes("--overskriv")) {
+  console.error("data/vaktliste.json finnes allerede. En ny import overskriver endringer gjort i Admin.");
+  console.error("Kjør `npm run import -- --overskriv` hvis det er meningen.");
+  process.exit(1);
+}
 
 mkdirSync(DATA_DIR, { recursive: true });
 
@@ -70,12 +79,6 @@ function rows(sheetName) {
   const sh = workbook.Sheets[sheetName];
   if (!sh) throw new Error(`Missing sheet: ${sheetName}`);
   return XLSX.utils.sheet_to_json(sh, { header: 1, defval: "" });
-}
-
-function writeJson(name, value) {
-  const path = resolve(DATA_DIR, name);
-  writeFileSync(path, JSON.stringify(value, null, 2) + "\n", "utf8");
-  console.log(`  wrote ${name} (${value.length} items)`);
 }
 
 // Fem tabeller med surrogatnøkler og fremmednøkler, klare for en senere database:
@@ -198,12 +201,14 @@ const dager = rows("Dager")
   });
 
 console.log("Importerer fra:", EXCEL_PATH);
-console.log("Skriver til:", DATA_DIR);
-writeJson("brukere.json", brukere);
-writeJson("lokasjoner.json", lokasjoner);
-writeJson("oppsett.json", oppsett);
-writeJson("endringer.json", endringer);
-writeJson("dager.json", dager);
+console.log("Skriver til:", MAL);
+const tabeller = { lokasjoner, brukere, oppsett, endringer, dager };
+writeFileSync(
+  MAL,
+  JSON.stringify({ skjemaVersjon: SKJEMA_VERSJON, revisjon: 0, sistEndretAv: null, ...tabeller }, null, 2) + "\n",
+  "utf8",
+);
+for (const [navn, rader] of Object.entries(tabeller)) console.log(`  ${navn}: ${rader.length} rader`);
 if (warnings.length > 0) {
   console.warn("Advarsler:");
   for (const w of warnings) console.warn("  -", w);

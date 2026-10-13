@@ -11,7 +11,15 @@ dager, ikke importert ferdig fra Excel. Database er utsatt fordi det foreløpig 
 er tilgang til en på utviklingsmaskinen. `data/` er gitignorert (navn, e-post,
 sykefravær). Se plan.md, «Avklarte beslutninger».
 
-## Admin: egen datamodell i én fil (besluttet 2026-09-30, ikke bygget ennå)
+## Admin: egen datamodell i én fil (besluttet 2026-09-30, bygget i Fase 3 for lokasjoner)
+
+Status Fase 3: `data/vaktliste.json` er i bruk (`lib/lager.ts` leser og skriver atomisk med
+revisjon og sikkerhetskopi i `data/sikkerhetskopi/`, siste 20). Tabellene som finnes er
+`lokasjoner`, `brukere`, `oppsett`, `endringer`, `dager`; resten kommer i Fase 4–7. `npm run
+migrer` slår de gamle fem filene sammen én gang; `npm run import` nekter å overskrive en
+eksisterende `vaktliste.json` uten `--overskriv`. Kilden til feltene på lokasjon er Excel-fanen
+Lokasjoner (navn og team); id-en er en kode laget ved opprettelse og endres aldri ved omdøping.
+Reglene bor i `lib/domene.ts` (uten imports, deles med skriptene).
 
 Appen skal eie dataene og bygges ikke som en avbildning av Excel-arket. Excel blir
 en engangsinnlasting. Modellen er ekte tabeller med primær- og fremmednøkler, så den

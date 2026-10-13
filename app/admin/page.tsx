@@ -31,11 +31,16 @@ export default async function AdminSide() {
           <span className="counter">kommer</span>
         </div>
         <p className="admin-ingress">
-          Du er logget på som <strong>{jeg?.name}</strong> og har admintilgang. Her kommer
-          vedlikehold av listene appen bygger på, én liste om gangen:
+          Du er logget på som <strong>{jeg?.name}</strong> og har admintilgang. Vedlikehold av
+          listene appen bygger på kommer én liste om gangen.
         </p>
+        <div className="admin-meny">
+          <Link className="uke-btn" href="/admin/lokasjoner">
+            Lokasjoner
+          </Link>
+        </div>
+        <p className="admin-ingress">Kommer:</p>
         <ul className="admin-liste">
-          <li>Lokasjoner — legge til, endre og fjerne</li>
           <li>Roller</li>
           <li>Endringstyper og statuser</li>
           <li>Team</li>

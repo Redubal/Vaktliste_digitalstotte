@@ -1,5 +1,20 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 3) — Lokasjoner i Admin
+
+**Evaluering av forrige økts punkter:**
+- `[historikk-omskriving-push-først]` ikke utløst, og ingen gjenstående fase skriver historikk om (git avklart 2026-09-30) — strøket, se logg.
+- `[rammen-først]` fulgt: spurte om Excel fortsatt var fasit før datamodellen for lokasjoner; svaret styrte feltene og lagringen — strøket som innarbeidet.
+- `[status-i-undermappe]` brutt igjen: STATUS ble ikke funnet i rotkatalogen, og jeg spurte om `nytt-prosjekt` uten å lete i `app/kunnskap/`; brukeren måtte si hvor fila lå — videreført (2. runde). Regelen står i STATUS og CLAUDE.md, som begge ligger i `app/` og derfor ikke var lest da fila manglet; den kan bare virke fra `fase-start` selv.
+
+**Nye punkter:**
+- `[ny-ui-temaklasser]` Nye lenker og knapper bruker temaets klasser (`uke-btn`) fra første utkast. Belegg: Lokasjoner-lenken var en rå `<a>` uten farge og så ut som vanlig tekst; brukeren fant den ikke.
+- `[les-skjermbildet-først]` Sier brukeren at noe ikke vises, sammenlign skjermbildet med koden før du foreslår hurtigbuffer eller omstart. Belegg: skjermbildet viste den nye siden med usynlig lenke, men jeg la fram to teorier om gammel kode (to runder) før jeg sjekket.
+
+**Fasesnitt:** Fase 3 fikk plass i én økt uten `/compact`.
+
+Issue til pakkerepoet: tilbudt på nytt for `status-i-undermappe` (samme tekst som sist). `gh` er fortsatt ikke installert (kontrollert 2026-10-13), så teksten må opprettes for hånd.
+
 ## 2026-09-30 (avslutning Fase 1 og 2) — Admin verifisert
 
 **Evaluering av forrige økts punkter:**

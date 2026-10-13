@@ -1,60 +1,7 @@
-import fs from "node:fs";
-import path from "node:path";
+import type { DagRad, Team } from "./domene";
+import { lesVaktliste } from "./lager";
 
-export type Team = "Øst" | "Vest";
-
-// --- Rader slik de ligger i data/*.json (én fil per tabell, samme form som i en database) ---
-
-export type Bruker = {
-  id: string;
-  name: string;
-  upn: string | null;
-  /**
-   * Admintilgang, bevisst atskilt fra jobbrollen i `Oppsett.role`.
-   * Valgfri i typen fordi eksisterende datafiler er skrevet uten feltet.
-   * Byttes mot en Entra-gruppe når SSO kommer.
-   */
-  erAdministrator?: boolean;
-};
-
-export type Lokasjon = {
-  id: string;
-  name: string;
-  team: Team;
-};
-
-export type Oppsett = {
-  id: string;
-  brukerId: string;
-  team: Team;
-  role: string | null;
-  lokasjonId: string | null;
-  activeFrom: string | null;
-  activeTo: string | null;
-  sortOrder: number | null;
-  comment: string | null;
-};
-
-export type EndringRad = {
-  id: string;
-  brukerId: string;
-  lokasjonId: string | null;
-  status: "Godkjent" | "Forespurt" | "Avslått" | "Utgår" | string | null;
-  team: Team;
-  fromDate: string | null;
-  toDate: string | null;
-  fromTime: string | null;
-  toTime: string | null;
-  type: string | null;
-  comment: string | null;
-};
-
-export type DagRad = {
-  id: string;
-  fromDate: string;
-  toDate: string;
-  comment: string;
-};
+export type { Team };
 
 // --- Visninger som UI og ukeplan bruker: rader slått sammen og tomme verdier som "" ---
 
@@ -95,33 +42,16 @@ export type Dag = DagRad;
  */
 export type Employee = Ansatt;
 
-function readJson<T>(fileName: string, fallback: T): T {
-  const filePath = path.resolve(process.cwd(), "data", fileName);
-  if (!fs.existsSync(filePath)) return fallback;
-  return JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
-}
-
-export function getBrukere(): Bruker[] {
-  return readJson<Bruker[]>("brukere.json", []);
-}
-
-export function getLokasjoner(): Lokasjon[] {
-  return readJson<Lokasjon[]>("lokasjoner.json", []);
-}
-
-export function getOppsett(): Oppsett[] {
-  return readJson<Oppsett[]>("oppsett.json", []);
-}
-
 export function getDager(): Dag[] {
-  return readJson<DagRad[]>("dager.json", []);
+  return lesVaktliste().dager;
 }
 
 /** Bruker + oppsett + lokasjon, slått sammen til én rad per ansatt. */
 export function getAnsatte(): Ansatt[] {
-  const brukere = new Map(getBrukere().map((b) => [b.id, b]));
-  const lokasjoner = new Map(getLokasjoner().map((l) => [l.id, l]));
-  return getOppsett()
+  const v = lesVaktliste();
+  const brukere = new Map(v.brukere.map((b) => [b.id, b]));
+  const lokasjoner = new Map(v.lokasjoner.map((l) => [l.id, l]));
+  return v.oppsett
     .flatMap((o) => {
       const bruker = brukere.get(o.brukerId);
       if (!bruker || !bruker.name.trim()) return [];
@@ -150,9 +80,10 @@ export function getEmployees(): Employee[] {
 
 /** Endringer med bruker- og lokasjonsnavn slått opp. */
 export function getEndringer(): Endring[] {
-  const brukere = new Map(getBrukere().map((b) => [b.id, b]));
-  const lokasjoner = new Map(getLokasjoner().map((l) => [l.id, l]));
-  return readJson<EndringRad[]>("endringer.json", []).map((e) => ({
+  const v = lesVaktliste();
+  const brukere = new Map(v.brukere.map((b) => [b.id, b]));
+  const lokasjoner = new Map(v.lokasjoner.map((l) => [l.id, l]));
+  return v.endringer.map((e) => ({
     id: e.id,
     status: e.status ?? "",
     person: brukere.get(e.brukerId)?.name ?? "",

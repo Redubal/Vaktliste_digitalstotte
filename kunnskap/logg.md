@@ -1,5 +1,21 @@
 # Logg
 
+## 2026-10-13 — Fase 3 ✅ Lokasjoner kan redigeres i Admin
+
+- Levert: alle data ligger nå i én fil, `data/vaktliste.json` (`lib/domene.ts` regler og typer uten imports, `lib/lager.ts` atomisk lesing/skriving med revisjon og sikkerhetskopi, `lib/vaktlista.ts` leser via lageret). Admin: `app/admin/handlinger.ts` (legg til, endre, slett; admin sjekkes i hver handling), `app/admin/lokasjoner/page.tsx`, `components/LokasjonAdmin.tsx`. `npm run migrer` (`scripts/migrer-til-en-fil.mjs`) slo de fem gamle filene sammen én gang; `npm run import` skriver nå én fil og nekter å overskrive uten `--overskriv`.
+- **Beslutning (bruker, kilde til lokasjonsfelt):** fanen Lokasjoner i Excel er fasit for hvilke felt en lokasjon har (navn og team), men appen leser ikke lenger fra Excel, bare fra egne filer som senere kan importeres i en database.
+- **Beslutning (bruker, én fil):** enig i å slå sammen de fem filene til `data/vaktliste.json` nå, slik `arkitektur.md` sa, fordi skrivelaget ellers måtte bygges to ganger.
+- **Beslutning (Claude, import-vern):** `npm run import` nekter å skrive over en eksisterende `vaktliste.json`, fordi en ny import ville fjerne Admin-endringer og `erAdministrator`. Ikke spurt om; rettes hvis uønsket.
+- **Beslutning (bruker, knapp):** lenken til Lokasjoner skal være en knapp i temaets stil (`uke-btn`), ikke en tekstlenke.
+- Funn (observert, bruker i nettleser og curl): «Admin ser lik ut» var ikke en gammel server. Lenken til Lokasjoner fantes i HTML-en (curl ga `href="/admin/lokasjoner"`), men en rå `<a>` har ingen farge eller understreking i dette temaet og så ut som vanlig tekst. Før det var to diagnoser (hurtigbuffer, gammel server) lagt fram uten å sammenligne skjermbildet med koden.
+- Funn (observert): uke- og fanebytte virket ikke før dev-serveren ble stoppet og startet på nytt; `next build` kjørt midt i økten kompilerte uten feil. Årsaken er ukjent. Hypotese: dev-serveren hang på blandet gammel og ny kode etter at filer og data ble byttet under den. Ville avgjort av å se konsollfeilen i nettleseren før omstart, som ikke ble gjort.
+- Funn (observert, `node` med påfunnet testdata): dublettsjekk uten hensyn til store/små bokstaver, id-lager (`faerder` → `faerder-2`) og nektet sletting med navn fungerer. Node skriver en ufarlig modultype-advarsel når `.ts` importeres.
+- Ikke testet: to faner som endrer samtidig (revisjonsfeilen), ny lagring ved låst fil (`EPERM`-forsøk) og opprydding av sikkerhetskopier over 20. Bruker godkjente fasen etter å ha prøvd siden; enkeltpunktene i verifiseringen ble ikke bekreftet hver for seg.
+- Fasesnitt: fikk plass i én økt uten `/compact`.
+- Sjekk ved faseslutt: `npx tsc --noEmit` og `npm run lint` kjørt etter siste kodeendring, begge rene. `.claude/settings.json` har bare to nye tillatelser (`tsc`, `lint`), ingen brukersti. STATUS: 35 linjer.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 3 treff. Ingen filer i `data/` er sporet av git.
+- fase-slutt: 08:48–08:52, 4 min (inkluderer ventetid på svar om plankollaps).
+
 ## 2026-09-30 (kveldsøkt) — Admin planlagt, Fase 2 ✅ og Fase 1 ✅ (mobilvisning utsatt)
 
 - Levert: plan for admin-grensesnitt godkjent (Fase 2–7 i `plan.md`, ny datamodell i `arkitektur.md`). Fase 2 kodet: identitetsvelger (`components/IdentitetsVelger.tsx`, kapsel `vaktliste-identitet`, `lib/identitet.ts`), `erAdministrator` på bruker (`lib/vaktlista.ts`), fanene velges på serveren i `app/page.tsx` (Ansatte-fane bare for admin), `/admin` (`app/admin/page.tsx`) som sender andre tilbake til forsiden.

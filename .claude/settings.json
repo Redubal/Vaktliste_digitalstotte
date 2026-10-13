@@ -15,7 +15,9 @@
       "Read(~/.claude/plugins/cache/claude-code-skills/**/.claude-plugin/**)",
       "Read(~/.claude/plugins/marketplaces/claude-code-skills/**/.claude-plugin/**)",
       "Bash(git status:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(npm run lint)"
     ],
     "deny": [
       "Bash(npx playwright:*)",

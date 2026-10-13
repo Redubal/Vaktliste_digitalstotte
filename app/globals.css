@@ -703,6 +703,13 @@ a.uke-btn {
   line-height: 1.8;
 }
 
+.admin-meny {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 20px;
+}
+
 .admin-advarsel {
   margin: 0;
   padding: 14px 16px;
@@ -711,6 +718,61 @@ a.uke-btn {
   border: 1px solid var(--border);
   color: var(--muted);
   font-size: 0.88rem;
+}
+
+.admin-lokasjoner {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-lokasjoner li {
+  border-bottom: 1px solid var(--border);
+  padding: 10px 0;
+}
+
+.admin-skjema {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.admin-skjema input[name="name"] {
+  flex: 1 1 220px;
+}
+
+.admin-skjema input[name="name"],
+.admin-skjema select {
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  color: var(--heading);
+}
+
+.admin-bruk {
+  color: var(--muted);
+  font-size: 0.85rem;
+  min-width: 130px;
+}
+
+.admin-feil {
+  flex-basis: 100%;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fdecea;
+  border: 1px solid #f1b5ae;
+  color: #8a1c12;
+  font-size: 0.9rem;
+}
+
+.uke-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 /* --- Responsivt --- */
