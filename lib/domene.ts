@@ -2,7 +2,7 @@
 // Node importerer .ts direkte, så filen må holde seg til syntaks som kan strippes (ingen enum).
 
 /** Eldre versjoner gjøres om ved lesing av `oppgraderVaktliste`; øk og legg til et steg der. */
-export const SKJEMA_VERSJON = 10;
+export const SKJEMA_VERSJON = 11;
 
 /** Rekkefølgen i tabellen er rekkefølgen i teamvelgeren. */
 export type Team = {
@@ -81,6 +81,39 @@ export function godkjennEndring(v: Vaktliste, endringId: string): string | null 
   return null;
 }
 
+/** Statusen en endring får når den avvises: den første avviste i navnerekkefølge. */
+export function avvistStatus(statuser: Status[]): Status | null {
+  const avviste = statuser
+    .filter((s) => s.virkning === "avvist")
+    .sort((a, b) => a.name.localeCompare(b.name, "nb"));
+  return avviste[0] ?? null;
+}
+
+export const AVVIST_GRUNN_MAKSLENGDE = 200;
+
+/**
+ * Avviser en endring som venter, med en valgfri begrunnelse. Gir feilmelding, eller `null` når
+ * den er avvist. En godkjent endring avvises ikke herfra: den rettes eller slettes i vinduet.
+ */
+export function avvisEndring(v: Vaktliste, endringId: string, grunn: string): string | null {
+  const endring = v.endringer.find((e) => e.id === endringId);
+  if (!endring) return "Endringen finnes ikke lenger. Last siden på nytt.";
+  const virkning = virkningFor(endring.statusId, v.statuser);
+  if (virkning === "avvist") return "Endringen er allerede avvist.";
+  if (virkning === "godkjent") return "Endringen er allerede godkjent og kan ikke avvises herfra.";
+  const avvistGrunn = rensNavn(grunn);
+  if (avvistGrunn.length > AVVIST_GRUNN_MAKSLENGDE) {
+    return `Begrunnelsen kan ha opptil ${AVVIST_GRUNN_MAKSLENGDE} tegn.`;
+  }
+  const status = avvistStatus(v.statuser);
+  if (!status) {
+    return "Ingen status har virkningen «Avvist». Legg til en i Admin → Endringstyper og statuser.";
+  }
+  endring.statusId = status.id;
+  endring.avvistGrunn = avvistGrunn || null;
+  return null;
+}
+
 /** Statusen en endring fra en ansatt får: den første som venter, i navnerekkefølge. `null` venter også. */
 export function venterStatus(statuser: Status[]): Status | null {
   const ventende = statuser
@@ -140,12 +173,17 @@ function sjekkEndring(
   return { brukerId, typeId: type.id, lokasjonId: rå.lokasjonId || null, fromDate: rå.fromDate, toDate, comment: comment || null };
 }
 
-/** Kan `aktør` rette eller slette endringen? En ansatt: bare egne som venter. En administrator: alle. */
+/** Kan `aktør` rette endringen? En ansatt: bare egne som venter. En administrator: alle. */
 export function kanEndreEndring(
   endring: { brukerId: string; virkning: Virkning },
   aktør: Aktør,
 ): boolean {
   return aktør.erAdmin || (endring.brukerId === aktør.id && endring.virkning === "venter");
+}
+
+/** Kan `aktør` slette endringer? Bare en administrator; en ansatt retter i stedet. */
+export function kanSletteEndring(aktør: Aktør): boolean {
+  return aktør.erAdmin;
 }
 
 function finnEndringÅEndre(v: Vaktliste, endringId: string, aktør: Aktør): { feil: string } | { endring: EndringRad } {
@@ -179,7 +217,7 @@ export function leggTilEndring(v: Vaktliste, brukerId: string, rå: EndringSkjem
     statusId = venterStatus(v.statuser)?.id ?? null;
   }
   const id = ledigId(`endring-${sjekket.fromDate}`, new Set(v.endringer.map((e) => e.id)), "endring");
-  v.endringer.push({ id, ...sjekket, statusId, fromTime: null, toTime: null });
+  v.endringer.push({ id, ...sjekket, statusId, fromTime: null, toTime: null, avvistGrunn: null });
   return null;
 }
 
@@ -194,6 +232,7 @@ export function rettEndring(v: Vaktliste, endringId: string, rå: EndringSkjema,
 }
 
 export function slettEndring(v: Vaktliste, endringId: string, aktør: Aktør): string | null {
+  if (!kanSletteEndring(aktør)) return "Bare en administrator kan slette endringer. Du kan rette den i stedet.";
   const funnet = finnEndringÅEndre(v, endringId, aktør);
   if ("feil" in funnet) return funnet.feil;
   v.endringer = v.endringer.filter((e) => e !== funnet.endring);
@@ -238,6 +277,8 @@ export type EndringRad = {
   toTime: string | null;
   typeId: string | null;
   comment: string | null;
+  /** Begrunnelsen administratoren ga ved avvisning; `null` når den ikke er avvist, eller uten begrunnelse. */
+  avvistGrunn: string | null;
 };
 
 export type DagRad = {
@@ -658,6 +699,14 @@ function tilVersjon10(v: RåVaktliste): RåVaktliste {
   return { ...v, skjemaVersjon: 10, statuser };
 }
 
+// 10 → 11: endringene får `avvistGrunn` (null). En begrunnelse som allerede står der, beholdes.
+function tilVersjon11(v: RåVaktliste): RåVaktliste {
+  const endringer = (v.endringer as (Omit<EndringRad, "avvistGrunn"> & { avvistGrunn?: string | null })[]).map(
+    (e) => ({ ...e, avvistGrunn: e.avvistGrunn ?? null }),
+  );
+  return { ...v, skjemaVersjon: 11, endringer };
+}
+
 /** Renser meldingen fra skjemaet. Tom melding blir standardmeldingen. */
 export function sjekkInnstillinger(rå: {
   vedlikehold: boolean;
@@ -699,6 +748,7 @@ export function oppgraderVaktliste(rå: RåVaktliste): Vaktliste {
   if (v.skjemaVersjon === 7) v = tilVersjon8(v);
   if (v.skjemaVersjon === 8) v = tilVersjon9(v);
   if (v.skjemaVersjon === 9) v = tilVersjon10(v);
+  if (v.skjemaVersjon === 10) v = tilVersjon11(v);
   if (v.skjemaVersjon !== SKJEMA_VERSJON) {
     throw new Error(`data/vaktliste.json har skjemaversjon ${fra}, appen forventer ${SKJEMA_VERSJON}.`);
   }

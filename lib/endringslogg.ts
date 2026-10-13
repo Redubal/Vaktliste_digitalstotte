@@ -129,6 +129,7 @@ const FELTNAVN: Record<string, string> = {
   toDate: "Til dato",
   fromTime: "Fra kl.",
   toTime: "Til kl.",
+  avvistGrunn: "Begrunnelse for avvisning",
   vedlikehold: "Vedlikehold",
   melding: "Melding",
 };

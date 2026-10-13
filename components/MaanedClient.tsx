@@ -16,7 +16,7 @@ import {
   type UkeplanCelle,
 } from "@/lib/ukeplan";
 import { useEndringVindu, type EndringValg } from "./EndringVindu";
-import { VenterListe } from "./Godkjenning";
+import { VenterPanel } from "./Godkjenning";
 import { ariaSort, forstFor, sorterRader } from "@/lib/sortering";
 import { formatDayShort, formatMonthName, todayUtc } from "@/lib/uker";
 import { PERSON_KOLONNER, PERSON_VERDIER, STANDARD_PERSON_SORTERING } from "./personSortering";
@@ -104,19 +104,6 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
     [plan.rader, rolle, sortering, jegId],
   );
 
-  // Endringene som venter og vises i en celle denne måneden, for personene som er i visningen.
-  const venter = useMemo(() => {
-    const funnet = new Map<string, Endring>();
-    for (const rad of rader) {
-      for (const celle of rad.celler) {
-        if (venterPaaGodkjenning(celle) && celle.endring) funnet.set(celle.endring.id, celle.endring);
-      }
-    }
-    return [...funnet.values()].sort(
-      (a, b) => a.fromDate.localeCompare(b.fromDate) || a.person.localeCompare(b.person, "nb"),
-    );
-  }, [rader]);
-
   return (
     <section aria-label="Månedsoversikt">
       <div className="ukeplan-toolbar">
@@ -171,15 +158,7 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
         </li>
       </ul>
 
-      {venter.length > 0 && (
-        <details className="panel venter-panel">
-          <summary>
-            {venter.length} {venter.length === 1 ? "endring venter" : "endringer venter"} på godkjenning denne
-            måneden
-          </summary>
-          <VenterListe endringer={venter} revisjon={erAdmin ? revisjon : null} />
-        </details>
-      )}
+      <VenterPanel endringer={endringer} revisjon={erAdmin ? revisjon : null} />
 
       <div className="panel panel--ukeplan">
         <div className="table-wrapper visning-tabell">

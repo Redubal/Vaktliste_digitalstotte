@@ -2,7 +2,13 @@
 
 import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
 import { lagreEndring, slettEndring } from "@/app/handlinger";
-import { ENDRING_KOMMENTAR_MAKSLENGDE, kanEndreEndring, type Kategori, type Svar } from "@/lib/domene";
+import {
+  ENDRING_KOMMENTAR_MAKSLENGDE,
+  kanEndreEndring,
+  kanSletteEndring,
+  type Kategori,
+  type Svar,
+} from "@/lib/domene";
 import type { UkeplanCelle } from "@/lib/ukeplan";
 import type { Ansatt, Endring } from "@/lib/vaktlista";
 import { Feil } from "./AdminFelles";
@@ -190,7 +196,7 @@ function Vindu({
         </div>
       </form>
 
-      {retter && (
+      {retter && kanSletteEndring(aktør) && (
         <form action={slett} className="vindu-slett">
           <input type="hidden" name="revisjon" value={revisjon} />
           <input type="hidden" name="id" value={retter.id} />

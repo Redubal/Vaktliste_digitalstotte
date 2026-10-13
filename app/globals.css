@@ -771,7 +771,44 @@ tbody tr:nth-child(even) {
   gap: 4px;
 }
 
-.celle .godkjenn-knapp {
+.godkjenn-knapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+/* I tabellen står de alltid side om side; i de smale cellene i Ukeplan får de bryte. */
+.venter-tabell .godkjenn-knapper {
+  flex-wrap: nowrap;
+}
+
+/* Lista bruker `logg-tabell`, som deler bredden likt og bryter ord hvor som helst. Her tar
+   «Behandle»-kolonnen plassen knappene trenger, og resten deler det som er igjen. */
+.logg-tabell.venter-tabell {
+  table-layout: auto;
+}
+
+.venter-tabell th:last-child,
+.venter-tabell td:last-child {
+  width: 1%;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.godkjenn-knapp,
+.avvis-knapp {
+  white-space: nowrap;
+}
+
+.avvis-knapp {
+  background: #fdecea;
+  border-color: #f1b5ae;
+  color: #8a1c12;
+}
+
+.celle .godkjenn-knapp,
+.celle .avvis-knapp {
   align-self: flex-start;
   height: auto;
   padding: 3px 8px;
@@ -813,7 +850,7 @@ tbody tr:nth-child(even) {
   box-shadow: inset 0 0 0 2px var(--primary);
 }
 
-.celle .godkjenn-skjema {
+.celle .godkjenn-knapper {
   position: relative;
   z-index: 1;
 }
@@ -861,6 +898,8 @@ button.mkal-dag {
 }
 
 .endring-vindu {
+  /* Tailwind nullstiller margin på alt; `auto` er det som sentrerer et modalt vindu. */
+  margin: auto;
   width: min(460px, calc(100vw - 32px));
   /* dvh: den synlige høyden, uten adresselinje og tastatur på mobil. */
   max-height: calc(100dvh - 32px);
@@ -1584,7 +1623,8 @@ a.uke-btn {
   /* Trykkflater på minst 44 px. */
   .tab-btn,
   .uke-btn,
-  .celle .godkjenn-knapp {
+  .celle .godkjenn-knapp,
+  .celle .avvis-knapp {
     min-height: 44px;
   }
 

@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import {
+  avvisEndring,
   endringstypeBrukere,
   godkjennEndring,
   ledigId,
@@ -425,6 +426,15 @@ export async function slettRolle(_forrige: Svar | null, data: FormData): Promise
 
 export async function godkjenn(_forrige: Svar | null, data: FormData): Promise<Svar> {
   return utfor(data, "/admin/godkjenning", (v) => godkjennEndring(v, tekst(data, "id")), "Endringen er godkjent.");
+}
+
+export async function avvis(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(
+    data,
+    "/admin/godkjenning",
+    (v) => avvisEndring(v, tekst(data, "id"), tekst(data, "avvistGrunn")),
+    "Endringen er avvist.",
+  );
 }
 
 // --- Statuser og endringstyper (samme side) ---

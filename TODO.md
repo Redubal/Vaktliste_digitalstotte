@@ -42,13 +42,13 @@ verifiseringen av Fase 1, punkt 9.
 - Ansatt og admin legger inn/endrer status direkte i Ukeplan og Måned (godkjennes av admin) — Fase 19. Et eget skjema utenfor planen er ikke bygget.
 - Vestfold-logoen på siden (designmanualen) — Fase 20.
 - Den valgte personen øverst og navn stigende i Ukeplan og Måned — Fase 21 (Ukeplan og Måned hadde ingen standardsortering), se logg 2026-10-13.
+- «Avvis»-knapp med begrunnelse — Fase 23, se logg 2026-10-13. **Beslutning (SR, slette-rett):** bare administrator kan slette en endring (`kanSletteEndring`); ansatt retter egne som venter.
+- Lista over endringer som venter, også i Ukeplan (sett av bruker i Fase 21) — Fase 23 (alle som venter, uansett uke og team), se logg 2026-10-13.
 
 ## I planen (Fase 22–29, godkjent 2026-10-13)
 - Figur som vandrer rundt på siden, som «Sheep» — Fase 22.
-- «Avvis»-knapp (i dag avvises en endring bare ved å gi en status virkning «Avvist», og ingen får beskjed) og **Beslutning (SR, slette-rett):** bare administrator kan slette en endring (i dag får ansatt slette egne som venter, `kanEndreEndring`) — Fase 23.
 - Ansatt ser hva som er godkjent og får beskjed om godkjent/avvist, i en liste over egne endringer (prøvd som Frode i Fase 18 og Max i Fase 19: godkjente har ikke merke) — Fase 24. **Beslutning (SR, beskjed):** i appen, ikke e-post/Teams nå.
 - Rette en endring fra godkjenningslisten i Admin — Fase 25.
-- Lista over endringer som venter, også i Ukeplan, ikke bare i Måned (sett av bruker i Fase 21) — passer i Fase 24 eller 25; ikke avgjort at den bygges.
 - Dager fra Excel mangler, både skolekalender og fridager — Fase 26 (Admin → Dager, merknader i Måned) og Fase 27 (fridager). Innlastingen leser bare kolonne A–C i arket «Dager», og fridag finnes ikke som begrep.
 - Full mobil- og pad-test — Fase 28.
 - Full sikkerhetsgjennomgang (`/security-review`) — Fase 29.
@@ -62,3 +62,4 @@ verifiseringen av Fase 1, punkt 9.
 - Fase 30: en synk gir én logglinje per person og oppsett og kan fylle «Endringslogg». Vurder filter på avsender.
 - Superadmin, som også har tilgang til Entra- og databasekoblingen — merknad i Fase 31.
 - Dytte til Outlook, f.eks. ved sykdom — merknad i Fase 32 (samme Graph-tilgang).
+- Varsel utenfor appen (e-post eller Teams) når en endring blir godkjent, avvist eller får annen status. Spurt av Ståle 2026-10-13 under Fase 23. Beskjeden **i appen** er Fase 24 og skal komme uansett: «det må likevel være en del av siden». Varsel utenfor appen trenger Graph-tilgang som Fase 30–32, og vet først hvem mottakeren er når e-post kommer fra Entra.

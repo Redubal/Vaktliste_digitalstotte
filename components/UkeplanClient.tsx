@@ -16,7 +16,7 @@ import {
   type UkeplanCelle,
 } from "@/lib/ukeplan";
 import { useEndringVindu, type EndringValg } from "./EndringVindu";
-import { GodkjennKnapp, hva, periode, VenterMerke } from "./Godkjenning";
+import { BehandleKnapper, hva, periode, VenterMerke, VenterPanel } from "./Godkjenning";
 import { ariaSort, forstFor, sorterRader } from "@/lib/sortering";
 import { formatDayNumber, formatDayShort, formatWeekRange, isoWeek, todayUtc } from "@/lib/uker";
 import { PERSON_KOLONNER, PERSON_VERDIER, STANDARD_PERSON_SORTERING } from "./personSortering";
@@ -85,7 +85,7 @@ function Celle({
       )}
       {venter && <VenterMerke />}
       {venter && revisjon !== null && celle.endring && (
-        <GodkjennKnapp
+        <BehandleKnapper
           endringId={celle.endring.id}
           revisjon={revisjon}
           navn={`${hva(celle.endring)} for ${person}, ${periode(celle.endring)}`}
@@ -189,6 +189,8 @@ export function UkeplanClient({
           </button>
         </div>
       </div>
+
+      <VenterPanel endringer={endringer} revisjon={godkjennRevisjon} />
 
       <div className="panel panel--ukeplan">
         <div className="table-wrapper visning-tabell">

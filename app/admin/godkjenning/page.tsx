@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { VenterListe } from "@/components/Godkjenning";
-import { godkjentStatus } from "@/lib/domene";
+import { avvistStatus, godkjentStatus } from "@/lib/domene";
 import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
 import { lesVaktliste } from "@/lib/lager";
 import { getAnsatte, getEndringer } from "@/lib/vaktlista";
@@ -15,6 +15,7 @@ export default async function GodkjenningSide() {
 
   const v = lesVaktliste();
   const tilStatus = godkjentStatus(v.statuser);
+  const avvistTil = avvistStatus(v.statuser);
   const venter = getEndringer()
     .filter((e) => e.virkning === "venter")
     .sort((a, b) => a.fromDate.localeCompare(b.fromDate) || a.person.localeCompare(b.person, "nb"));
@@ -40,6 +41,9 @@ export default async function GodkjenningSide() {
           {tilStatus
             ? `En godkjent endring får statusen «${tilStatus.name}» og vises i planen uten merke.`
             : "Ingen status betyr «Godkjent» ennå. Legg til en under Endringstyper og statuser før du godkjenner."}{" "}
+          {avvistTil
+            ? `En avvist endring får statusen «${avvistTil.name}» og vises ikke i planen.`
+            : "Ingen status betyr «Avvist» ennå. Legg til en under Endringstyper og statuser før du avviser."}{" "}
           Endringer som venter, vises med merke i Ukeplan og Måned.
         </p>
         {venter.length === 0 ? (

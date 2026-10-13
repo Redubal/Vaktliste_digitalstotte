@@ -1,7 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
-import { godkjenn } from "@/app/admin/handlinger";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { avvis, godkjenn } from "@/app/admin/handlinger";
+import { AVVIST_GRUNN_MAKSLENGDE } from "@/lib/domene";
 import type { Endring } from "@/lib/vaktlista";
 import { Feil } from "./AdminFelles";
 
@@ -46,6 +48,107 @@ export function GodkjennKnapp({ endringId, revisjon, navn }: { endringId: string
   );
 }
 
+/**
+ * Avviser én endring, med valgfri begrunnelse i et lite vindu. Vinduet legges i `body`, så stilene
+ * til cella det ble åpnet fra ikke smitter over. Bare for administratorer, som «Godkjenn».
+ */
+export function AvvisKnapp({ endringId, revisjon, navn }: { endringId: string; revisjon: number; navn: string }) {
+  const [aapen, setAapen] = useState(false);
+  return (
+    <>
+      <button className="uke-btn avvis-knapp" type="button" onClick={() => setAapen(true)} aria-label={`Avvis ${navn}`}>
+        Avvis
+      </button>
+      {aapen &&
+        createPortal(
+          <AvvisVindu endringId={endringId} revisjon={revisjon} navn={navn} onLukk={() => setAapen(false)} />,
+          document.body,
+        )}
+    </>
+  );
+}
+
+function AvvisVindu({
+  endringId,
+  revisjon,
+  navn,
+  onLukk,
+}: {
+  endringId: string;
+  revisjon: number;
+  navn: string;
+  onLukk: () => void;
+}) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    // Utviklingsmodus kjører effekten to ganger; et åpent vindu skal ikke åpnes på nytt.
+    if (ref.current && !ref.current.open) ref.current.showModal();
+  }, []);
+  const [svar, handling, avviser] = useActionState(avvis, null);
+  useEffect(() => {
+    if (svar?.ok) ref.current?.close();
+  }, [svar]);
+
+  return (
+    <dialog ref={ref} className="endring-vindu" aria-labelledby="avvis-vindu-tittel" onClose={onLukk}>
+      <h2 id="avvis-vindu-tittel">Avvis endringen</h2>
+      <p className="vindu-merknad">{navn}</p>
+      <form action={handling} className="vindu-skjema">
+        <input type="hidden" name="revisjon" value={revisjon} />
+        <input type="hidden" name="id" value={endringId} />
+        <label className="vindu-felt">
+          <span>Begrunnelse (valgfritt)</span>
+          <input type="text" name="avvistGrunn" maxLength={AVVIST_GRUNN_MAKSLENGDE} autoFocus />
+        </label>
+        <p className="vindu-info">En avvist endring vises ikke i planen.</p>
+        <Feil svar={svar} />
+        <div className="vindu-knapper">
+          <button className="uke-btn slett-knapp" type="submit" disabled={avviser}>
+            {avviser ? "Avviser …" : "Avvis"}
+          </button>
+          <button className="uke-btn" type="button" onClick={() => ref.current?.close()}>
+            Avbryt
+          </button>
+        </div>
+      </form>
+    </dialog>
+  );
+}
+
+/** «Godkjenn» og «Avvis» side om side, for én endring som venter. */
+export function BehandleKnapper(props: { endringId: string; revisjon: number; navn: string }) {
+  return (
+    <div className="godkjenn-knapper">
+      <GodkjennKnapp {...props} />
+      <AvvisKnapp {...props} />
+    </div>
+  );
+}
+
+/**
+ * Sammenleggbart panel i Ukeplan og Måned med alle endringer som venter, uansett uke, måned og team
+ * (samme utvalg som Admin → Godkjenning). Vises ikke når ingen venter.
+ */
+export function VenterPanel({ endringer, revisjon }: { endringer: Endring[]; revisjon: number | null }) {
+  const venter = useMemo(
+    () =>
+      endringer
+        .filter((e) => e.virkning === "venter")
+        .sort((a, b) => a.fromDate.localeCompare(b.fromDate) || a.person.localeCompare(b.person, "nb")),
+    [endringer],
+  );
+
+  if (venter.length === 0) return null;
+  return (
+    <details className="panel venter-panel">
+      <summary>
+        {venter.length} {venter.length === 1 ? "endring venter" : "endringer venter"} på godkjenning
+      </summary>
+      <VenterListe endringer={venter} revisjon={revisjon} />
+    </details>
+  );
+}
+
 /** Tabell over endringer som venter. Uten `revisjon` vises ingen knapper (ikke administrator). */
 export function VenterListe({ endringer, revisjon }: { endringer: Endring[]; revisjon: number | null }) {
   return (
@@ -58,7 +161,7 @@ export function VenterListe({ endringer, revisjon }: { endringer: Endring[]; rev
             <th>Periode</th>
             <th>Status</th>
             <th>Kommentar</th>
-            {revisjon !== null && <th>Godkjenn</th>}
+            {revisjon !== null && <th>Behandle</th>}
           </tr>
         </thead>
         <tbody>
@@ -71,7 +174,7 @@ export function VenterListe({ endringer, revisjon }: { endringer: Endring[]; rev
               <td>{e.comment}</td>
               {revisjon !== null && (
                 <td>
-                  <GodkjennKnapp endringId={e.id} revisjon={revisjon} navn={`${hva(e)} for ${e.person}, ${periode(e)}`} />
+                  <BehandleKnapper endringId={e.id} revisjon={revisjon} navn={`${hva(e)} for ${e.person}, ${periode(e)}`} />
                 </td>
               )}
             </tr>

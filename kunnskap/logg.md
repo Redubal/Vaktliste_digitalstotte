@@ -1,6 +1,20 @@
 # Logg
 
-## 2026-10-13 — Fase 22B ✅ Levende figur, atferd
+## 2026-10-13 — Fase 23 ✅ Avvis-knapp og bare administrator sletter
+
+- **Levert:** «Avvis» ved siden av «Godkjenn» (Admin → Godkjenning, Ukeplan, lista i Måned) med valgfri begrunnelse i et eget vindu (`AvvisKnapp` i `components/Godkjenning.tsx`, handlingen `avvis` i `app/admin/handlinger.ts`, regelen `avvisEndring` i `lib/domene.ts`). Skjemaversjon 11: `avvistGrunn` på endringen (`tilVersjon11`), og feltet står i endringsloggen som «Begrunnelse for avvisning». `kanSletteEndring` = bare administrator: sjekket i `slettEndring`, og vinduet viser ikke slett-knappen for ansatte. Ansatt kan fortsatt rette egne endringer som venter.
+- **Utover planen, etter ønske fra Ståle underveis:** panelet «N endringer venter på godkjenning» står i både Ukeplan og Måned (`VenterPanel`), med alle som venter, uansett uke, måned og team. Vinduene for endringer og avvisning er sentrert (`margin: auto` på `.endring-vindu`).
+- **Beslutning (Ståle, omfang):** panelet tas inn i Fase 23 i stedet for TODO.md. Begrunnelse: «bryr meg ikke» om at det er utenfor fasen.
+- **Beslutning (Ståle, venter-panelet):** panelet er ikke knyttet til uke eller måned, men synlig så lenge noe venter. Begrunnelse: «må stå synlig dersom det er noe som venter på godkjenning».
+- **Beslutning (Ståle, varsel):** varsel på e-post eller Teams legges i TODO.md, men beskjed om status skal likevel være en del av siden (Fase 24). Begrunnelse: «det må likevel være en del av siden».
+- **Observert i nettleser (Ståle):** knappene brøt ordene («Godkjen/n», «Avvi/s») fordi lista bruker `logg-tabell` med fast kolonnebredde; rettet med `table-layout: auto` og en smal «Behandle»-kolonne. Vinduet lå oppe i hjørnet fordi marger er nullstilt; rettet. Uten «Avvist»-status gir «Avvis» en feilmelding som viser veien til Admin; sett i vinduet.
+- **Observert:** endringsloggen viser «Status: … → Avvis» og «Begrunnelse for avvisning: (tom) → 123». Den tomme verdien er riktig (feltet hadde ingen verdi før avvisningen), men leses rart; ikke endret.
+- **Funn om status (lest i koden):** ingen kan velge status selv. Ny endring fra ansatt får første status som betyr «venter», «Godkjenn» første som betyr «godkjent», «Avvis» første som betyr «avvist» (alfabetisk). En status med navnet «Utgår» ble i lista senere vist som «Venter». Om «Utgår» skal være en egen tilstand er ikke avgjort.
+- **Verifisert av bruker:** Ståle skrev «ferdig» etter å ha sett Avvis-vinduet, panelet med to endringer og avvisningen i endringsloggen. Ikke oppgitt: at en ansatt ikke ser slett-knappen, at den avviste endringen er borte fra Ukeplan, «Avvis» i Måned og i smalt vindu. Reglene er prøvd i Node med oppdiktede rader: 20 av 20 (versjonssteg 10 → 11, ansatt får ikke slette, avvisning med og uten begrunnelse, avvisning av godkjent eller allerede avvist nektes).
+- **Fasesnitt:** 23 fikk plass i én økt uten `/compact`.
+- **Sjekk:** `tsc --noEmit` og `npm run lint` kjørt grønne 20:42, etter siste kodeendring (stilfila); `next build` ikke kjørt. STATUS: 43 linjer.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 53 treff. Ingen filer under `data/` i git.
+- fase-slutt: 20:39–20:46, 7 min (inkludert ventetid på svar om plan og TODO).
 
 - **Levert:** figuren sover og gjesper (gjesp, legger seg på siden, z-er, våkner etter 10–16 s; første søvn 20–32 s etter start, deretter hvert 60–90 s), følger musa (hodet innen 320 px, snur seg når musa er bak, hopper/gaper/løper 2,6 s når musa beveger seg innen 70 px; passiv `pointermove`, ingen klikk), klatrer (opp vinduskanten og opp sidekanter på blokker) og lager pønk: sprayboks (merke som tegnes fram og står 40 s), spade (bare på gulvet, jord og haug), brekkjern (P-U-N-K løsnes mot en kant, faller og spretter), spark på løse bokstaver. Nytt: `components/figur/pynt.ts`; `motor.ts` omskrevet; `Tegning.tsx` har munn og tre verktøy; `flater.ts` har `y2`; stiler i `globals.css`.
 - **Beslutning (Claude, utforming):** bokstaver, merker, jord og haug er egne elementer i `.figur-pynt` i figurlaget (`pointer-events: none`), aldri tekst i siden. Tak: 16 bokstaver, 6 merker, 80 jordkorn, 4 hauger; alt blekner etter 30–45 s.

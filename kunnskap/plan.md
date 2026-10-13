@@ -137,15 +137,7 @@ Fase 21 ✅ 2026-10-13 — detaljer i logg
 
 Fase 22A ✅ 2026-10-13 — detaljer i logg
 Fase 22B ✅ 2026-10-13 — detaljer i logg
-
-**Fase 23 — Avvis-knapp og bare administrator sletter (tyngste modell).**
-`kanSletteEndring` = bare administrator (i `lib/domene.ts`, sjekket i `slettEndring` og i vinduet);
-ansatt kan fortsatt rette egne som venter. «Avvis» ved siden av «Godkjenn» (Admin-lista, Ukeplan,
-Måned) setter status med virkning «avvist» og en valgfri begrunnelse: nytt felt `avvistGrunn` på
-endringen (skjemaversjon 11, `tilVersjon11`, `FELTNAVN` i endringsloggen).
-**Verifisering:** som ansatt åpner du en egen endring som venter og ser ingen slett-knapp; som
-administrator avviser du en endring med begrunnelse og ser den forsvinne fra godkjenningslista og
-fra Ukeplan; i endringsloggen står at du avviste den.
+Fase 23 ✅ 2026-10-13 — detaljer i logg
 
 **Fase 24 — «Mine endringer» med status (tyngste modell: hva en ansatt får se).**
 Liste for den som har valgt seg selv: egne endringer med venter / godkjent / avvist og begrunnelse.

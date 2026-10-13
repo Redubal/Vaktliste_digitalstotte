@@ -1,5 +1,13 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 23) — Avvis-knapp og bare administrator sletter
+
+**Evaluering av forrige økts punkter:** `[skjemasteg-er-låst-etter-test]` **fulgt:** feltet kom i et nytt steg (`tilVersjon11`), versjon 10 er urørt; strøket. `[klikkflate-hele-ruta]` **fulgt:** «Avvis» har ramme og bakgrunn og er knapp over hele ruta, 44 px på berøring; strøket. `[utseende-spør-først]` ikke utløst (ingen ba om et bestemt utseende; vinduet ble levert som utkast med beskjed om det); Fase 24 lager en ny liste og kan utløse det, videreføres uten ny runde.
+
+**Nytt punkt:** `[sjekk-stilen-som-gjelder]` — legges en knapp eller et vindu inn i en liste eller tabell som alt finnes, les stilreglene som gjelder der (`table-layout`, `margin`, `white-space`) og tenk på en smal kolonne, før du skriver egne. Belegg: «Avvis»-knappene brøt ordene midt i to runder (først `flex-wrap`, så `logg-tabell` med fast kolonnebredde), og vinduet havnet i hjørnet fordi Tailwind nullstiller marger. Ståle: «ikke imponert over de knappene», «ute av kurs med knapper igjen».
+
+**Fasesnitt:** 23 fikk plass i én økt uten `/compact`; ingen deling foreslått.
+
 ## 2026-10-13 (avslutning Fase 22B) — Levende figur, atferd
 
 **Evaluering av forrige økts punkter:** `[skjemasteg-er-låst-etter-test]` ikke utløst (ingen skjemaendring); Fase 23 og 27 lager nye steg, videreføres uten ny runde. `[klikkflate-hele-ruta]` ikke utløst (ingen nye knapper); Fase 23 og 25 legger til knapper, videreføres uten ny runde. `[utseende-spør-først]` **brutt igjen (2. runde):** jeg lovet å spørre om referanse eller vise ett utkast, men bygde all atferd på gjetning etter «start».
