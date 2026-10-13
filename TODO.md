@@ -84,7 +84,7 @@ ukenummer i Måned. Må få fasenummer i planen før den gjøres.
 
 ## I planen (Fase 22, 26–29, godkjent 2026-10-13)
 - Figur som vandrer rundt på siden, som «Sheep» — Fase 22.
-- Dager fra Excel: skolekalender levert i Fase 26 (Admin → Dager, se logg 2026-10-13); fridager står igjen — Fase 27. Radtellingen av innlastingen er ikke gjort (se STATUS).
+- Dager fra Excel: skolekalender (Fase 26) og fridager (Fase 27) levert, se logg 2026-10-13. Radtellingen av innlastingen er ikke gjort (se STATUS).
 - Full mobil- og pad-test — Fase 28.
 - Full sikkerhetsgjennomgang (`/security-review`) — Fase 29.
 

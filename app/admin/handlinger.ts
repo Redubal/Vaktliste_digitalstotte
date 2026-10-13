@@ -315,7 +315,12 @@ export async function slettLokasjon(_forrige: Svar | null, data: FormData): Prom
 const DAGER_STI = "/admin/dager";
 
 function dagFra(data: FormData) {
-  return sjekkDag({ fromDate: tekst(data, "fromDate"), toDate: tekst(data, "toDate"), comment: tekst(data, "comment") });
+  return sjekkDag({
+    fromDate: tekst(data, "fromDate"),
+    toDate: tekst(data, "toDate"),
+    comment: tekst(data, "comment"),
+    fri: data.get("fri") === "on",
+  });
 }
 
 export async function leggTilDag(_forrige: Svar | null, data: FormData): Promise<Svar> {
@@ -345,6 +350,7 @@ export async function endreDag(_forrige: Svar | null, data: FormData): Promise<S
       dag.fromDate = sjekket.fromDate;
       dag.toDate = sjekket.toDate;
       dag.comment = sjekket.comment;
+      dag.fri = sjekket.fri;
       return null;
     },
     "Endringen er lagret.",

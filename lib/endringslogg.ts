@@ -125,6 +125,7 @@ const FELTNAVN: Record<string, string> = {
   activeTo: "Aktiv til",
   sortOrder: "Rekkefølge",
   comment: "Kommentar",
+  fri: "Fri",
   fromDate: "Fra dato",
   toDate: "Til dato",
   fromTime: "Fra kl.",

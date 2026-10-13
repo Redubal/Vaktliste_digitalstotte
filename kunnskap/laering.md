@@ -1,5 +1,13 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 27) — Fridager
+
+**Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere.
+
+**Nye punkter:** ingen. Scope-vakten fyrte riktig da Ståle pekte på flere endringer samme dag (allerede `TODO.md` punkt 4): ingen argumentasjon, ingen valgmeny. Fase-slutt-vakten fyrte riktig: «fungerer» ble møtt med forslag og venting.
+
+**Fasesnitt:** 27 fikk plass i én økt uten `/compact`; ingen deling foreslått.
+
 ## 2026-10-13 (avslutning Fase 26) — Admin → Dager
 
 **Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere.

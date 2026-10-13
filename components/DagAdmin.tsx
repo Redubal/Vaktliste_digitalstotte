@@ -18,13 +18,16 @@ function Felter({ dag }: { dag?: DagRad }) {
         maxLength={DAG_MAKSLENGDE}
         required
       />
+      <label className="admin-avkryssing">
+        <input type="checkbox" name="fri" defaultChecked={dag?.fri} /> Fri for alle
+      </label>
     </>
   );
 }
 
 function NyDag({ revisjon }: { revisjon: number }) {
   const [svar, handling, venter] = useActionState(leggTilDag, null);
-  const status = useSkjemaStatus({ fromDate: "", toDate: "", comment: "" }, svar);
+  const status = useSkjemaStatus({ fromDate: "", toDate: "", comment: "", fri: "" }, svar);
   return (
     <form action={handling} className={status.skjemaKlasse} onInput={status.onInput}>
       <input type="hidden" name="revisjon" value={revisjon} />
@@ -43,7 +46,7 @@ function DagRadSkjema({ dag, revisjon }: { dag: DagRad; revisjon: number }) {
   const [slettSvar, slettHandling, sletter] = useActionState(slettDag, null);
   const opptatt = lagrer || sletter;
   const status = useSkjemaStatus(
-    { fromDate: dag.fromDate, toDate: dag.toDate, comment: dag.comment },
+    { fromDate: dag.fromDate, toDate: dag.toDate, comment: dag.comment, fri: dag.fri ? "on" : "" },
     endreSvar,
   );
   return (

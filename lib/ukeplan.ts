@@ -18,6 +18,8 @@ export type UkeplanCelle = {
   primær: string;
   endring?: Endring;
   utenforPeriode?: boolean;
+  /** Dagen er merket fri i Admin → Dager og personen har ingen egen endring den dagen. */
+  fridag?: boolean;
 };
 
 export type UkeplanRad = {
@@ -81,12 +83,17 @@ export function egenGodkjent(celle: UkeplanCelle, jegId: string | null): boolean
   return jegId !== null && !celle.utenforPeriode && celle.endring?.virkning === "godkjent" && celle.endring.personId === jegId;
 }
 
-function beregnCelle(person: Ansatt, dagIso: string, personEndringer: Endring[]): UkeplanCelle {
+function erFridag(dager: Dag[], dagIso: string): boolean {
+  return dager.some((d) => d.fri && overlapsDate(d.fromDate, d.toDate, dagIso));
+}
+
+function beregnCelle(person: Ansatt, dagIso: string, personEndringer: Endring[], dager: Dag[]): UkeplanCelle {
   if (!inActivePeriod(person, dagIso)) {
     return { iso: dagIso, primær: "—", utenforPeriode: true };
   }
   const match = personEndringer.find((e) => overlapsDate(e.fromDate, e.toDate, dagIso));
   if (match) return { iso: dagIso, primær: endringLabel(match), endring: match };
+  if (erFridag(dager, dagIso)) return { iso: dagIso, primær: "Fri", fridag: true };
   return { iso: dagIso, primær: person.location || "—" };
 }
 
@@ -128,7 +135,7 @@ export function beregnUkeplan(opts: {
     .filter((p) => dagIso.some((d) => inActivePeriod(p, d)))
     .map((person) => {
       const personEndringer = endringerPerPerson.get(person.id) ?? [];
-      return { person, celler: dagIso.map((di) => beregnCelle(person, di, personEndringer)) };
+      return { person, celler: dagIso.map((di) => beregnCelle(person, di, personEndringer, opts.dager)) };
     });
 
   return {
@@ -146,6 +153,7 @@ export type CelleType = "lokasjon" | "endring-lokasjon" | "endring-status" | "fr
 
 export function classifyCelle(celle: UkeplanCelle): CelleType {
   if (celle.utenforPeriode) return "utenfor";
+  if (celle.fridag) return "fri";
   if (!celle.endring) return "lokasjon";
   if (celle.endring.newLocation) return "endring-lokasjon";
   if (celle.endring.kategori === "fravaer") return "fri";
@@ -211,7 +219,7 @@ export function beregnMaaned(opts: {
     .filter((p) => dagIso.some((d) => inActivePeriod(p, d)))
     .map((person) => {
       const personEndringer = endringerPerPerson.get(person.id) ?? [];
-      return { person, celler: dagIso.map((di) => beregnCelle(person, di, personEndringer)) };
+      return { person, celler: dagIso.map((di) => beregnCelle(person, di, personEndringer, opts.dager)) };
     });
 
   return { aar: opts.aar, maaned: opts.maaned, dager, merknader, rader };

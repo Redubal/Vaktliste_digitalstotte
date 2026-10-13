@@ -2,7 +2,7 @@
 // Node importerer .ts direkte, så filen må holde seg til syntaks som kan strippes (ingen enum).
 
 /** Eldre versjoner gjøres om ved lesing av `oppgraderVaktliste`; øk og legg til et steg der. */
-export const SKJEMA_VERSJON = 11;
+export const SKJEMA_VERSJON = 12;
 
 /** Rekkefølgen i tabellen er rekkefølgen i teamvelgeren. */
 export type Team = {
@@ -286,6 +286,8 @@ export type DagRad = {
   fromDate: string;
   toDate: string;
   comment: string;
+  /** Dagen er fri for alle: rutene viser «Fri», med mindre personen har en egen endring. */
+  fri: boolean;
 };
 
 /** Settes i Admin. Ved vedlikehold ser alle som ikke er administrator bare `melding`. */
@@ -415,7 +417,8 @@ export function sjekkDag(rå: {
   fromDate: string;
   toDate: string;
   comment: string;
-}): { feil: string } | { fromDate: string; toDate: string; comment: string } {
+  fri: boolean;
+}): { feil: string } | { fromDate: string; toDate: string; comment: string; fri: boolean } {
   const fromDate = rå.fromDate.trim();
   const toDate = rå.toDate.trim() || fromDate;
   const comment = rensNavn(rå.comment);
@@ -424,7 +427,7 @@ export function sjekkDag(rå: {
   if (toDate < fromDate) return { feil: "Til-datoen kan ikke være før fra-datoen." };
   if (!comment) return { feil: "Merknaden må ha en tekst." };
   if (comment.length > DAG_MAKSLENGDE) return { feil: `Teksten kan ha opptil ${DAG_MAKSLENGDE} tegn.` };
-  return { fromDate, toDate, comment };
+  return { fromDate, toDate, comment, fri: rå.fri };
 }
 
 /** Verdien i rolle-/lokasjonsvelgeren for masseendring som betyr «fjern». Tom verdi betyr «la stå». */
@@ -734,6 +737,12 @@ function tilVersjon11(v: RåVaktliste): RåVaktliste {
   return { ...v, skjemaVersjon: 11, endringer };
 }
 
+// 11 → 12: dagene får `fri` (false). En verdi som allerede står der, beholdes.
+function tilVersjon12(v: RåVaktliste): RåVaktliste {
+  const dager = (v.dager as (Omit<DagRad, "fri"> & { fri?: boolean })[]).map((d) => ({ ...d, fri: d.fri ?? false }));
+  return { ...v, skjemaVersjon: 12, dager };
+}
+
 /** Renser meldingen fra skjemaet. Tom melding blir standardmeldingen. */
 export function sjekkInnstillinger(rå: {
   vedlikehold: boolean;
@@ -776,6 +785,7 @@ export function oppgraderVaktliste(rå: RåVaktliste): Vaktliste {
   if (v.skjemaVersjon === 8) v = tilVersjon9(v);
   if (v.skjemaVersjon === 9) v = tilVersjon10(v);
   if (v.skjemaVersjon === 10) v = tilVersjon11(v);
+  if (v.skjemaVersjon === 11) v = tilVersjon12(v);
   if (v.skjemaVersjon !== SKJEMA_VERSJON) {
     throw new Error(`data/vaktliste.json har skjemaversjon ${fra}, appen forventer ${SKJEMA_VERSJON}.`);
   }

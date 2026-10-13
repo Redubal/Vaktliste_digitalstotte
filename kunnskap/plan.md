@@ -145,11 +145,7 @@ Fase 25 ✅ 2026-10-13 — detaljer i logg
 
 Fase 26 ✅ 2026-10-13 — detaljer i logg
 
-**Fase 27 — Fridager (Sonnet).**
-En dag kan merkes «fri» (felt `fri` på dagen, skjemaversjon 12); da viser alle ruter den dagen
-«Fri» med fri-fargen, med mindre personen har en egen endring. Velges i Admin → Dager.
-**Verifisering:** du merker en dag som fri og ser «Fri» i hele kolonnen i Ukeplan og i Måned; en
-person med egen endring den dagen viser endringen.
+Fase 27 ✅ 2026-10-13 — detaljer i logg
 
 **Fase 28 — Resten av mobil/pad-testen (Sonnet).**
 Det Fase 20 ikke prøvde: nettbrettbredde (769–1279 px, Admin → Ansatte bryter ujevnt), Admin-sidene

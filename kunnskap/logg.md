@@ -1,5 +1,15 @@
 # Logg
 
+## 2026-10-13 — Fase 27 ✅ Fridager
+
+- **Levert:** dagen har feltet `fri` (`DagRad`, skjemaversjon 12, `tilVersjon12` i `lib/domene.ts`; gamle dager blir «ikke fri»). Avkrysningen «Fri for alle» i Admin → Dager (`DagAdmin.tsx`, `dagFra` i `app/admin/handlinger.ts`, `sjekkDag` tar `fri`). `beregnCelle` i `lib/ukeplan.ts` gir «Fri» (`fridag` på cella, `classifyCelle` → «fri») når dagen er fri og personen ikke har egen endring; egen endring vinner. Gjelder Ukeplan og Måned (samme celleregler). Endringsloggen viser feltet som «Fri».
+- **Verifisert av bruker:** skjermbilde av Ukeplan 25. des. viser «Fri» i alle ruter og «Ferie» (egen endring) på raden med endring; Ståle skrev deretter «fungerer» etter spørsmål om Måned (tabell og kort ikke oppgitt hver for seg).
+- **Utover fasen:** Ståle pekte på at begge endringene må vises på samme dag, «skal rettes senere». Ligger allerede i `TODO.md` punkt 4; ingen endring i koden.
+- **Fasesnitt:** 27 fikk plass i én økt uten `/compact`.
+- **Sjekk:** `tsc --noEmit` og `npm run lint` kjørt grønt etter siste kodeendring, ingen meldinger. `next build` ikke kjørt. STATUS: 45 linjer.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 3 treff. Ingen filer under `data/` i git.
+- fase-slutt: 21:48–21:49, ca. 1 min (klokka på maskinen; inkluderer ikke ventetid på svar).
+
 ## 2026-10-13 — Fase 26 ✅ Admin → Dager og merknader i Måned
 
 - **Levert:** ny Admin-side `/admin/dager` (`app/admin/dager/page.tsx`, `components/DagAdmin.tsx`): legge til, rette og slette dager (fra, til, tekst), samme mønster som Lokasjoner. Tom «til» = samme dag. Regler i `sjekkDag` i `lib/domene.ts` (ekte dato, til ikke før fra, tekst 1–120 tegn); handlingene `leggTilDag`, `endreDag`, `slettDag` i `app/admin/handlinger.ts` går gjennom `utforSom` som de andre. Måned viser månedens merknader som tekst over tabellen (`maaned-merknader`, `MaanedClient.tsx`), også i kortvisningen; Ukeplan viste dem allerede (tabell og kort) og er uendret. Endringsloggen kjente tabellen «dager» fra før.
