@@ -19,7 +19,7 @@ import {
 import { useEndringVindu, type EndringValg } from "./EndringVindu";
 import { VenterPanel } from "./Godkjenning";
 import { ariaSort, forstFor, sorterRader } from "@/lib/sortering";
-import { formatDayShort, formatMonthName, todayUtc } from "@/lib/uker";
+import { formatDayNumber, formatDayShort, formatMonthName, todayUtc } from "@/lib/uker";
 import { PERSON_KOLONNER, PERSON_VERDIER, STANDARD_PERSON_SORTERING } from "./personSortering";
 import { Rollevelger, useRollefilter } from "./Rollefilter";
 import { SorterKnapp, useSortering } from "./Sortering";
@@ -57,6 +57,12 @@ function tittelFor(celle: UkeplanCelle, dag: Date, jegId: string | null): string
     .join(" · ");
 }
 
+/** «5. okt» for én dag, «5. okt – 9. okt» for en periode. */
+function datoTekst(fra: string, til: string): string {
+  const tekst = (iso: string) => formatDayNumber(new Date(`${iso}T00:00:00Z`));
+  return fra === til ? tekst(fra) : `${tekst(fra)} – ${tekst(til)}`;
+}
+
 const PRIKK_KLASSE: Record<CelleType, string> = {
   lokasjon: "prikk prikk--lokasjon",
   "endring-lokasjon": "prikk prikk--endring-lokasjon",
@@ -89,6 +95,15 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
     () => beregnMaaned({ team, aar, maaned, ansatte, endringer, dager }),
     [team, aar, maaned, ansatte, endringer, dager],
   );
+
+  // Merknader som treffer måneden, som tekst (prikken i tabellen sier bare at det finnes en).
+  const merknader = useMemo(() => {
+    const forste = `${aar}-${String(maaned).padStart(2, "0")}-01`;
+    const siste = `${aar}-${String(maaned).padStart(2, "0")}-${String(new Date(Date.UTC(aar, maaned, 0)).getUTCDate()).padStart(2, "0")}`;
+    return dager
+      .filter((d) => d.fromDate <= siste && d.toDate >= forste)
+      .sort((a, b) => a.fromDate.localeCompare(b.fromDate) || a.comment.localeCompare(b.comment, "nb"));
+  }, [dager, aar, maaned]);
 
   const { sortering, sorterPaa } = useSortering(PERSON_KOLONNER, STANDARD_PERSON_SORTERING);
   const roller = useMemo(() => [...new Set(ansatte.map((a) => a.role))].sort((a, b) => a.localeCompare(b, "nb")), [ansatte]);
@@ -166,6 +181,16 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
           </li>
         )}
       </ul>
+
+      {merknader.length > 0 && (
+        <ul className="maaned-merknader" aria-label="Merknader denne måneden">
+          {merknader.map((d) => (
+            <li key={d.id}>
+              <strong>{datoTekst(d.fromDate, d.toDate)}</strong> {d.comment}
+            </li>
+          ))}
+        </ul>
+      )}
 
       <VenterPanel endringer={endringer} revisjon={erAdmin ? revisjon : null} />
 

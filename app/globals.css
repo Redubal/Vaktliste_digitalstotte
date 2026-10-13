@@ -1311,7 +1311,26 @@ a.uke-btn {
   opacity: 0.5;
 }
 
+.admin-skjema input[name="comment"] {
+  flex: 1 1 220px;
+}
+
+/* Merknadene for måneden som tekst, over tabellen/kortene. */
+.maaned-merknader {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9rem;
+  color: var(--heading);
+  overflow-wrap: anywhere;
+}
+
 .admin-skjema input[name="name"],
+.admin-skjema input[name="comment"],
+.admin-skjema input[type="date"],
 .admin-skjema select {
   border: 1px solid var(--border);
   background: white;

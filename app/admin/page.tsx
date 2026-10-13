@@ -52,6 +52,9 @@ export default async function AdminSide() {
           <Link className="uke-btn" href="/admin/lokasjoner">
             Lokasjoner
           </Link>
+          <Link className="uke-btn" href="/admin/dager">
+            Dager
+          </Link>
           <Link className="uke-btn" href="/admin/roller">
             Roller
           </Link>

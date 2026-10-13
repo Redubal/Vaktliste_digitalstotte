@@ -400,6 +400,33 @@ export function sjekkLokasjon(
   return { name: sjekket.name, teamId: rå.teamId };
 }
 
+export const DAG_MAKSLENGDE = 120;
+
+/** `true` bare for en ekte dato på formen ÅÅÅÅ-MM-DD (ikke 2026-02-30). */
+function erIsoDato(s: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const [å, m, d] = s.split("-").map(Number);
+  const dato = new Date(Date.UTC(å, m - 1, d));
+  return dato.getUTCFullYear() === å && dato.getUTCMonth() === m - 1 && dato.getUTCDate() === d;
+}
+
+/** Renser og sjekker en dag/merknad fra skjemaet. Til-dato tom betyr samme dag som fra-dato. */
+export function sjekkDag(rå: {
+  fromDate: string;
+  toDate: string;
+  comment: string;
+}): { feil: string } | { fromDate: string; toDate: string; comment: string } {
+  const fromDate = rå.fromDate.trim();
+  const toDate = rå.toDate.trim() || fromDate;
+  const comment = rensNavn(rå.comment);
+  if (!erIsoDato(fromDate)) return { feil: "Fra-datoen må være en gyldig dato." };
+  if (!erIsoDato(toDate)) return { feil: "Til-datoen må være en gyldig dato." };
+  if (toDate < fromDate) return { feil: "Til-datoen kan ikke være før fra-datoen." };
+  if (!comment) return { feil: "Merknaden må ha en tekst." };
+  if (comment.length > DAG_MAKSLENGDE) return { feil: `Teksten kan ha opptil ${DAG_MAKSLENGDE} tegn.` };
+  return { fromDate, toDate, comment };
+}
+
 /** Verdien i rolle-/lokasjonsvelgeren for masseendring som betyr «fjern». Tom verdi betyr «la stå». */
 export const MASSE_INGEN = "__ingen";
 

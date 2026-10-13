@@ -1,5 +1,13 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 26) — Admin → Dager
+
+**Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere.
+
+**Nye punkter:** ingen. Scope-vakten fyrte riktig på ukenummer-ønsket (ført i `TODO.md`, ingen argumentasjon, ingen valgmeny). Tellingen fra planen ble forberedt som kommando for brukeren, men svaret kom ikke; ført som «ikke gjort» i loggen.
+
+**Fasesnitt:** 26 fikk plass i én økt uten `/compact`; ingen deling foreslått.
+
 ## 2026-10-13 (avslutning Fase 25) — «Rett» fra godkjenningslista
 
 **Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere.

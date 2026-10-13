@@ -11,6 +11,7 @@ import {
   nektSletting,
   rolleBrukere,
   sjekkAnsattStatus,
+  sjekkDag,
   sjekkEndringstype,
   sjekkLokasjon,
   sjekkOppsett,
@@ -306,6 +307,61 @@ export async function slettLokasjon(_forrige: Svar | null, data: FormData): Prom
       return null;
     },
     "Lokasjonen er slettet.",
+  );
+}
+
+// --- Dager og merknader ---
+
+const DAGER_STI = "/admin/dager";
+
+function dagFra(data: FormData) {
+  return sjekkDag({ fromDate: tekst(data, "fromDate"), toDate: tekst(data, "toDate"), comment: tekst(data, "comment") });
+}
+
+export async function leggTilDag(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(
+    data,
+    DAGER_STI,
+    (v) => {
+      const sjekket = dagFra(data);
+      if ("feil" in sjekket) return sjekket.feil;
+      const id = ledigId(slugify(`${sjekket.fromDate}-${sjekket.comment}`).slice(0, 60), new Set(v.dager.map((d) => d.id)), "dag");
+      v.dager.push({ id, ...sjekket });
+      return null;
+    },
+    "Dagen er lagt til.",
+  );
+}
+
+export async function endreDag(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(
+    data,
+    DAGER_STI,
+    (v) => {
+      const dag = v.dager.find((d) => d.id === tekst(data, "id"));
+      if (!dag) return "Dagen finnes ikke lenger. Last siden på nytt.";
+      const sjekket = dagFra(data);
+      if ("feil" in sjekket) return sjekket.feil;
+      dag.fromDate = sjekket.fromDate;
+      dag.toDate = sjekket.toDate;
+      dag.comment = sjekket.comment;
+      return null;
+    },
+    "Endringen er lagret.",
+  );
+}
+
+export async function slettDag(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(
+    data,
+    DAGER_STI,
+    (v) => {
+      const dag = v.dager.find((d) => d.id === tekst(data, "id"));
+      if (!dag) return "Dagen finnes ikke lenger. Last siden på nytt.";
+      v.dager = v.dager.filter((d) => d.id !== dag.id);
+      return null;
+    },
+    "Dagen er slettet.",
   );
 }
 

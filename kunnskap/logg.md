@@ -1,5 +1,17 @@
 # Logg
 
+## 2026-10-13 — Fase 26 ✅ Admin → Dager og merknader i Måned
+
+- **Levert:** ny Admin-side `/admin/dager` (`app/admin/dager/page.tsx`, `components/DagAdmin.tsx`): legge til, rette og slette dager (fra, til, tekst), samme mønster som Lokasjoner. Tom «til» = samme dag. Regler i `sjekkDag` i `lib/domene.ts` (ekte dato, til ikke før fra, tekst 1–120 tegn); handlingene `leggTilDag`, `endreDag`, `slettDag` i `app/admin/handlinger.ts` går gjennom `utforSom` som de andre. Måned viser månedens merknader som tekst over tabellen (`maaned-merknader`, `MaanedClient.tsx`), også i kortvisningen; Ukeplan viste dem allerede (tabell og kort) og er uendret. Endringsloggen kjente tabellen «dager» fra før.
+- **Verifisert av bruker:** Ståle skrev «Ser ut til å fungere med overlappende hendelser», og senere «Sier det fungerer». Ikke oppgitt hver for seg: merknaden i Ukeplan, teksten i Måned, smalt vindu.
+- **Ikke gjort:** radtellingen fra planen (Excel-arket «Dager» mot appen) ble forberedt som to kommandoer, men tallene kom aldri tilbake. Om noe falt ut ved innlastingen er derfor fortsatt ukjent (hypotese: innlastingen hopper over rader uten tekst i kolonne C; en telling avgjør).
+- **Beslutning (Ståle, navn på siden):** siden og knappen heter bare «Dager», ikke «Dager og merknader». Begrunnelse oppgitt ikke.
+- **Utover fasen (ført som TODO, ikke bygget):** Ståle ba om ukenummer i kalenderen: `TODO.md` punkt 6. Scope-vakten fyrte; forslaget om TODO ble fulgt uten diskusjon.
+- **Fasesnitt:** 26 fikk plass i én økt uten `/compact`.
+- **Sjekk:** `tsc --noEmit` («TSC-OK») og `npm run lint` (ingen meldinger) kjørt grønt kl. 21:33, etter siste kodeendring (navnet «Dager»). `next build` ikke kjørt. STATUS: 45 linjer.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 53 treff. Ingen filer under `data/` i git.
+- fase-slutt: 21:32–21:37, ca. 5 min (inkludert ventetid på svar om plan og TODO).
+
 ## 2026-10-13 — Fase 25 ✅ «Rett» fra godkjenningslista
 
 - **Levert:** hver rad i Admin → Godkjenning har «Rett» ved siden av Godkjenn og Avvis. Den åpner samme vindu som i Ukeplan (`Vindu` i `components/EndringVindu.tsx`), utfylt med endringen. Nytt: `useRettVindu` (åpner vinduet direkte på en endring, uten dag i planen), `GodkjenningListe` (`components/GodkjenningListe.tsx`, klientkomponent som setter lista og vinduet sammen), `onRett` på `VenterListe`, og `app/admin/godkjenning/page.tsx` sender `valg` og `teamAvPerson`. `Vindu` tar nå bare `id`, `name` og `teamId` om personen. Lista viser alle som venter, så endringer som skjules bak en godkjent samme dag dekkes. Ingen ny lagring: `lagreEndring` og `rettEndring` er de samme som fra Ukeplan.

@@ -55,6 +55,13 @@ planmodus med tyngste modell før den får fasenummer. Endringsvinduet
 (`components/EndringVindu.tsx`) har i dag bare inngang via en dag i planen eller,
 fra Fase 25, «Rett» i Admin → Godkjenning.
 
+## 6. Ukenummer i kalenderen
+
+Ønsket av Ståle 2026-10-13, under Fase 26. Ukenummer skal vises i kalenderen
+(Måned, og eventuelt mobilkalenderen). Ikke vurdert i koden. `lib/uker.ts` og
+`lib/ukeplan.ts` har allerede ISO-ukeregning (`isoWeek`), men ingen visning av
+ukenummer i Måned. Må få fasenummer i planen før den gjøres.
+
 ## Levert (pekere)
 - Tydelig ulagret (rødt) / lagret (grønt) — Fase 8 gjaldt hele Admin, se logg 2026-10-13. Ønsket sa «over alt»; om endringsvinduet i Ukeplan/Måned trenger det samme, er ikke vurdert.
 - Full logg over alle endringer — Fase 9, se logg 2026-10-13 og `/admin/logg`.
@@ -77,7 +84,7 @@ fra Fase 25, «Rett» i Admin → Godkjenning.
 
 ## I planen (Fase 22, 26–29, godkjent 2026-10-13)
 - Figur som vandrer rundt på siden, som «Sheep» — Fase 22.
-- Dager fra Excel mangler, både skolekalender og fridager — Fase 26 (Admin → Dager, merknader i Måned) og Fase 27 (fridager). Innlastingen leser bare kolonne A–C i arket «Dager», og fridag finnes ikke som begrep.
+- Dager fra Excel: skolekalender levert i Fase 26 (Admin → Dager, se logg 2026-10-13); fridager står igjen — Fase 27. Radtellingen av innlastingen er ikke gjort (se STATUS).
 - Full mobil- og pad-test — Fase 28.
 - Full sikkerhetsgjennomgang (`/security-review`) — Fase 29.
 

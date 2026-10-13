@@ -143,14 +143,7 @@ Fase 24 ✅ 2026-10-13 — detaljer i logg
 
 Fase 25 ✅ 2026-10-13 — detaljer i logg
 
-**Fase 26 — Admin → Dager og merknader i Måned (Sonnet).**
-Ny side i Admin for skolekalenderen: se, legge til, rette og slette dager (fra–til, tekst), samme
-mønster som Lokasjoner. Måned viser merknadene som tekst (i dag bare en prikk i tabellen og ingenting
-i kortene). **Ved faseoppstart:** du teller radene i Excel-arket «Dager» og i appen (Claude
-forbereder kommandoen; bare tallet limes inn), så vi vet om noe falt ut ved innlastingen
-(innlastingen leser kolonne A–C og hopper over rader uten tekst i C).
-**Verifisering:** du legger inn en manglende dag i Admin → Dager og ser merknaden over dagen i
-Ukeplan og i Måned, også på smal skjerm.
+Fase 26 ✅ 2026-10-13 — detaljer i logg
 
 **Fase 27 — Fridager (Sonnet).**
 En dag kan merkes «fri» (felt `fri` på dagen, skjemaversjon 12); da viser alle ruter den dagen
