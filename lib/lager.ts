@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { SKJEMA_VERSJON, tomVaktliste, type Vaktliste } from "./domene";
+import { SKJEMA_VERSJON, oppgraderVaktliste, tomVaktliste, type Vaktliste } from "./domene";
 
 const DATA_DIR = path.resolve(process.cwd(), "data");
 const FIL = path.join(DATA_DIR, "vaktliste.json");
@@ -15,11 +15,8 @@ export function lesVaktliste(): Vaktliste {
     }
     return tomVaktliste();
   }
-  const v = JSON.parse(fs.readFileSync(FIL, "utf8")) as Vaktliste;
-  if (v.skjemaVersjon !== SKJEMA_VERSJON) {
-    throw new Error(`data/vaktliste.json har skjemaversjon ${v.skjemaVersjon}, appen forventer ${SKJEMA_VERSJON}.`);
-  }
-  return v;
+  const v = JSON.parse(fs.readFileSync(FIL, "utf8"));
+  return v.skjemaVersjon === SKJEMA_VERSJON ? (v as Vaktliste) : oppgraderVaktliste(v);
 }
 
 function ventSynkront(ms: number) {

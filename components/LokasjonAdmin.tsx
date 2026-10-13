@@ -2,7 +2,8 @@
 
 import { useActionState } from "react";
 import { endreLokasjon, leggTilLokasjon, slettLokasjon } from "@/app/admin/handlinger";
-import { LOKASJON_MAKSLENGDE, TEAM, type Svar } from "@/lib/domene";
+import { LOKASJON_MAKSLENGDE, TEAM } from "@/lib/domene";
+import { Bruk, Feil } from "./AdminFelles";
 
 export type LokasjonVisning = {
   id: string;
@@ -10,15 +11,6 @@ export type LokasjonVisning = {
   team: string;
   antallBrukere: number;
 };
-
-function Feil({ svar }: { svar: Svar | null }) {
-  if (!svar || svar.ok) return null;
-  return (
-    <p className="admin-feil" role="alert">
-      {svar.melding}
-    </p>
-  );
-}
 
 function TeamValg({ verdi }: { verdi: string }) {
   return (
@@ -71,11 +63,7 @@ function LokasjonRad({ lokasjon, revisjon }: { lokasjon: LokasjonVisning; revisj
           required
         />
         <TeamValg verdi={lokasjon.team} />
-        <span className="admin-bruk">
-          {lokasjon.antallBrukere === 0
-            ? "Ikke i bruk"
-            : `Brukes av ${lokasjon.antallBrukere} ${lokasjon.antallBrukere === 1 ? "person" : "personer"}`}
-        </span>
+        <Bruk antall={lokasjon.antallBrukere} />
         <button className="uke-btn" type="submit" disabled={opptatt}>
           Lagre
         </button>

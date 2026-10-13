@@ -3,7 +3,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SKJEMA_VERSJON } from "../lib/domene.ts";
+import { oppgraderVaktliste } from "../lib/domene.ts";
 
 const DATA_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..", "data");
 const MAL = resolve(DATA_DIR, "vaktliste.json");
@@ -20,8 +20,9 @@ function les(navn) {
 }
 
 const brukere = les("brukere.json");
-const samlet = {
-  skjemaVersjon: SKJEMA_VERSJON,
+// De gamle filene har formatet til skjemaversjon 1; resten gjøres av oppgraderVaktliste.
+const samlet = oppgraderVaktliste({
+  skjemaVersjon: 1,
   revisjon: 0,
   sistEndretAv: null,
   lokasjoner: les("lokasjoner.json"),
@@ -29,7 +30,7 @@ const samlet = {
   oppsett: les("oppsett.json"),
   endringer: les("endringer.json"),
   dager: les("dager.json"),
-};
+});
 
 writeFileSync(MAL, JSON.stringify(samlet, null, 2) + "\n", "utf8");
 console.log("Skrev data/vaktliste.json:");

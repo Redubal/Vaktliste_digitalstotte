@@ -38,10 +38,12 @@ export default async function AdminSide() {
           <Link className="uke-btn" href="/admin/lokasjoner">
             Lokasjoner
           </Link>
+          <Link className="uke-btn" href="/admin/roller">
+            Roller
+          </Link>
         </div>
         <p className="admin-ingress">Kommer:</p>
         <ul className="admin-liste">
-          <li>Roller</li>
           <li>Endringstyper og statuser</li>
           <li>Team</li>
           <li>Ansatte — endre rolle, team og lokasjon</li>

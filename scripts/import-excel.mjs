@@ -2,7 +2,7 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import XLSX from "xlsx";
-import { SKJEMA_VERSJON } from "../lib/domene.ts";
+import { oppgraderVaktliste } from "../lib/domene.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const APP_ROOT = resolve(__dirname, "..");
@@ -85,6 +85,7 @@ function rows(sheetName) {
 //   brukere    (id, name, upn)
 //   lokasjoner (id, name, team: Øst|Vest)
 //   oppsett    (id, brukerId -> brukere, lokasjonId -> lokasjoner, team, role, periode, sortOrder, comment)
+//              `role` blir til tabellen roller og `rolleId` ved oppgraderVaktliste nederst.
 //   endringer  (id, brukerId -> brukere, lokasjonId -> lokasjoner, status, periode, tid, type, comment)
 //   dager      (id, fromDate, toDate, comment)
 // Tomme verdier er null, ikke "". Datoer er ISO (YYYY-MM-DD), klokkeslett er "HH:MM".
@@ -202,13 +203,22 @@ const dager = rows("Dager")
 
 console.log("Importerer fra:", EXCEL_PATH);
 console.log("Skriver til:", MAL);
-const tabeller = { lokasjoner, brukere, oppsett, endringer, dager };
-writeFileSync(
-  MAL,
-  JSON.stringify({ skjemaVersjon: SKJEMA_VERSJON, revisjon: 0, sistEndretAv: null, ...tabeller }, null, 2) + "\n",
-  "utf8",
-);
-for (const [navn, rader] of Object.entries(tabeller)) console.log(`  ${navn}: ${rader.length} rader`);
+// Bygges i skjemaversjon 1 (rollen som fritekst på oppsettet) og gjøres om med samme kode
+// som appen bruker, så rolletabellen lages bare ett sted.
+const vaktliste = oppgraderVaktliste({
+  skjemaVersjon: 1,
+  revisjon: 0,
+  sistEndretAv: null,
+  lokasjoner,
+  brukere,
+  oppsett,
+  endringer,
+  dager,
+});
+writeFileSync(MAL, JSON.stringify(vaktliste, null, 2) + "\n", "utf8");
+for (const [navn, rader] of Object.entries(vaktliste)) {
+  if (Array.isArray(rader)) console.log(`  ${navn}: ${rader.length} rader`);
+}
 if (warnings.length > 0) {
   console.warn("Advarsler:");
   for (const w of warnings) console.warn("  -", w);

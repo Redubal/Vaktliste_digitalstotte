@@ -1,7 +1,8 @@
 // Delt mellom appen og skriptene i scripts/: ingen imports her, bare typer og rene funksjoner.
 // Node importerer .ts direkte, så filen må holde seg til syntaks som kan strippes (ingen enum).
 
-export const SKJEMA_VERSJON = 1;
+/** Eldre versjoner gjøres om ved lesing av `oppgraderVaktliste`; øk og legg til et steg der. */
+export const SKJEMA_VERSJON = 2;
 
 export const TEAM = ["Øst", "Vest"] as const;
 export type Team = (typeof TEAM)[number];
@@ -20,11 +21,16 @@ export type Lokasjon = {
   team: Team;
 };
 
+export type Rolle = {
+  id: string;
+  name: string;
+};
+
 export type Oppsett = {
   id: string;
   brukerId: string;
   team: Team;
-  role: string | null;
+  rolleId: string | null;
   lokasjonId: string | null;
   activeFrom: string | null;
   activeTo: string | null;
@@ -60,6 +66,7 @@ export type Vaktliste = {
   revisjon: number;
   sistEndretAv: string | null;
   lokasjoner: Lokasjon[];
+  roller: Rolle[];
   brukere: Bruker[];
   oppsett: Oppsett[];
   endringer: EndringRad[];
@@ -72,6 +79,7 @@ export function tomVaktliste(): Vaktliste {
     revisjon: 0,
     sistEndretAv: null,
     lokasjoner: [],
+    roller: [],
     brukere: [],
     oppsett: [],
     endringer: [],
@@ -83,6 +91,7 @@ export function tomVaktliste(): Vaktliste {
 export type Svar = { ok: boolean; melding: string };
 
 export const LOKASJON_MAKSLENGDE = 60;
+export const ROLLE_MAKSLENGDE = 60;
 
 // Kodene er uten æøå: norske tegn har blitt ødelagt stille i verktøykjeder her.
 export function slugify(input: string): string {
@@ -95,9 +104,9 @@ export function slugify(input: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-/** Første ledige id: `base`, deretter `base-2`, `base-3` ... */
-export function ledigId(base: string, brukte: Set<string>): string {
-  const grunn = base || "lokasjon";
+/** Første ledige id: `base`, deretter `base-2`, `base-3` ... `reserve` brukes når `base` er tom. */
+export function ledigId(base: string, brukte: Set<string>, reserve: string): string {
+  const grunn = base || reserve;
   let id = grunn;
   for (let n = 2; brukte.has(id); n++) id = `${grunn}-${n}`;
   return id;
@@ -107,22 +116,51 @@ function nøkkel(navn: string): string {
   return navn.toLocaleLowerCase("nb");
 }
 
+function rensNavn(navn: string): string {
+  return navn.replace(/\s+/g, " ").trim();
+}
+
+/** Felles for navnefeltene i Admin. `andre` er radene som ikke er den som redigeres. */
+function sjekkNavn(
+  rå: string,
+  andre: { name: string }[],
+  makslengde: number,
+  hva: { bestemt: string; ubestemt: string },
+): { feil: string } | { name: string } {
+  const name = rensNavn(rå);
+  if (!name) return { feil: `${hva.bestemt} må ha et navn.` };
+  if (name.length > makslengde) return { feil: `Navnet kan ha opptil ${makslengde} tegn.` };
+  if (andre.some((a) => nøkkel(a.name) === nøkkel(name))) {
+    return { feil: `Det finnes allerede ${hva.ubestemt} som heter «${name}».` };
+  }
+  return { name };
+}
+
 /** Renser og sjekker feltene fra skjemaet. `andre` er lokasjonene som ikke er den som redigeres. */
 export function sjekkLokasjon(
   rå: { name: string; team: string },
   andre: Lokasjon[],
 ): { feil: string } | { name: string; team: Team } {
-  const name = rå.name.replace(/\s+/g, " ").trim();
-  if (!name) return { feil: "Lokasjonen må ha et navn." };
-  if (name.length > LOKASJON_MAKSLENGDE) {
-    return { feil: `Navnet kan ha opptil ${LOKASJON_MAKSLENGDE} tegn.` };
-  }
+  const sjekket = sjekkNavn(rå.name, andre, LOKASJON_MAKSLENGDE, {
+    bestemt: "Lokasjonen",
+    ubestemt: "en lokasjon",
+  });
+  if ("feil" in sjekket) return sjekket;
   const team = TEAM.find((t) => t === rå.team);
   if (!team) return { feil: "Velg team Øst eller Vest." };
-  if (andre.some((l) => nøkkel(l.name) === nøkkel(name))) {
-    return { feil: `Det finnes allerede en lokasjon som heter «${name}».` };
-  }
-  return { name, team };
+  return { name: sjekket.name, team };
+}
+
+/** Renser og sjekker navnet fra skjemaet. `andre` er rollene som ikke er den som redigeres. */
+export function sjekkRolle(rå: { name: string }, andre: Rolle[]): { feil: string } | { name: string } {
+  return sjekkNavn(rå.name, andre, ROLLE_MAKSLENGDE, { bestemt: "Rollen", ubestemt: "en rolle" });
+}
+
+function navnPå(v: Vaktliste, brukerIder: Set<string>): string[] {
+  const navn = new Map(v.brukere.map((b) => [b.id, b.name]));
+  return [...brukerIder]
+    .map((id) => navn.get(id) ?? id)
+    .sort((a, b) => a.localeCompare(b, "nb"));
 }
 
 /** Navnene på personene som bruker lokasjonen, i oppsett eller endringer. Sortert, uten dubletter. */
@@ -130,17 +168,59 @@ export function lokasjonBrukere(v: Vaktliste, lokasjonId: string): string[] {
   const ider = new Set<string>();
   for (const o of v.oppsett) if (o.lokasjonId === lokasjonId) ider.add(o.brukerId);
   for (const e of v.endringer) if (e.lokasjonId === lokasjonId) ider.add(e.brukerId);
-  const navn = new Map(v.brukere.map((b) => [b.id, b.name]));
-  return [...ider]
-    .map((id) => navn.get(id) ?? id)
-    .sort((a, b) => a.localeCompare(b, "nb"));
+  return navnPå(v, ider);
 }
 
-/** Beskjed når lokasjonen ikke kan slettes fordi noen bruker den; `null` når den kan slettes. */
-export function nektSletting(v: Vaktliste, lokasjon: Lokasjon): string | null {
-  const brukere = lokasjonBrukere(v, lokasjon.id);
+/** Navnene på personene som har rollen i et oppsett. Sortert, uten dubletter. */
+export function rolleBrukere(v: Vaktliste, rolleId: string): string[] {
+  return navnPå(v, new Set(v.oppsett.filter((o) => o.rolleId === rolleId).map((o) => o.brukerId)));
+}
+
+/** Beskjed når raden ikke kan slettes fordi noen bruker den; `null` når den kan slettes. */
+export function nektSletting(rad: { name: string }, brukere: string[], råd: string): string | null {
   if (brukere.length === 0) return null;
   const synlige = brukere.slice(0, 5).join(", ");
   const rest = brukere.length > 5 ? ` og ${brukere.length - 5} til` : "";
-  return `«${lokasjon.name}» kan ikke slettes fordi den brukes av ${synlige}${rest}. Bytt lokasjon hos dem først.`;
+  return `«${rad.name}» kan ikke slettes fordi den brukes av ${synlige}${rest}. ${råd}`;
+}
+
+// --- Omgjøring av eldre skjemaversjoner ---
+
+type RåVaktliste = { skjemaVersjon: number; [tabell: string]: unknown };
+
+// 1 → 2: rollen var fritekst på oppsettet og blir en egen tabell. Navn som bare skiller seg
+// i store og små bokstaver blir én rolle; første skrivemåte vinner.
+function tilVersjon2(v: RåVaktliste): RåVaktliste {
+  const roller: Rolle[] = [];
+  const idPerNavn = new Map<string, string>();
+  const brukte = new Set<string>();
+  const oppsett = (v.oppsett as (Omit<Oppsett, "rolleId"> & { role?: string | null })[]).map(
+    ({ role, ...o }) => {
+      const name = rensNavn(role ?? "");
+      if (!name || name === "-") return { ...o, rolleId: null };
+      let id = idPerNavn.get(nøkkel(name));
+      if (!id) {
+        id = ledigId(slugify(name), brukte, "rolle");
+        brukte.add(id);
+        idPerNavn.set(nøkkel(name), id);
+        roller.push({ id, name });
+      }
+      return { ...o, rolleId: id };
+    },
+  );
+  return { ...v, skjemaVersjon: 2, roller, oppsett };
+}
+
+/**
+ * Gjør om innholdet i en eldre skjemaversjon til gjeldende, ett steg om gangen. Endrer ikke
+ * `revisjon`. Lagres først når noen lagrer; sikkerhetskopien tas da av den gamle fila.
+ */
+export function oppgraderVaktliste(rå: RåVaktliste): Vaktliste {
+  const fra = rå.skjemaVersjon;
+  let v = rå;
+  if (v.skjemaVersjon === 1) v = tilVersjon2(v);
+  if (v.skjemaVersjon !== SKJEMA_VERSJON) {
+    throw new Error(`data/vaktliste.json har skjemaversjon ${fra}, appen forventer ${SKJEMA_VERSJON}.`);
+  }
+  return v as Vaktliste;
 }

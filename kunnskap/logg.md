@@ -1,5 +1,16 @@
 # Logg
 
+## 2026-10-13 — Fase 4 ✅ Roller kan redigeres i Admin (forbehold: nytt navn i Ansatte ikke testet)
+
+- Levert: tabellen `roller` og `rolleId` på oppsett (skjemaversjon 2), `oppgraderVaktliste` i `lib/domene.ts`, handlinger for roller i `app/admin/handlinger.ts`, siden `app/admin/roller/page.tsx`, `components/RolleAdmin.tsx` og delte `components/AdminFelles.tsx`. Navnesjekk, id-generering og sletting-nekt er gjort felles for lokasjoner og roller.
+- Verifisert av bruker: Admin → Roller virker (vises, legge til, endre, slette). Ikke testet: at nytt rollenavn slår gjennom hos en ansatt i Ansatte; bruker fikk ikke prøvd det på en person ennå.
+- **Beslutning (SR, omgjøring av datafila):** ny skjemaversjon gjøres om automatisk ved lesing (`oppgraderVaktliste`), ikke med et eget skript. Begrunnelse: ingen manuelle steg nå, og samme mekanisme brukes i Fase 5–7. Sikkerhetskopien av v1 tas ved første lagring. Se `arkitektur.md`.
+- **Beslutning (Claude, skript):** `import` og `migrer` bygger v1-formatet og kaller `oppgraderVaktliste`, så rolletabellen lages bare ett sted (avvik fra planen, som ville skrive v2 direkte i importen).
+- Funn: et `node`-skript med absolutt Windows-sti i `import` feiler (`ERR_UNSUPPORTED_ESM_URL_SCHEME`). Bruk `file:///C:/...`.
+- Sjekk: omgjøringen er testet med oppdiktede rader: roller med ulik stor/liten bokstav slås sammen, `-`/tomt blir `null`, revisjonen beholdes og versjon 9 gir feil. `tsc --noEmit`, `npm run lint` og `next build` kjørt grønt etter siste kodeendring, etterpå bare `kunnskap/`-filer.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 7 treff. `data/` og `*.xlsx` er ikke tracket.
+- STATUS: 33 linjer. fase-slutt: 09:04–09:05, 1 min.
+
 ## 2026-10-13 — Fase 3 ✅ Lokasjoner kan redigeres i Admin
 
 - Levert: alle data ligger nå i én fil, `data/vaktliste.json` (`lib/domene.ts` regler og typer uten imports, `lib/lager.ts` atomisk lesing/skriving med revisjon og sikkerhetskopi, `lib/vaktlista.ts` leser via lageret). Admin: `app/admin/handlinger.ts` (legg til, endre, slett; admin sjekkes i hver handling), `app/admin/lokasjoner/page.tsx`, `components/LokasjonAdmin.tsx`. `npm run migrer` (`scripts/migrer-til-en-fil.mjs`) slo de fem gamle filene sammen én gang; `npm run import` skriver nå én fil og nekter å overskrive uten `--overskriv`.

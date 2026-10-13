@@ -21,6 +21,19 @@ eksisterende `vaktliste.json` uten `--overskriv`. Kilden til feltene på lokasjo
 Lokasjoner (navn og team); id-en er en kode laget ved opprettelse og endres aldri ved omdøping.
 Reglene bor i `lib/domene.ts` (uten imports, deles med skriptene).
 
+Fase 4 la til `roller` (`id, name`) og byttet `oppsett.role` (fritekst) mot `rolleId`.
+Skjemaversjonen er 2.
+
+## Ny skjemaversjon: omgjøring ved lesing (besluttet 2026-10-13, Fase 4)
+
+`lesVaktliste` sender en fil i eldre versjon gjennom `oppgraderVaktliste` (`lib/domene.ts`),
+som går ett steg om gangen (`tilVersjon2` …). Fila på disk skrives først ved neste lagring,
+og `endreVaktliste` tar sikkerhetskopi av den gamle versjonen før det. Ukjent eller nyere
+versjon gir feil. Skriptene (`import`, `migrer`) bygger det gamle formatet og kaller samme
+funksjon, så omgjøringen finnes bare ett sted. Ny tabell i Fase 5–7: øk `SKJEMA_VERSJON` og
+legg til et `tilVersjonN`-steg. Id-ene som lages er deterministiske, så gjentatt lesing av
+en ulagret v1-fil gir de samme id-ene hver gang.
+
 Appen skal eie dataene og bygges ikke som en avbildning av Excel-arket. Excel blir
 en engangsinnlasting. Modellen er ekte tabeller med primær- og fremmednøkler, så den
 kan flyttes til SQLite senere.

@@ -1,5 +1,16 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 4) — Roller i Admin
+
+**Evaluering av forrige økts punkter:**
+- `[status-i-undermappe]` brutt igjen (3. runde): `fase-start` ble kjørt fra rotmappa, STATUS ble ikke funnet, og jeg spurte om `nytt-prosjekt` uten å lete i `app/`. Promotert: pekerfil `CLAUDE.md` i rotmappa (utenfor git-repoet) sier at prosjektet ligger i `app/` og at `nytt-prosjekt` ikke skal foreslås. Strøket fra STATUS.
+- `[ny-ui-temaklasser]` fulgt: lenken og knappene for Roller bruker `uke-btn` fra første utkast. Strøket som innarbeidet.
+- `[les-skjermbildet-først]` ikke utløst (ingen skjermbilder i fasen), og Fase 5–7 kan utløse den. Videreført, rundetallet står.
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** Fase 4 fikk plass i én økt uten `/compact`.
+
 ## 2026-10-13 (avslutning Fase 3) — Lokasjoner i Admin
 
 **Evaluering av forrige økts punkter:**

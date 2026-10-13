@@ -51,6 +51,7 @@ export function getAnsatte(): Ansatt[] {
   const v = lesVaktliste();
   const brukere = new Map(v.brukere.map((b) => [b.id, b]));
   const lokasjoner = new Map(v.lokasjoner.map((l) => [l.id, l]));
+  const roller = new Map(v.roller.map((r) => [r.id, r]));
   return v.oppsett
     .flatMap((o) => {
       const bruker = brukere.get(o.brukerId);
@@ -61,7 +62,7 @@ export function getAnsatte(): Ansatt[] {
           name: bruker.name,
           team: o.team,
           location: (o.lokasjonId && lokasjoner.get(o.lokasjonId)?.name) || "-",
-          role: o.role ?? "-",
+          role: (o.rolleId && roller.get(o.rolleId)?.name) || "-",
           activeFrom: o.activeFrom ?? "",
           activeTo: o.activeTo ?? "",
           comment: o.comment ?? "",
