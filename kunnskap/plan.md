@@ -118,10 +118,7 @@ Fase 17 ✅ 2026-10-13 — detaljer i logg
 
 Fase 18 ✅ 2026-10-13 — detaljer i logg
 
-**Fase 19 — Status direkte i uke-/månedsvisning (tyngste modell: hvem får endre hva).**
-Ansatt og admin legger inn/endrer status i planen; endringen venter på godkjenning av admin.
-**Verifisering:** som ansatt legger du inn en status i Ukeplan og ser den som «ikke godkjent»; som
-admin godkjenner du den.
+Fase 19 ✅ 2026-10-13 — detaljer i logg
 
 **Fase 20 — Mobil/pad-test og logo (Sonnet).**
 Gjennomgang på smal skjerm og pad med rettinger, og Vestfold-logoen på siden.

@@ -39,6 +39,9 @@ export type Endring = {
   farge: string | null;
   newLocation: string;
   comment: string;
+  /** Id-ene bak `type` og `newLocation`, til vinduet som retter endringen. Tom = ingen. */
+  typeId: string;
+  lokasjonId: string;
 };
 
 export type Dag = DagRad;
@@ -119,5 +122,7 @@ export function getEndringer(): Endring[] {
     farge: (e.typeId && typer.get(e.typeId)?.farge) || null,
     newLocation: (e.lokasjonId && lokasjoner.get(e.lokasjonId)?.name) || "",
     comment: e.comment ?? "",
+    typeId: e.typeId ?? "",
+    lokasjonId: e.lokasjonId ?? "",
   }));
 }

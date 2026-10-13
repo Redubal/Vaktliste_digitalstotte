@@ -81,6 +81,125 @@ export function godkjennEndring(v: Vaktliste, endringId: string): string | null 
   return null;
 }
 
+/** Statusen en endring fra en ansatt får: den første som venter, i navnerekkefølge. `null` venter også. */
+export function venterStatus(statuser: Status[]): Status | null {
+  const ventende = statuser
+    .filter((s) => s.virkning === "venter")
+    .sort((a, b) => a.name.localeCompare(b.name, "nb"));
+  return ventende[0] ?? null;
+}
+
+export const ENDRING_KOMMENTAR_MAKSLENGDE = 200;
+
+/** Den som legger inn, retter eller sletter en endring i vaktlista. */
+export type Aktør = { id: string; erAdmin: boolean };
+
+/** Feltene fra vinduet for én endring, som tekst. Tom til-dato = samme dag som fra-datoen. */
+export type EndringSkjema = {
+  typeId: string;
+  lokasjonId: string;
+  fromDate: string;
+  toDate: string;
+  comment: string;
+};
+
+function gyldigDato(s: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const d = new Date(`${s}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().startsWith(s);
+}
+
+/**
+ * Sjekker feltene for en endring for `brukerId`. En ansatt kan bare legge inn for seg selv;
+ * en administrator for alle. Lokasjon kreves når typen er en lokasjonstype, og kan ellers stå tom.
+ */
+function sjekkEndring(
+  rå: EndringSkjema,
+  brukerId: string,
+  v: Vaktliste,
+  aktør: Aktør,
+): { feil: string } | Pick<EndringRad, "brukerId" | "typeId" | "lokasjonId" | "fromDate" | "toDate" | "comment"> {
+  if (!aktør.erAdmin && brukerId !== aktør.id) return { feil: "Du kan bare legge inn endringer for deg selv." };
+  if (!v.brukere.some((b) => b.id === brukerId && b.aktiv)) {
+    return { feil: "Personen finnes ikke lenger. Last siden på nytt." };
+  }
+  const type = v.endringstyper.find((t) => t.id === rå.typeId);
+  if (!type) return { feil: "Velg hva endringen gjelder." };
+  if (rå.lokasjonId && !v.lokasjoner.some((l) => l.id === rå.lokasjonId)) {
+    return { feil: "Lokasjonen finnes ikke lenger. Last siden på nytt." };
+  }
+  if (type.kategori === "lokasjon" && !rå.lokasjonId) return { feil: "Velg ny lokasjon." };
+  if (!gyldigDato(rå.fromDate)) return { feil: "Velg en fra-dato." };
+  const toDate = rå.toDate || rå.fromDate;
+  if (!gyldigDato(toDate)) return { feil: "Til-datoen er ikke en gyldig dato." };
+  if (toDate < rå.fromDate) return { feil: "Til-datoen kan ikke være før fra-datoen." };
+  const comment = rensNavn(rå.comment);
+  if (comment.length > ENDRING_KOMMENTAR_MAKSLENGDE) {
+    return { feil: `Kommentaren kan ha opptil ${ENDRING_KOMMENTAR_MAKSLENGDE} tegn.` };
+  }
+  return { brukerId, typeId: type.id, lokasjonId: rå.lokasjonId || null, fromDate: rå.fromDate, toDate, comment: comment || null };
+}
+
+/** Kan `aktør` rette eller slette endringen? En ansatt: bare egne som venter. En administrator: alle. */
+export function kanEndreEndring(
+  endring: { brukerId: string; virkning: Virkning },
+  aktør: Aktør,
+): boolean {
+  return aktør.erAdmin || (endring.brukerId === aktør.id && endring.virkning === "venter");
+}
+
+function finnEndringÅEndre(v: Vaktliste, endringId: string, aktør: Aktør): { feil: string } | { endring: EndringRad } {
+  const endring = v.endringer.find((e) => e.id === endringId);
+  if (!endring) return { feil: "Endringen finnes ikke lenger. Last siden på nytt." };
+  const virkning = virkningFor(endring.statusId, v.statuser);
+  if (!kanEndreEndring({ brukerId: endring.brukerId, virkning }, aktør)) {
+    return {
+      feil:
+        endring.brukerId !== aktør.id
+          ? "Du kan bare endre dine egne endringer."
+          : "Endringen er allerede behandlet. Bare en administrator kan endre den nå.",
+    };
+  }
+  return { endring };
+}
+
+/**
+ * Legger til en endring for `brukerId`. Fra en administrator er den godkjent med en gang;
+ * fra en ansatt venter den på godkjenning. Gir feilmelding, eller `null` når den er lagt til.
+ */
+export function leggTilEndring(v: Vaktliste, brukerId: string, rå: EndringSkjema, aktør: Aktør): string | null {
+  const sjekket = sjekkEndring(rå, brukerId, v, aktør);
+  if ("feil" in sjekket) return sjekket.feil;
+  let statusId: string | null;
+  if (aktør.erAdmin) {
+    const status = godkjentStatus(v.statuser);
+    if (!status) return "Ingen status har virkningen «Godkjent». Legg til en i Admin → Endringstyper og statuser.";
+    statusId = status.id;
+  } else {
+    statusId = venterStatus(v.statuser)?.id ?? null;
+  }
+  const id = ledigId(`endring-${sjekket.fromDate}`, new Set(v.endringer.map((e) => e.id)), "endring");
+  v.endringer.push({ id, ...sjekket, statusId, fromTime: null, toTime: null });
+  return null;
+}
+
+/** Retter en endring. Personen, statusen og klokkeslettene står som før. */
+export function rettEndring(v: Vaktliste, endringId: string, rå: EndringSkjema, aktør: Aktør): string | null {
+  const funnet = finnEndringÅEndre(v, endringId, aktør);
+  if ("feil" in funnet) return funnet.feil;
+  const sjekket = sjekkEndring(rå, funnet.endring.brukerId, v, aktør);
+  if ("feil" in sjekket) return sjekket.feil;
+  Object.assign(funnet.endring, sjekket);
+  return null;
+}
+
+export function slettEndring(v: Vaktliste, endringId: string, aktør: Aktør): string | null {
+  const funnet = finnEndringÅEndre(v, endringId, aktør);
+  if ("feil" in funnet) return funnet.feil;
+  v.endringer = v.endringer.filter((e) => e !== funnet.endring);
+  return null;
+}
+
 export const KATEGORIER = [
   { id: "fravaer", navn: "Fravær (får fri-farge)" },
   { id: "lokasjon", navn: "Lokasjon" },

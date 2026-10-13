@@ -1,5 +1,15 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 19) — Status direkte i uke-/månedsvisning
+
+**Evaluering av forrige økts punkter:** `[knapp-har-forutsetning]` fulgt (Lagre er grå til typen er valgt, og feilmeldingen skjules når noe i vinduet endres); strykes som innarbeidet. `[skjemasteg-er-låst-etter-test]` ikke utløst (ingen endring av skjemaversjon i fasen); Fase 21–24 kan trenge nye felt, så den videreføres uten ny runde.
+
+**Nye punkter:**
+- `[vis-felt-heller-enn-å-skjule]` Et felt som bare vises for visse verdier i data Claude ikke kan lese (personvern), vises alltid, som valgfritt. Belegg: lokasjonsfeltet vistes bare for kategori «Lokasjon», og bruker fant ikke feltet da typen «Flyttet» (kategori «Annet») ble valgt.
+- `[klikkflate-hele-ruta]` Noe som skal trykkes i en rute eller celle gjøres klikkbart over hele ruta, ikke bare på teksten. Belegg: bruker så bare en tekstlenke i cella og ba om hele feltet.
+
+**Fasesnitt:** Fase 19 fikk plass i én økt uten `/compact`, selv med tre rettelsesrunder etter bruker. Resten av planen står uendret.
+
 ## 2026-10-13 (avslutning Fase 18) — Godkjenningsliste i Admin
 
 **Evaluering av forrige økts punkter:** `[knapp-har-forutsetning]` ikke utløst («Godkjenn» krever ikke et valg i skjema); Fase 19 (status valgt direkte i planen) kan utløse den, så den videreføres uten ny runde. `[skjemasteg-er-låst-etter-test]` ikke utløst (versjon 10 var en ny endring, ikke en retting av et steg som var lagret); videreføres, siden senere faser kan trenge rettinger.

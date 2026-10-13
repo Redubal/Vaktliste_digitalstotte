@@ -15,6 +15,7 @@ import {
   type TeamFilter,
   type UkeplanCelle,
 } from "@/lib/ukeplan";
+import { useEndringVindu, type EndringValg } from "./EndringVindu";
 import { VenterListe } from "./Godkjenning";
 import { ariaSort, sorterRader } from "@/lib/sortering";
 import { formatDayShort, formatMonthName, todayUtc } from "@/lib/uker";
@@ -28,8 +29,11 @@ type Props = {
   endringer: Endring[];
   dager: Dag[];
   erAdmin: boolean;
-  /** Bare for administratorer: gir «Godkjenn»-knapp i listen over endringer som venter. */
+  /** Den som har valgt seg selv; `null` = ingen, og da kan ingen dag klikkes. */
+  jegId: string | null;
+  /** Når noen har valgt seg selv: til vinduet, og til «Godkjenn» for administratorer. */
   revisjon: number | null;
+  valg: EndringValg | null;
 };
 
 /** Prikkens klasse, med merke for en endring som venter på godkjenning. */
@@ -66,7 +70,8 @@ const FORKLARING: { type: CelleType; tekst: string }[] = [
   { type: "utenfor", tekst: "Ikke aktiv" },
 ];
 
-export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmin, revisjon }: Props) {
+export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmin, jegId, revisjon, valg }: Props) {
+  const { aapneFor, vindu } = useEndringVindu({ jegId, erAdmin, revisjon, valg });
   const today = useMemo(() => {
     const t = todayUtc();
     return { aar: t.getUTCFullYear(), maaned: t.getUTCMonth() + 1 };
@@ -165,7 +170,7 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
             {venter.length} {venter.length === 1 ? "endring venter" : "endringer venter"} på godkjenning denne
             måneden
           </summary>
-          <VenterListe endringer={venter} revisjon={revisjon} />
+          <VenterListe endringer={venter} revisjon={erAdmin ? revisjon : null} />
         </details>
       )}
 
@@ -224,17 +229,32 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
                   {rad.celler.map((celle, i) => {
                     const dag = plan.dager[i];
                     const tittel = tittelFor(celle, dag);
+                    const aapne = aapneFor(rad.person, celle);
+                    const prikk = (
+                      <span
+                        className={prikkKlasse(celle)}
+                        style={egenFarge(celle) ? { background: egenFarge(celle)! } : undefined}
+                        aria-label={aapne ? undefined : tittel}
+                      />
+                    );
                     return (
                       <td
                         key={celle.iso}
                         title={tittel}
                         className={dag.getUTCDay() === 1 ? "col-mdag--uke" : undefined}
                       >
-                        <span
-                          className={prikkKlasse(celle)}
-                          style={egenFarge(celle) ? { background: egenFarge(celle)! } : undefined}
-                          aria-label={tittel}
-                        />
+                        {aapne ? (
+                          <button
+                            type="button"
+                            className="prikk-knapp"
+                            onClick={aapne}
+                            aria-label={`${rad.person.name}, ${tittel}. Legg inn eller endre`}
+                          >
+                            {prikk}
+                          </button>
+                        ) : (
+                          prikk
+                        )}
                       </td>
                     );
                   })}
@@ -280,14 +300,24 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
                   {rad.celler.map((celle, i) => {
                     const dag = plan.dager[i];
                     const tittel = tittelFor(celle, dag);
-                    return (
-                      <span
+                    const aapne = aapneFor(rad.person, celle);
+                    const felles = {
+                      className: `mkal-dag ${prikkKlasse(celle)}`,
+                      style: egenFarge(celle) ? { background: egenFarge(celle)! } : undefined,
+                      title: tittel,
+                    };
+                    return aapne ? (
+                      <button
                         key={celle.iso}
-                        className={`mkal-dag ${prikkKlasse(celle)}`}
-                        style={egenFarge(celle) ? { background: egenFarge(celle)! } : undefined}
-                        title={tittel}
-                        aria-label={tittel}
+                        type="button"
+                        {...felles}
+                        onClick={aapne}
+                        aria-label={`${tittel}. Legg inn eller endre`}
                       >
+                        {dag.getUTCDate()}
+                      </button>
+                    ) : (
+                      <span key={celle.iso} {...felles} aria-label={tittel}>
                         {dag.getUTCDate()}
                       </span>
                     );
@@ -298,6 +328,7 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
           </ul>
         </div>
       </div>
+      {vindu}
     </section>
   );
 }

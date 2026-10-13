@@ -41,10 +41,10 @@ Mulig å gå fra ansatt på main til ansatt på admin — levert i Fase 12, se l
 - Rette en endring fra godkjenningslisten i Admin, ikke bare godkjenne den.
 - «Avvis»-knapp. I dag avvises en endring bare ved å gi den en status med virkning «Avvist», og ingen får beskjed.
 - Den ansatte får beskjed når en endring godkjennes eller avvises.
-- Som ansatt (prøvd som Frode) ser man ikke hva som er godkjent: en godkjent endring vises uten merke, og bare de som venter er merket.
+- Som ansatt (prøvd som Frode) ser man ikke hva som er godkjent: en godkjent endring vises uten merke, og bare de som venter er merket. Sett igjen i Fase 19 (Max fikk ingen beskjed om hva som ble godkjent). Brukers idé: en egen visning eller logg over egne endringer og hva som er godkjent.
 - Den som er valgt i «Velg deg selv», bør stå øverst i Ukeplan og Måned.
 - Sortering på navn stigende ser ikke ut til å virke i Ukeplan (sett av bruker, ikke undersøkt; sorteringen ble ikke endret i Fase 18).
-- Ansatte skal kunne legge inn endringer både i et eget skjema og ved å trykke i Ukeplan. Innspill til Fase 19 (status direkte i planen).
+- Legge inn endring ved å trykke i Ukeplan og Måned — levert i Fase 19, se logg 2026-10-13. Et eget skjema utenfor planen er ikke bygget.
 
 ## Ansatte og synk mot Entra
 - Kom inn, deaktivering og adminstatus — levert i Fase 10, se logg 2026-10-13 og `/admin/ansatte`.

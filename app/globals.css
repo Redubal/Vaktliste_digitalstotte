@@ -592,6 +592,167 @@ tbody tr:nth-child(even) {
   margin-bottom: 16px;
 }
 
+/* --- Klikkbare dager og vinduet for endringer (Fase 19) --- */
+
+/* Knappen dekker hele cella (::after); «Godkjenn» ligger over den og kan trykkes for seg. */
+.celle:has(.celle-aapne) {
+  position: relative;
+  cursor: pointer;
+}
+
+.celle-aapne {
+  all: unset;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.celle-aapne::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+}
+
+.celle:has(.celle-aapne):hover {
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+.celle .godkjenn-skjema {
+  position: relative;
+  z-index: 1;
+}
+
+.celle-aapne:focus-visible::after,
+.prikk-knapp:focus-visible::after {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+button.mkal-dag:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* I Måned dekker knappen hele ruta rundt prikken. */
+.maaned-table td:has(.prikk-knapp) {
+  position: relative;
+  cursor: pointer;
+}
+
+.maaned-table td:has(.prikk-knapp):hover {
+  background: var(--accent);
+}
+
+.prikk-knapp {
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  line-height: 0;
+  outline: none;
+}
+
+.prikk-knapp::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+button.mkal-dag {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.endring-vindu {
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  color: var(--heading);
+  background: white;
+}
+
+.endring-vindu::backdrop {
+  background: rgba(16, 38, 59, 0.45);
+}
+
+.endring-vindu h2 {
+  margin: 0 0 12px;
+  font-size: 1.15rem;
+}
+
+.vindu-skjema {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vindu-felt {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.vindu-felt select,
+.vindu-felt input {
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--heading);
+}
+
+.vindu-datoer {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.vindu-info,
+.vindu-merknad {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.vindu-merknad {
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #fff4d9;
+  color: #7a5a00;
+}
+
+.vindu-knapper,
+.vindu-slett {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.vindu-slett {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.slett-knapp {
+  background: #fdecea;
+  border-color: #f1b5ae;
+  color: #8a1c12;
+}
+
 .venter-panel summary {
   cursor: pointer;
   font-weight: 700;

@@ -1,5 +1,25 @@
 # Logg
 
+## 2026-10-13 — Fase 19 ✅ Status direkte i uke-/månedsvisning
+
+- Bruker ba om faseslutt etter å ha prøvd det (som ansatt, Max, og som administrator): «kan godkjenne både i ukeplan og i admin liste». Hvilke deler som ble prøvd utover det (retting, sletting, Måned, mobil) ble ikke oppgitt punkt for punkt; føres derfor som ikke bekreftet nedenfor.
+- Funn ved start: det fantes ingen måte å legge inn en endring på (ingen skjema, ingen handling); alle handlinger krevde administrator. Fasen bygger derfor innleggingen fra bunnen.
+- Levert: klikk på en dag i Ukeplan (cella) eller Måned (prikk / kalenderdag) åpner et vindu (`components/EndringVindu.tsx`, native `<dialog>`) for ny endring eller retting/sletting. Handlingene `lagreEndring` og `slettEndring` i `app/handlinger.ts`; reglene i `lib/domene.ts` (`leggTilEndring`, `rettEndring`, `slettEndring`, `kanEndreEndring`, `venterStatus`). Admin-sjekken er flyttet til `utforSom` i `lib/utfor.ts`, som både Admin og planen bruker. `Endring` (visningen) har fått `typeId` og `lokasjonId`. Siden sender revisjon og valg (typer, lokasjoner) til alle som har valgt seg selv; «Godkjenn» vises fortsatt bare for administratorer.
+- **Beslutning (bruker, hvem):** en ansatt legger inn endringer bare for seg selv; en administrator for alle. Begrunnelse: minst rom for feil.
+- **Beslutning (bruker, admin):** det en administrator legger inn, er godkjent med en gang. Begrunnelse: slipper å godkjenne sin egen endring; endringsloggen viser hvem.
+- **Beslutning (bruker, retting):** en ansatt kan rette og slette egne endringer som venter, ikke godkjente eller avviste; en administrator kan rette og slette alle. Begrunnelse: en godkjent endring skal ikke kunne forsvinne eller endres i stillhet.
+- **Beslutning (bruker, felter):** vinduet spør om type, fra–til-dato og kommentar; ny lokasjon når typen er en lokasjonstype. Klokkeslett er ikke med.
+- **Beslutning (bruker, lokasjon):** «Flyttet, så må jeg kunne si til hvor.» Lokasjonsfeltet står derfor alltid i vinduet: valgfritt, påkrevd for typer i kategori «Lokasjon». Begrunnelse: omgjøringen i versjon 3 ga aldri kategori «lokasjon», så typer som «Flyttet» ligger i «Annet»; første versjon viste feltet bare for kategori «Lokasjon», og bruker fant ikke feltet.
+- **Beslutning (bruker, klikkflate):** hele cella (Ukeplan) og hele ruta rundt prikken (Måned) skal kunne trykkes, ikke bare teksten. Løst med en knapp som dekker cella (`::after`); «Godkjenn» ligger over og kan trykkes for seg.
+- Observert: etter kodeendringen sendte dev-serveren gamle data fra `app/page.tsx` (uten `valg`), mens klientkoden var ny; vinduet krasjet («reading 'endringstyper'»). Rettet slik at dagene ikke kan klikkes når data mangler; siden må lastes fra en omstartet server.
+- **Beslutning (Claude, status):** ny endring fra ansatt får den første statusen med virkning venter (navnerekkefølge), ellers ingen status (som også venter). Retting endrer ikke status, person eller klokkeslett. Ny id er `endring-<fra-dato>` (`-2`, `-3` … ved like). Vedlikeholdsmodus stenger handlingene for andre enn administratorer.
+- Sjekk i Node med oppdiktede rader: 28 av 28 OK (legge inn, rette, slette; egen/andres; venter/godkjent; datoer, lokasjon, kommentarlengde; ingen venter-/godkjent-status). `tsc --noEmit` og `npm run lint` grønne.
+- Ønsker fra bruker under fasen, ført i `TODO.md` og ikke gjort (utenfor fasen): innlogget person øverst i Ukeplan og Måned; navn stigende i Ukeplan; en ansatt ser ikke hva som er godkjent (Max fikk ingen beskjed), med brukerens idé om en egen visning eller logg over egne endringer.
+- Ikke prøvd av noen: retting og sletting i vinduet, klikk i Måned (prikk og mobilkalender), vedlikeholdsmodus mot ansatt som lagrer, to faner samtidig mot lagring, `next build`.
+- Sjekk: `tsc --noEmit` og `npm run lint` grønne etter siste kodeendring (klikkflate og lokasjonsfelt); etterpå bare `kunnskap/`, `TODO.md` og `plan.md`, så de ble ikke kjørt på nytt ved faseslutt.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 1 treff. Datauttrekk og Excel ikke i git; de tre nye kodefilene 0 treff.
+- STATUS er 43 linjer (tak 45). Fase 19 kollapset i `plan.md`; TODO-posten om innlegging i Ukeplan fortettet til peker. fase-slutt: 17:16–17:20, ca. 4 min fram til commit (pluss ventetid på svar).
+
 ## 2026-10-13 — Fase 18 ✅ Godkjenningsliste i Admin
 
 - Levert: statusene har `virkning` (`godkjent|venter|avvist`) i stedet for `visesIPlan` (skjemaversjon 10, `tilVersjon10`). Ny side `/admin/godkjenning` (`app/admin/godkjenning/page.tsx`) med liste og «Godkjenn»-knapp per rad; Admin-forsiden viser antallet som venter. Handlingen `godkjenn` i `app/admin/handlinger.ts` bruker `godkjennEndring` og `godkjentStatus` i `lib/domene.ts` og sjekker admin som alle andre handlinger. Ukeplan og Måned viser endringer som venter med stiplet kant og tekstmerket «Venter» (felles del `components/Godkjenning.tsx`); administratorer får «Godkjenn» i cella (Ukeplan) og i en sammenleggbar liste over månedens ventende (Måned). Endringsloggen kjenner feltet `virkning` («Betyr»).

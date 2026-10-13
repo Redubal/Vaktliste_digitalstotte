@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
+import type { EndringValg } from "@/components/EndringVindu";
 import { IdentitetsVelger } from "@/components/IdentitetsVelger";
 import { MaanedClient } from "@/components/MaanedClient";
 import { Tabs, type TabDefinition } from "@/components/Tabs";
@@ -26,8 +27,21 @@ export default async function Home({
   const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
   const jeg = finnAnsatt(ansatte, valgtId);
   const erAdmin = erAdministrator(jeg);
-  // Revisjonen trengs bare til «Godkjenn»-knappen; uten den viser visningene ingen knapper.
-  const revisjon = erAdmin ? lesVaktliste().revisjon : null;
+  // Bare når noen har valgt seg selv: revisjonen og valgene til vinduet for endringer (og
+  // «Godkjenn» for administratorer). Uten dem kan ingen dag klikkes.
+  const v = jeg ? lesVaktliste() : null;
+  const revisjon = v ? v.revisjon : null;
+  const valg: EndringValg | null = v
+    ? {
+        endringstyper: v.endringstyper
+          .map(({ id, name, kategori }) => ({ id, name, kategori }))
+          .sort((a, b) => a.name.localeCompare(b.name, "nb")),
+        lokasjoner: v.lokasjoner
+          .map(({ id, name, teamId }) => ({ id, name, teamId }))
+          .sort((a, b) => a.name.localeCompare(b.name, "nb")),
+      }
+    : null;
+  const jegId = jeg?.id ?? null;
 
   // Ansatte ser Ukeplan og Måned. Administrator ser i tillegg ansattlista og
   // lenken til admin-sidene. Utvalget gjøres her, på serveren, slik at innhold
@@ -43,7 +57,9 @@ export default async function Home({
           endringer={endringer}
           dager={dager}
           erAdmin={erAdmin}
+          jegId={jegId}
           revisjon={revisjon}
+          valg={valg}
           utheves={utheves}
         />
       ),
@@ -58,7 +74,9 @@ export default async function Home({
           endringer={endringer}
           dager={dager}
           erAdmin={erAdmin}
+          jegId={jegId}
           revisjon={revisjon}
+          valg={valg}
         />
       ),
     },

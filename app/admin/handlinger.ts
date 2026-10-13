@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import {
   endringstypeBrukere,
@@ -24,49 +23,17 @@ import {
   type Svar,
   type Vaktliste,
 } from "@/lib/domene";
-import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
-import { endreVaktliste } from "@/lib/lager";
-import { getAnsatte } from "@/lib/vaktlista";
-
-function tekst(data: FormData, felt: string): string {
-  const verdi = data.get(felt);
-  return typeof verdi === "string" ? verdi : "";
-}
+import { IDENTITET_COOKIE } from "@/lib/identitet";
+import { tekst, utforSom } from "@/lib/utfor";
 
 /** Fargen fra skjemaet: bare med når «Egen farge» er krysset av, ellers tom (= ingen egen farge). */
 function fargeFra(data: FormData): string {
   return data.get("egenFarge") === "on" ? tekst(data, "farge") : "";
 }
 
-// Sjekkes i hver handling: en handling er et åpent POST-endepunkt, så å skjule skjemaet
-// i siden er ikke tilgangskontroll.
-async function utfor(
-  data: FormData,
-  sti: string,
-  endre: (v: Vaktliste) => string | null,
-  okMelding: string,
-): Promise<Svar> {
-  const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
-  const jeg = finnAnsatt(getAnsatte(), valgtId);
-  if (!jeg || !erAdministrator(jeg)) {
-    return { ok: false, melding: "Du har ikke tilgang til å endre dette." };
-  }
-
-  try {
-    const feil = endreVaktliste(
-      { forventetRevisjon: Number(tekst(data, "revisjon")), endretAv: jeg.id },
-      endre,
-    );
-    if (feil) return { ok: false, melding: feil };
-  } catch (e) {
-    console.error("Lagring av vaktliste feilet", e);
-    return { ok: false, melding: "Kunne ikke lagre. Prøv igjen, og si fra hvis det vedvarer." };
-  }
-
-  revalidatePath(sti);
-  // «layout» også: rotlayouten viser vedlikeholdsmeldingen og skal ikke stå igjen med gammel tilstand.
-  revalidatePath("/", "layout");
-  return { ok: true, melding: okMelding };
+/** Alle handlingene i Admin krever administrator. */
+function utfor(data: FormData, sti: string, endre: (v: Vaktliste) => string | null, okMelding: string): Promise<Svar> {
+  return utforSom("administrator", data, sti, endre, okMelding);
 }
 
 // --- Vedlikeholdsmodus ---

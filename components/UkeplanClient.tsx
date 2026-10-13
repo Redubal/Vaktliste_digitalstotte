@@ -15,6 +15,7 @@ import {
   type TeamFilter,
   type UkeplanCelle,
 } from "@/lib/ukeplan";
+import { useEndringVindu, type EndringValg } from "./EndringVindu";
 import { GodkjennKnapp, hva, periode, VenterMerke } from "./Godkjenning";
 import { ariaSort, sorterRader } from "@/lib/sortering";
 import { formatDayNumber, formatDayShort, formatWeekRange, isoWeek, todayUtc } from "@/lib/uker";
@@ -28,8 +29,11 @@ type Props = {
   endringer: Endring[];
   dager: Dag[];
   erAdmin: boolean;
-  /** Bare for administratorer: gir «Godkjenn»-knapp på endringer som venter. */
+  /** Den som har valgt seg selv; `null` = ingen, og da kan ingen dag klikkes. */
+  jegId: string | null;
+  /** Når noen har valgt seg selv: til vinduet, og til «Godkjenn» for administratorer. */
   revisjon: number | null;
+  valg: EndringValg | null;
   /** Bruker-id som skal utheves (fra «Vis i ukeplan» i Admin). */
   utheves: string | null;
 };
@@ -42,14 +46,43 @@ const CELLE_KLASSE: Record<CelleType, string> = {
   utenfor: "celle celle--utenfor",
 };
 
-/** Innholdet i én dag, likt i tabellen og kortlisten. */
-function Celle({ celle, person, revisjon }: { celle: UkeplanCelle; person: string; revisjon: number | null }) {
+/**
+ * Innholdet i én dag, likt i tabellen og kortlisten. `revisjon` gir «Godkjenn» (bare administratorer);
+ * `onAapne` gjør teksten til en knapp som åpner vinduet for endringer.
+ */
+function Celle({
+  celle,
+  person,
+  revisjon,
+  onAapne,
+}: {
+  celle: UkeplanCelle;
+  person: string;
+  revisjon: number | null;
+  onAapne?: () => void;
+}) {
   const venter = venterPaaGodkjenning(celle);
   const klasse = CELLE_KLASSE[classifyCelle(celle)] + (venter ? " celle--venter" : "");
-  return (
-    <div className={klasse} style={egenCelleStil(celle)}>
+  const innhold = (
+    <>
       <span className="celle-tekst">{celle.primær}</span>
       {celle.endring && celle.endring.newLocation && <span className="celle-badge">{celle.endring.type}</span>}
+    </>
+  );
+  return (
+    <div className={klasse} style={egenCelleStil(celle)}>
+      {onAapne ? (
+        <button
+          type="button"
+          className="celle-aapne"
+          onClick={onAapne}
+          aria-label={`${celle.primær}, ${person}, ${celle.iso}. Legg inn eller endre`}
+        >
+          {innhold}
+        </button>
+      ) : (
+        innhold
+      )}
       {venter && <VenterMerke />}
       {venter && revisjon !== null && celle.endring && (
         <GodkjennKnapp
@@ -62,7 +95,19 @@ function Celle({ celle, person, revisjon }: { celle: UkeplanCelle; person: strin
   );
 }
 
-export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdmin, revisjon, utheves }: Props) {
+export function UkeplanClient({
+  team: alleTeam,
+  ansatte,
+  endringer,
+  dager,
+  erAdmin,
+  jegId,
+  revisjon,
+  valg,
+  utheves,
+}: Props) {
+  const { aapneFor, vindu } = useEndringVindu({ jegId, erAdmin, revisjon, valg });
+  const godkjennRevisjon = erAdmin ? revisjon : null;
   const today = useMemo(() => isoWeek(todayUtc()), []);
   // Kommer du fra Admin, starter visningen på teamet til personen, ellers er raden ikke i listen.
   const [team, setTeam] = useState<TeamFilter>(
@@ -217,7 +262,12 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdm
                       : undefined;
                     return (
                       <td key={celle.iso} title={tooltip}>
-                        <Celle celle={celle} person={rad.person.name} revisjon={revisjon} />
+                        <Celle
+                          celle={celle}
+                          person={rad.person.name}
+                          revisjon={godkjennRevisjon}
+                          onAapne={aapneFor(rad.person, celle)}
+                        />
                       </td>
                     );
                   })}
@@ -266,7 +316,12 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdm
                           {formatDayShort(d)} {formatDayNumber(d)}
                           {noter.length > 0 && <span className="kort-dag-note">{noter.join(", ")}</span>}
                         </span>
-                        <Celle celle={celle} person={rad.person.name} revisjon={revisjon} />
+                        <Celle
+                          celle={celle}
+                          person={rad.person.name}
+                          revisjon={godkjennRevisjon}
+                          onAapne={aapneFor(rad.person, celle)}
+                        />
                       </li>
                     );
                   })}
@@ -276,6 +331,7 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdm
           </ul>
         </div>
       </div>
+      {vindu}
     </section>
   );
 }
