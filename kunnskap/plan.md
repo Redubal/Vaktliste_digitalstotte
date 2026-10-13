@@ -135,28 +135,8 @@ Fase 21 ✅ 2026-10-13 — detaljer i logg
 - Ingen fase, men brukerhandling: «Flyttet» uten lokasjon rettes ved å sette «Flyttet» til kategori
   «Lokasjon» i Admin → Endringstyper og rette endringen som mangler lokasjon.
 
-**Fase 22A — Levende figur: rigg, underlag, gange, hopp og fall (tyngste modell).**
-Svart tegneseriefigur (egen SVG, høyst 40 px høy) bygd av ledd (hode, kropp, armer og ben med albue
-og kne) i stedet for streker. Den står og går på ekte flater i siden (øvre kant av paneler, knapper,
-tabeller, logobånd, pluss vinduets bunn), vender om, hopper opp på lave kanter, går utfor og faller med
-tyngdekraft og lander med et lite sprett. Flatene leses fra sidens plassering (aldri tekst), oppdateres
-ved scroll/endret størrelse. Alt i et eget lag over siden med `pointer-events: none`. Skjules når en
-`<dialog>` er åpen og ved `prefers-reduced-motion`. Av/på-bryter; valget huskes (`localStorage`).
-Filer: `components/figur/{Figur.tsx,Tegning.tsx,motor.ts,flater.ts}`.
-**Verifisering:** du ser en svart figur gå på toppen av et panel, snu eller gå utfor kanten og falle
-ned på neste flate (eller gulvet) og lande med et lite sprett; den hopper opp på en lav kant; du
-ruller siden og den følger flaten den står på, eller faller hvis flaten forsvinner; ben og armer
-svinger med knær og albuer; du åpner «Legg inn endring» og figuren er borte til du lukker den; du
-klikker overalt, også der figuren står, og alt virker; «Figur: av» + omlasting fjerner den.
-
-**Fase 22B — Levende figur: atferd (tyngste modell).**
-Sove (legger seg, «z z z») og gjespe; reagere på musa (hodet følger pekeren, blir redd og løper når
-pekeren kommer nær; passiv `pointermove`, aldri klikk); klatre opp kanter; pønk: spade (graver, bare
-på gulvet), sprayboks (merke som blir stående en stund), brekkjern (løse bokstaver P-U-N-K bryter
-utfor en kant, faller og spretter), sparke omkull.
-**Verifisering:** du lar siden stå i ett minutt og ser figuren legge seg til å sove og gjespe; du fører
-musa mot den og ser hodet følge og den løpe vekk; du ser den klatre opp en kant; du ser den spraye et
-merke og velte bokstaver utfor en kant så de faller; ingen klikk fanges.
+Fase 22A ✅ 2026-10-13 — detaljer i logg
+Fase 22B ✅ 2026-10-13 — detaljer i logg
 
 **Fase 23 — Avvis-knapp og bare administrator sletter (tyngste modell).**
 `kanSletteEndring` = bare administrator (i `lib/domene.ts`, sjekket i `slettEndring` og i vinduet);
