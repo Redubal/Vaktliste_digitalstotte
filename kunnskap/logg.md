@@ -1,5 +1,17 @@
 # Logg
 
+## 2026-10-13 — Fase 31 ✅ Kolonnene i Admin → Ansatte
+
+- **Godkjenning:** Ståle ba om faseslutt. **Ikke oppgitt hva som ble sett** i nettleseren (bred skjerm, deaktivert rad, langt navn, smalt vindu), og Claude har ikke sett resultatet selv.
+- **Årsak (regnet ut fra koden, ikke sett i nettleser):** `.page-shell` er maks 1200 px, så det indre rutenettet er ca. 830 px uansett skjerm. De faste kolonnene (686 px + 70 px mellomrom) låste Fornavn og Etternavn på minstebredden 50 px, og fet tekst rant over. `DeaktivertRad` bruker samme rutenett (motbeviste antakelsen i TODO).
+- **Beslutning (Ståle, plass til navn):** kortere faste kolonner framfor «Kom inn» under navnet eller navn på to linjer, fordi radene ikke skal bli høyere.
+- **Levert:** nytt rutenett på bred skjerm (`minmax(0,1fr)` for begge navn, «Kom inn» 90 px, Admin 50 px, ytre 88 px for «Ukeplan»); «Kom inn» og «Admin» som overskrifter; navn kuttes med «…» og har `title`; `.bare-smal`/`.bare-bred` for tekst som bare hører til én bredde. Smal visning uendret i koden.
+- **Rettet under faseslutt:** overskriftscellene gjenbrukte `.admin-bruk` (min-width 130 px utenfor radenes rutenett) og ville sprengt de smale kolonnene; fikk egen regel `.ansatt-rutenett .admin-bruk`. Fanget av Claude ved gjennomlesing, ikke av brukeren.
+- Entra- og databasefasene omnummerert 31–33 → 32–34 i `plan.md` og `TODO.md`. Fase 31 kollapset i planen, `TODO.md` punkt 7 fortettet (Ståle sa ja).
+- **Sjekk:** `tsc --noEmit` og `npm run lint` grønne kl. 23:14, etter siste CSS-rettelse; `next build` ikke kjørt denne økten.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster ikke kjørt (blokkert av regel på maskinen; **Beslutning (Ståle, nøkkelsøk):** hoppe over, fordi han vet at det ikke finnes nøkler i filene), kontrollsøk 19 treff. Datauttrekk i git 0.
+- STATUS: 41 linjer. fase-slutt: 23:12–23:17, 5 min.
+
 ## 2026-10-13 — Fase 30 ✅ Synk av ansatte med lokal testkilde
 
 - **Verifisert av bruker:** Ståle så de tre testpersonene under «Nye, mangler team» med «Kom inn: 2026-10-13», så Demo Demosen deaktivert (grå, «Aktiver») etter at han ble fjernet fra testfila, og skrev om «Sist synket» og loggen: «Begge deler kan finnes». **Ikke oppgitt:** loggingen av hver kjøring («kjørte (vellykket)» / «kjørte (feilet)»), som kom til etter dette; automatisk synk (tidspunkt og hyppighet) er ikke prøvd i nettleseren.

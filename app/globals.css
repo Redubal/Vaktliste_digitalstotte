@@ -1836,6 +1836,11 @@ a.uke-btn {
   display: none;
 }
 
+/* Teksten som bare vises på bred skjerm (se `.bare-smal` under). */
+.bare-bred {
+  display: none;
+}
+
 @media (min-width: 1280px) {
   .sorter-rad {
     display: none;
@@ -1858,20 +1863,26 @@ a.uke-btn {
     flex: 1 1 auto;
     min-width: 0;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 96px 128px;
+    grid-template-columns: minmax(0, 1fr) 96px 88px;
     gap: 10px;
   }
 
   .ansatt-rutenett,
   .admin-ansattinnhold > .admin-skjema:first-child {
     display: grid;
-    grid-template-columns: minmax(50px, 1fr) minmax(50px, 1fr) 128px 70px 128px 170px 120px 70px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 90px 70px 128px 170px 50px 70px;
     gap: 10px;
     align-items: center;
   }
 
   .ansatt-rutenett {
     padding-left: 14px;
+  }
+
+  /* `.admin-bruk` har min-width: 130px; i overskriften ville den sprengt de smale kolonnene. */
+  .ansatt-rutenett .admin-bruk {
+    min-width: 0;
+    white-space: nowrap;
   }
 
   :where(.admin-ansattinnhold) > .admin-skjema:first-child {
@@ -1881,9 +1892,25 @@ a.uke-btn {
 
   .admin-ansattinnhold {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 96px 128px;
+    grid-template-columns: minmax(0, 1fr) 96px 88px;
     gap: 10px;
     align-items: center;
+  }
+
+  .admin-ansattinnhold .admin-navn {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Tekst som bare trengs på smal skjerm; på bred skjerm står den i overskriften. */
+  .bare-smal {
+    display: none;
+  }
+
+  .bare-bred {
+    display: inline;
   }
 
   .admin-ansattinnhold > .admin-skjema:first-child .admin-feil {

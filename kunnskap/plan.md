@@ -82,7 +82,7 @@ Funn fra kartleggingen (2026-10-13) som styrer snittet:
   (`TODO.md` punkt 1). Gjelder innloggings-, Graph- og databasefasene.
 
 Fase 8–17, 20–22 og 25–28 er mekaniske (Sonnet). Fase 18–19, 23–24 og 29 gjelder rettighetsregler og
-sikkerhet (tyngste modell). Fase 30–33 (Entra og database) er parkert til senere (bruker, 2026-10-13) og er arkitektur/sikkerhet (tyngste modell).
+sikkerhet (tyngste modell). Fase 30 og 32–34 (Entra og database) er parkert til senere (bruker, 2026-10-13) og er arkitektur/sikkerhet (tyngste modell).
 Sjekk per fase: `tsc --noEmit`, `npm run lint` og `next build` grønne ved faseslutt; skjemaomgjøringer
 testes med oppdiktede rader i Node, aldri mot `data/`.
 
@@ -151,13 +151,15 @@ Fase 28 ✅ 2026-10-13 — detaljer i logg
 
 Fase 29 ✅ 2026-10-13 — detaljer i logg
 
+Fase 31 ✅ 2026-10-13 — detaljer i logg
+
 ## Senere (Entra og database)
 Parkert 2026-10-13 etter ønske fra bruker. Fasene er uendret bortsett fra nummer (var 16–19, så 21–24,
-så 22–25; nå 30–33 etter at TODO-punktene ble Fase 22–29).
+så 22–25, så 30–33; nå 30 og 32–34 etter at TODO punkt 7 ble Fase 31).
 
 Fase 30 ✅ 2026-10-13 — detaljer i logg
 
-**Fase 31 — Innlogging med Entra (tyngste modell, krever app-registrering).**
+**Fase 32 — Innlogging med Entra (tyngste modell, krever app-registrering).**
 Erstatter «Velg deg selv» i drift; `AUTH_MODUS=lokal` beholder velgeren under utvikling. Bibliotek
 (Auth.js med Entra-leverandør eller `@azure/msal-node`) velges ved faseoppstart etter å ha lest
 dokumentasjonen for Next 16. Innlogget person kobles til `Bruker` på `entraId`/`upn`. Hemmeligheter
@@ -168,7 +170,7 @@ og hemmelighet.
 øverst uten velger; en kollega uten adminstatus ser ikke Admin.
 **Merknad (TODO):** superadmin — tilgang til Entra- og databasekoblingen — vurderes her.
 
-**Fase 32 — Synk mot ekte Entra-gruppe (tyngste modell, krever Graph-tilgang).**
+**Fase 33 — Synk mot ekte Entra-gruppe (tyngste modell, krever Graph-tilgang).**
 Graph-kilden: `GET /groups/{id}/members` med `id, displayName, userPrincipalName, mail`; app-tillatelse
 `GroupMember.Read.All` med admin-samtykke. Gruppe-id i `.env`. Filterstrenger bygges bare av serververdier.
 **Forutsetning:** tillatelsen er gitt; behandlingsgrunnlag avklart (`TODO.md` punkt 1).
@@ -177,14 +179,14 @@ person du vet er ny, står under «Nye».
 **Merknad (TODO):** å dytte en endring til Outlook (f.eks. ved sykdom) bruker samme Graph-tilgang og
 planlegges etter denne.
 
-**Fase 33 — Data over i database (tyngste modell, sperret til tilgang er gitt).**
+**Fase 34 — Data over i database (tyngste modell, sperret til tilgang er gitt).**
 `lib/lager.ts` er eneste vei inn og ut, så byttet holdes der: tabellene i `vaktliste.json` og
 endringsloggen blir tabeller. Databasetype (SQLite, Azure SQL, PostgreSQL) bestemmes når tilgangen
 er kjent; JSON-fila brukes fortsatt under utvikling hvis ønsket.
 **Verifisering:** du ser samme Ukeplan og samme endringslogg som før flyttingen, og en endring i Admin
 står der etter at appen er startet på nytt.
 
-Ikke med: drift/hosting (gamle Fase 5) og «Min plan»; de planlegges når Fase 31 er levert.
+Ikke med: drift/hosting (gamle Fase 5) og «Min plan»; de planlegges når Fase 32 er levert.
 
 ---
 

@@ -1,5 +1,14 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 31) — Kolonnene i Admin → Ansatte
+
+**Evaluering av forrige økts punkter:**
+- `[css-gjenbruk]` — brutt igjen (2. runde): overskriftscellene fikk den eksisterende `.admin-bruk` uten at jeg leste reglene for klassen; den har `min-width: 130px` og ville sprengt de 50–90 px brede kolonnene. Fanget ved gjennomlesing før commit, ikke av brukeren.
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** 31 fikk plass i én økt uten `/compact`. Ingen deling foreslått.
+
 ## 2026-10-13 (avslutning Fase 30) — Synk av ansatte
 
 **Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere.

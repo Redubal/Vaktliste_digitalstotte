@@ -4,21 +4,21 @@
 **Gjenstående:** `TODO.md` i rotkatalogen
 
 ## Tilstand
-Fase 1–21, 22A, 22B og 23–30 ✅. 30 godkjent av Ståle 2026-10-13 (nye testpersoner under «Nye, mangler team», Demo Demosen deaktivert, «Sist synket» og loggen sett). **Ikke oppgitt fra 30:** linjene for hver kjøring i Endringslogg («kjørte (vellykket/feilet)»), automatisk synk på tidspunkt. **Ikke oppgitt fra eldre faser** (detaljer i loggen): 29 skjulte kommentarer for ansatt; 28 nettbrettbredde 800–1200 px, Admin og endringsvinduet på 390 px, ekte telefon/pad; 26 radtellingen Excel «Dager» mot appen er ikke gjort; 25 ny dato i lista og Ukeplan; 24 grønn ring i Måned, «Mine endringer» smalt; 23 slett-knapp skjult for ansatt, «Avvis» i Måned; 22A/22B figuren ved rulling og smalt vindu; 21 «Navn» som snur Ukeplan, person med flere oppsett; 13 siste justering av Ansatte; 4 og 7 rolle/lokasjon enkeltvis.
+Fase 1–21, 22A, 22B og 23–31 ✅. 31 (kolonnene i Admin → Ansatte) avsluttet av Ståle 2026-10-13 uten at det er oppgitt hva som ble sett; Claude har ikke sett resultatet. **Ikke oppgitt fra 31:** bred skjerm (navn fritt, deaktivert rad, langt navn med «…»), smalt vindu uendret. 30 godkjent 2026-10-13. **Ikke oppgitt fra 30:** linjene for hver kjøring i Endringslogg («kjørte (vellykket/feilet)»), automatisk synk på tidspunkt. **Ikke oppgitt fra eldre faser** (detaljer i loggen): 29 skjulte kommentarer for ansatt; 28 nettbrettbredde 800–1200 px, Admin og endringsvinduet på 390 px, ekte telefon/pad; 26 radtellingen Excel «Dager» mot appen er ikke gjort; 25 ny dato i lista og Ukeplan; 24 grønn ring i Måned, «Mine endringer» smalt; 23 slett-knapp skjult for ansatt, «Avvis» i Måned; 22A/22B figuren ved rulling og smalt vindu; 21 «Navn» som snur Ukeplan, person med flere oppsett; 13 siste justering av Ansatte; 4 og 7 rolle/lokasjon enkeltvis.
 Administratorer: Espen, Ståle og Jens.
 Stack: Next.js 16.4.0 (nytt API, les `node_modules/next/dist/docs/` før kode), React 19, Tailwind v4.
 Git-repoet ligger i `app/`, remote: github.com/Redubal/Vaktliste_digitalstotte (privat), gren `master`.
 
 ## Verifisert
-- `tsc --noEmit` og `npm run lint` grønne etter siste kodeendring (Fase 30). `next build` grønn ved faseslutt for Fase 30. Fase 29: funn F1–F10 i `sikkerhet.md`, alle rettet eller besluttet.
+- `tsc --noEmit` og `npm run lint` grønne etter siste kodeendring (Fase 31; siste CSS-rettelse kjørt på nytt ved faseslutt). `next build` sist kjørt ved Fase 30. Fase 29: funn F1–F10 i `sikkerhet.md`, alle rettet eller besluttet.
 - Synk-reglene prøvd i Node med oppdiktede rader (Fase 30: 37 av 37). Endringer og avvisning: Fase 23 (20 av 20) og sett i nettleseren (Fase 24–25).
 - Ikke prøvd fra før: retting og sletting i vinduet fra Ukeplan, klikk i Måned, vedlikeholdsmodus mot en ansatt som lagrer, to faner samtidig, Fase 10–18 delvis, masseendring, ny lagring ved låst fil.
 
 ## Neste
-Brukerens valg. Fase 31 (Entra-innlogging, krever app-registrering) og 32 (ekte Graph-synk) trenger tilganger utenfor appen. Ellers `TODO.md` punkt 4 (flere endringer samme dag), 5 («Registrer»-knapp), 6 (ukenummer), 7 (kolonner overlapper i Ansatte) og 8 (lang liste med deaktiverte). Alle trenger planmodus og tyngste modell før de får fasenummer. Radtellingen fra Fase 26 er fortsatt ikke gjort.
+Brukerens valg. Fase 32 (Entra-innlogging, krever app-registrering) og 33 (ekte Graph-synk) trenger tilganger utenfor appen. Ellers `TODO.md` punkt 4 (flere endringer samme dag), 5 («Registrer»-knapp), 6 (ukenummer) og 8 (lang liste med deaktiverte). Alle trenger planmodus og tyngste modell før de får fasenummer. Radtellingen fra Fase 26 er fortsatt ikke gjort.
 
 ## Arbeidsmåte neste økt
-- `[css-gjenbruk]` Før en eksisterende layoutklasse brukes i en ny komponent: søk etter den i `globals.css`, også i `@media`-blokkene.
+- `[css-gjenbruk]` (2. runde) Før en eksisterende klasse brukes et nytt sted: søk etter den i `globals.css`, også i `@media`-blokkene, og les alle reglene for klassen (ikke bare navnet).
 
 ## Det en ny økt må vite
 - **Git er i orden:** jobbadressen er byttet ut i historikken; gammel historikk ligger lokalt som `refs/original/`. Repoet er satt til `mrredubal@gmail.com` lokalt.
@@ -34,7 +34,7 @@ Brukerens valg. Fase 31 (Entra-innlogging, krever app-registrering) og 32 (ekte 
 - Admin-sider som leser fra disk trenger `export const dynamic = "force-dynamic"`. Ansatte-skjemaene bruker oppsettets id. Deaktiverte er ikke med i `getAnsatte`; Admin → Ansatte leser `lesVaktliste()` direkte.
 - Admin-skjemaer er ukontrollerte (`useSkjemaStatus` i `AdminFelles.tsx`, `defaultValue`; bytt nøkkel først ved ny revisjon). En `"use server"`-fil kan bare eksportere funksjoner.
 - **Sortering:** `?sorter=`, `?rolle=`, `?fane=` med `replaceState`; `useSortering` + `sorterRader`; valgt person øverst (`forstFor`).
-- **Mobil:** tabell (`.visning-tabell`) og kort (`.visning-kort`) bytter ved 768 px; smale tabellregler til 1024 px. Ny kolonne må inn begge steder. `.admin-ansattinnhold` har fast rutenett på bred skjerm. Etter CSS-endringer: Ctrl+F5.
+- **Mobil:** tabell (`.visning-tabell`) og kort (`.visning-kort`) bytter ved 768 px; smale tabellregler til 1024 px. Ny kolonne må inn begge steder. Admin → Ansatte på bred skjerm (Fase 31): overskrift og rader har hvert sitt rutenett med samme tall; `.bare-smal` er tekst bare for smal visning, `.bare-bred` bare for bred. `.admin-ansattinnhold` har fast rutenett på bred skjerm. Etter CSS-endringer: Ctrl+F5.
 - **Figur:** `components/figur/`; laget har `pointer-events: none`, skjules ved `dialog[open]`; av/på i `localStorage` (`figur-av`).
 - **Sikkerhet:** F1–F10 i `kunnskap/sikkerhet.md`. `app/page.tsx` tømmer `upn` og `comment` og filtrerer avviste endringer før data sendes ut. «Velg deg selv» er ikke sikkerhet; dev-serveren lytter på nettet (F10): tas opp før ekte persondata.
 - `python` finnes ikke i Git Bash her; skriv filer med Write/Edit. CSS-klassenavn uten æøå. Data har navn, e-post og sykefravær: aldri lim ekte rader inn i logg, STATUS eller plan. Reelle persondata krever behandlingsgrunnlag (`TODO.md` punkt 1). Nøkler i lister: `teamId-id`.

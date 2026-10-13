@@ -112,11 +112,16 @@ function AnsattRad({
       <form action={handling} className={status.skjemaKlasse} onInput={status.onInput} data-oppsett={ansatt.id}>
         <input type="hidden" name="revisjon" value={revisjon} />
         <input type="hidden" name="id" value={ansatt.id} />
-        <strong className="admin-navn">{delNavn(ansatt.name).fornavn}</strong>
-        <strong className="admin-navn">{delNavn(ansatt.name).etternavn}</strong>
+        <strong className="admin-navn" title={delNavn(ansatt.name).fornavn}>{delNavn(ansatt.name).fornavn}</strong>
+        <strong className="admin-navn" title={delNavn(ansatt.name).etternavn}>{delNavn(ansatt.name).etternavn}</strong>
         {/* Status og «Kom inn» deler plassen, så raden ikke blir høyere når den har ulagrede endringer. */}
         <Lagringsstatus endret={status.endret} lagret={status.lagret} />
-        {!status.endret && !status.lagret && <span className="admin-bruk">Kom inn: {komInn(ansatt.opprettet)}</span>}
+        {!status.endret && !status.lagret && (
+          <span className="admin-bruk">
+            <span className="bare-smal">Kom inn: </span>
+            {komInn(ansatt.opprettet)}
+          </span>
+        )}
         <select name="teamId" defaultValue={ansatt.teamId} aria-label={`Team for ${ansatt.name}`}>
           {valg.team.map((t) => (
             <option key={t.id} value={t.id}>
@@ -145,8 +150,13 @@ function AnsattRad({
           ))}
         </select>
         <label className="admin-avkryssing">
-          <input type="checkbox" name="erAdministrator" defaultChecked={ansatt.erAdministrator} />
-          Administrator
+          <input
+            type="checkbox"
+            name="erAdministrator"
+            defaultChecked={ansatt.erAdministrator}
+            aria-label={`Administrator: ${ansatt.name}`}
+          />
+          <span className="bare-smal">Administrator</span>
         </label>
         <button className="uke-btn" type="submit" disabled={lagrer}>
           Lagre
@@ -155,7 +165,8 @@ function AnsattRad({
       </form>
       <AktivKnapp ansatt={ansatt} revisjon={revisjon} />
       <Link className="uke-btn" href={`/?person=${encodeURIComponent(ansatt.brukerId)}`}>
-        Vis i ukeplan
+        <span className="bare-smal">Vis i ukeplan</span>
+        <span className="bare-bred">Ukeplan</span>
       </Link>
       </div>
     </li>
@@ -178,9 +189,12 @@ function DeaktivertRad({
       <span className="avkryssing-plass" />
       <div className="admin-ansattinnhold">
         <div className="admin-skjema" style={{ flex: "1 1 auto", marginBottom: 0 }}>
-          <strong className="admin-navn">{delNavn(ansatt.name).fornavn}</strong>
-          <strong className="admin-navn">{delNavn(ansatt.name).etternavn}</strong>
-          <span className="admin-bruk">Kom inn: {komInn(ansatt.opprettet)}</span>
+          <strong className="admin-navn" title={delNavn(ansatt.name).fornavn}>{delNavn(ansatt.name).fornavn}</strong>
+          <strong className="admin-navn" title={delNavn(ansatt.name).etternavn}>{delNavn(ansatt.name).etternavn}</strong>
+          <span className="admin-bruk">
+            <span className="bare-smal">Kom inn: </span>
+            {komInn(ansatt.opprettet)}
+          </span>
           <span className="admin-bruk">Deaktivert</span>
         </div>
         <AktivKnapp ansatt={ansatt} revisjon={revisjon} />
@@ -381,15 +395,17 @@ export function AnsattAdmin({
         <span className="avkryssing-plass" />
         <div className="ansatt-hode-ytre">
           <div className="ansatt-rutenett">
-            {(["navn", "etternavn", "", "team", "rolle", "lokasjon"] as const).map((id, i) =>
-              id ? (
+            {(["navn", "etternavn", "Kom inn", "team", "rolle", "lokasjon", "Admin"] as const).map((id) =>
+              id === "Kom inn" || id === "Admin" ? (
+                <span key={id} className="admin-bruk">
+                  {id}
+                </span>
+              ) : (
                 <span key={id} aria-sort={ariaSort(sortering, id)}>
                   <SorterKnapp kolonne={id} sortering={sortering} onSorter={sorterPaa}>
                     {ADMIN_KOLONNER.find((k) => k.id === id)?.tittel}
                   </SorterKnapp>
                 </span>
-              ) : (
-                <span key={`tom-${i}`} />
               ),
             )}
           </div>

@@ -64,13 +64,9 @@ ukenummer i Måned. Må få fasenummer i planen før den gjøres.
 
 ## 7. Kolonnene i Admin → Ansatte overlapper
 
-Sett av Ståle 2026-10-13 under Fase 30 (skjermbilder, bred skjerm): overskriftene
-«Fornavn» og «Etternavn» står oppå hverandre, og i de deaktiverte radene går
-etternavnet («Demosen») inn i «Kom inn». Fantes før Fase 30. Trolig de to første
-kolonnene i rutenettet (`minmax(50px, 1fr)` i `.admin-ansattinnhold >
-.admin-skjema:first-child`, `globals.css`) og at `DeaktivertRad` i
-`components/AnsattAdmin.tsx` ikke bruker samme rutenett. Ikke undersøkt. Fase 28
-sjekket ikke denne bredden.
+Levert i Fase 31, se logg 2026-10-13. Årsak: faste kolonner låste navnene på 50 px
+(siden er maks 1200 px); `DeaktivertRad` hadde samme rutenett, så det var ikke feilen.
+**Beslutning (Ståle, plass til navn):** kortere faste kolonner, ingen høyere rader.
 
 ## 8. Lista over deaktiverte ansatte vil bli lang
 
@@ -107,9 +103,9 @@ ikke listes uendelig. Ikke vurdert hvordan det skal løses. Trenger plan.
 ## Brukerhandling (ingen fase)
 - «Flyttet» kan lagres uten lokasjon, og dagsruta viser da bare «Flyttet» (sett på Max, uke 42). Lokasjon kreves bare for typer i kategorien «Lokasjon» (`EndringVindu.tsx`, `lib/domene.ts`); ruta var gul, så «Flyttet» ligger trolig i «Annet» (slutning fra bildet, data ikke sett). Rettes ved å sette «Flyttet» til «Lokasjon» i Admin → Endringstyper; eksisterende endring må rettes for seg.
 
-## Senere (Entra og database, Fase 30–33 i `plan.md`)
-- Synk-tidspunkt, «Synk nå» og egen avsender i loggen — Fase 30, se logg 2026-10-13. Filter på avsender ikke bygget; kjøringer filtreres via «Synk av ansatte» i Tabell-lista. Det kan hende andre parametere må settes for å få synken mot ekte Entra til å virke — Fase 31–32.
-- Superadmin, som også har tilgang til Entra- og databasekoblingen — merknad i Fase 31.
-- Fase 32: lagre fornavn og etternavn fra Entra som egne felt på personen (synken leser dem allerede, `KildePerson.fornavn/etternavn`), og la visningen bruke dem i stedet for `delNavn` (siste ord = etternavn). Ellers vises doble etternavn feil. Spurt av Ståle 2026-10-13 under Fase 30.
-- Dytte til Outlook, f.eks. ved sykdom — merknad i Fase 32 (samme Graph-tilgang).
-- Varsel utenfor appen (e-post eller Teams) når en endring blir godkjent, avvist eller får annen status. Spurt av Ståle 2026-10-13 under Fase 23. Beskjeden **i appen** er Fase 24 og skal komme uansett: «det må likevel være en del av siden». Varsel utenfor appen trenger Graph-tilgang som Fase 30–32, og vet først hvem mottakeren er når e-post kommer fra Entra.
+## Senere (Entra og database, Fase 30 og 32–34 i `plan.md`)
+- Synk-tidspunkt, «Synk nå» og egen avsender i loggen — Fase 30, se logg 2026-10-13. Filter på avsender ikke bygget; kjøringer filtreres via «Synk av ansatte» i Tabell-lista. Det kan hende andre parametere må settes for å få synken mot ekte Entra til å virke — Fase 32–33.
+- Superadmin, som også har tilgang til Entra- og databasekoblingen — merknad i Fase 32.
+- Fase 33: lagre fornavn og etternavn fra Entra som egne felt på personen (synken leser dem allerede, `KildePerson.fornavn/etternavn`), og la visningen bruke dem i stedet for `delNavn` (siste ord = etternavn). Ellers vises doble etternavn feil. Spurt av Ståle 2026-10-13 under Fase 30.
+- Dytte til Outlook, f.eks. ved sykdom — merknad i Fase 33 (samme Graph-tilgang).
+- Varsel utenfor appen (e-post eller Teams) når en endring blir godkjent, avvist eller får annen status. Spurt av Ståle 2026-10-13 under Fase 23. Beskjeden **i appen** er Fase 24 og skal komme uansett: «det må likevel være en del av siden». Varsel utenfor appen trenger Graph-tilgang som Fase 30 og 32–33, og vet først hvem mottakeren er når e-post kommer fra Entra.
