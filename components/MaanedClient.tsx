@@ -17,9 +17,9 @@ import {
 } from "@/lib/ukeplan";
 import { useEndringVindu, type EndringValg } from "./EndringVindu";
 import { VenterListe } from "./Godkjenning";
-import { ariaSort, sorterRader } from "@/lib/sortering";
+import { ariaSort, forstFor, sorterRader } from "@/lib/sortering";
 import { formatDayShort, formatMonthName, todayUtc } from "@/lib/uker";
-import { PERSON_KOLONNER, PERSON_VERDIER } from "./personSortering";
+import { PERSON_KOLONNER, PERSON_VERDIER, STANDARD_PERSON_SORTERING } from "./personSortering";
 import { Rollevelger, useRollefilter } from "./Rollefilter";
 import { SorterKnapp, useSortering } from "./Sortering";
 
@@ -76,7 +76,10 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
     const t = todayUtc();
     return { aar: t.getUTCFullYear(), maaned: t.getUTCMonth() + 1 };
   }, []);
-  const [team, setTeam] = useState<TeamFilter>(alleTeam[0]?.id ?? ALLE_TEAM);
+  // Har noen valgt seg selv, starter visningen på teamet deres, så de står i listen.
+  const [team, setTeam] = useState<TeamFilter>(
+    ansatte.find((a) => a.id === jegId)?.teamId ?? alleTeam[0]?.id ?? ALLE_TEAM,
+  );
   const [{ aar, maaned }, setMaaned] = useState(today);
 
   const plan = useMemo(
@@ -84,17 +87,21 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
     [team, aar, maaned, ansatte, endringer, dager],
   );
 
-  const { sortering, sorterPaa } = useSortering(PERSON_KOLONNER);
+  const { sortering, sorterPaa } = useSortering(PERSON_KOLONNER, STANDARD_PERSON_SORTERING);
   const roller = useMemo(() => [...new Set(ansatte.map((a) => a.role))].sort((a, b) => a.localeCompare(b, "nb")), [ansatte]);
   const { rolle, velgRolle } = useRollefilter(roller);
+  // Den som har valgt seg selv, står øverst uansett sortering.
   const rader = useMemo(
     () =>
-      sorterRader(
-        rolle === null ? plan.rader : plan.rader.filter((r) => r.person.role === rolle),
-        sortering,
-        PERSON_VERDIER,
+      forstFor(
+        sorterRader(
+          rolle === null ? plan.rader : plan.rader.filter((r) => r.person.role === rolle),
+          sortering,
+          PERSON_VERDIER,
+        ),
+        (r) => r.person.id === jegId,
       ),
-    [plan.rader, rolle, sortering],
+    [plan.rader, rolle, sortering, jegId],
   );
 
   // Endringene som venter og vises i en celle denne måneden, for personene som er i visningen.

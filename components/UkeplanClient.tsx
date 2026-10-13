@@ -17,9 +17,9 @@ import {
 } from "@/lib/ukeplan";
 import { useEndringVindu, type EndringValg } from "./EndringVindu";
 import { GodkjennKnapp, hva, periode, VenterMerke } from "./Godkjenning";
-import { ariaSort, sorterRader } from "@/lib/sortering";
+import { ariaSort, forstFor, sorterRader } from "@/lib/sortering";
 import { formatDayNumber, formatDayShort, formatWeekRange, isoWeek, todayUtc } from "@/lib/uker";
-import { PERSON_KOLONNER, PERSON_VERDIER } from "./personSortering";
+import { PERSON_KOLONNER, PERSON_VERDIER, STANDARD_PERSON_SORTERING } from "./personSortering";
 import { Rollevelger, useRollefilter } from "./Rollefilter";
 import { SorterKnapp, useSortering } from "./Sortering";
 
@@ -110,8 +110,9 @@ export function UkeplanClient({
   const godkjennRevisjon = erAdmin ? revisjon : null;
   const today = useMemo(() => isoWeek(todayUtc()), []);
   // Kommer du fra Admin, starter visningen på teamet til personen, ellers er raden ikke i listen.
+  // Ellers starter den på teamet til den som har valgt seg selv, av samme grunn.
   const [team, setTeam] = useState<TeamFilter>(
-    ansatte.find((a) => a.id === utheves)?.teamId ?? alleTeam[0]?.id ?? ALLE_TEAM,
+    ansatte.find((a) => a.id === (utheves ?? jegId))?.teamId ?? alleTeam[0]?.id ?? ALLE_TEAM,
   );
   const utheveRef = useRef<HTMLTableRowElement | null>(null);
   const utheveKortRef = useRef<HTMLLIElement | null>(null);
@@ -130,17 +131,21 @@ export function UkeplanClient({
     [team, aar, uke, ansatte, endringer, dager],
   );
 
-  const { sortering, sorterPaa } = useSortering(PERSON_KOLONNER);
+  const { sortering, sorterPaa } = useSortering(PERSON_KOLONNER, STANDARD_PERSON_SORTERING);
   const roller = useMemo(() => [...new Set(ansatte.map((a) => a.role))].sort((a, b) => a.localeCompare(b, "nb")), [ansatte]);
   const { rolle, velgRolle } = useRollefilter(roller);
+  // Den som har valgt seg selv, står øverst uansett sortering.
   const rader = useMemo(
     () =>
-      sorterRader(
-        rolle === null ? ukeplan.rader : ukeplan.rader.filter((r) => r.person.role === rolle),
-        sortering,
-        PERSON_VERDIER,
+      forstFor(
+        sorterRader(
+          rolle === null ? ukeplan.rader : ukeplan.rader.filter((r) => r.person.role === rolle),
+          sortering,
+          PERSON_VERDIER,
+        ),
+        (r) => r.person.id === jegId,
       ),
-    [ukeplan.rader, rolle, sortering],
+    [ukeplan.rader, rolle, sortering, jegId],
   );
 
   const goToday =() => setUke({ aar: today.year, uke: today.week });

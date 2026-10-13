@@ -61,3 +61,8 @@ export function sorterRader<T>(
     return fortegn * samling.compare(x, y);
   });
 }
+
+/** Radene der `forst` er sann, flyttes øverst; ellers er rekkefølgen uendret (stabil oppdeling). */
+export function forstFor<T>(rader: readonly T[], forst: (rad: T) => boolean): T[] {
+  return [...rader.filter(forst), ...rader.filter((r) => !forst(r))];
+}

@@ -1,5 +1,29 @@
 # Logg
 
+## 2026-10-13 — Fase 21 ✅ Meg øverst og navn stigende i Ukeplan og Måned
+
+- Verifisert av bruker: valgt person står øverst i Ukeplan og Måned; bytte «Du er» fra seg selv til Max og tilbake fungerer; Måned viser «Navn ▼» etter trykk («ser ut til å virke»); smalt vindu (kortlista) «ser også ok ut». **Ikke uttrykkelig bekreftet:** at «Navn» snur lista i Ukeplan (bare Måned sett på bilde). **Ikke prøvd:** person med flere oppsett, valgt person uten rad i teamet/uka, `next build` (kjørende `next dev`).
+- **Beslutning (bruker, faseinnhold):** «den som er logget inn på toppen og navn asc» tas som egen fase nå, før Entra. Begrunnelse: ønskene sto i `TODO.md` fra Fase 18 og ble sett som manglende.
+- Funn (fra koden): «navn stigende som standard» fra Fase 17 gjaldt bare Ansatte-listene (`VaktlisteClient`, `AnsattAdmin`). Ukeplan og Måned kalte `useSortering` uten standard, så de viste rekkefølgen fra `sorterAnsatte` i `lib/ukeplan.ts` (feltet «Rekkefølge» først, så navn) med pil «↕». Derfor så navnesorteringen ødelagt ut.
+- Levert: `STANDARD_PERSON_SORTERING` (navn stigende, hele navnet) i `components/personSortering.ts`; `forstFor` i `lib/sortering.ts` flytter radene til den valgte personen (`jegId`, alle oppsett) øverst etter sorteringen, i tabell og kort. Ukeplan og Måned starter på teamet til den valgte personen (Ukeplan: Admin-lenkens `utheves` går foran). Følge: «Rekkefølge»-feltet styrer ikke lenger rekkefølgen i Ukeplan/Måned.
+- Observert av bruker: med Max valgt sto Max øverst; etter bytte til Ståle (administrator) sto visningen på Øst og Ståle var ikke øverst. Årsak: «Du er» kaller `router.refresh()`, som beholder klientens tilstand, så starteteamet (`useState`-startverdi) ble stående fra forrige person. Rettet med `key={jegId}` på `UkeplanClient` og `MaanedClient` i `app/page.tsx`; visningen starter på nytt ved bytte (uke/måned tilbake til i dag). Bruker bekreftet etterpå at bytte fungerer.
+- Funn (bilde fra bruker, kodelesing): Max sto med «Flyttet» uten sted mandag uke 42. Vinduet krever lokasjon bare for typer i kategorien «Lokasjon»; «Flyttet» ligger trolig i «Annet» (slutning fra gul farge, data ikke sett). Brukerhandling i TODO, ingen fase. «Venter på godkjenning»-lista finnes bare i Måned, ikke i Ukeplan (forslag lagt fram, se TODO).
+- Sjekk: `tsc --noEmit` og `npm run lint` kjørt grønne etter siste kodeendring (`app/page.tsx`); etterpå bare `kunnskap/`, `TODO.md` og planen. Fase 20 ble committet og pushet først i økten (9c63d73).
+- Fase 21 fikk plass i én økt uten `/compact`, men økten tok også planendringen Fase 22–29 (se under).
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 5 treff. Ingen filer under `data/` i git. STATUS: 43 linjer. Fase 20 og 21 kollapset i `plan.md`; TODO fikk linja om venter-lista i Ukeplan (bruker sa ja).
+- fase-slutt: 18:52–18:54, 2 min (pluss ventetid på svar om plan og TODO).
+
+## 2026-10-13 — Planendring: TODO-punktene blir Fase 22–29
+
+Midt i Fase 21 ba bruker om å få TODO inn i planen. Godkjent i planmodus.
+- **Beslutning (SR, rekkefølge):** figuren («Sheep»-ønsket) som Fase 22 rett etter Fase 21; deretter rettigheter først (23–25), Dager (26–27), mobil-rest (28), sikkerhetsgjennomgang sist (29) så den dekker alt nytt.
+- **Beslutning (SR, beskjed):** ansatt får beskjed om godkjent/avvist i appen («Mine endringer»), ikke e-post/Teams nå. Begrunnelse: e-post/Teams krever Graph-tilgang, som er parkert.
+- **Beslutning (SR, slette-rett):** bare administrator kan slette en endring.
+- **Beslutning (SR, Dager):** både skolekalender-merknader og fridager mangler.
+- Funn (kodelesing, ikke sett i data): innlastingen leser bare kolonne A–C i arket «Dager» og hopper over rader uten tekst i C; dato lagret som tekst i Excel blir ikke ISO og treffer aldri. Ingen «fri»-begrep på dager. Måned viser merknader bare som prikk i tabellen, ikke i kortene. Ingen Admin-side for dager. Hvilken av disse som forklarer de manglende dagene, avgjøres ved å telle rader i Excel og i appen (Fase 26).
+- Funn (kodelesing): ingen vei til å avvise én endring; `godkjennEndring` er eneste som setter status etter oppretting. Ansatt kan slette egne som venter (`kanEndreEndring`).
+- Entra/database flyttet fra Fase 22–25 til 30–33. Superadmin og Outlook lagt som merknader i Fase 31 og 32. «Flyttet» uten lokasjon er brukerhandling (kategori i Admin → Endringstyper), ingen fase.
+
 ## 2026-10-13 — Fase 20 ✅ Mobil/pad-test og logo
 
 - Verifisert av bruker: etter at kortene fikk ramme skrev bruker «så lang .. så fungerer det», og ba så om faseslutt. Bruker så på telefonvisning (smalt vindu) i nettleseren; logoen står øverst. **Ikke prøvd:** nettbrettbredde (769–1024 px), Admin-sidene og endringsvinduet på smal skjerm, Måned på smal skjerm, ekte telefon eller pad (iOS-zoom og dvh er ikke sett).

@@ -1,5 +1,13 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 21) — Meg øverst og navn stigende
+
+**Evaluering av forrige økts punkter:** `[skjemasteg-er-låst-etter-test]` ikke utløst (ingen skjemaendring); Fase 23 (`avvistGrunn`) og Fase 27 (`fri`) lager nye steg, så den videreføres uten ny runde. `[klikkflate-hele-ruta]` ikke utløst (ingen nye trykkflater); Fase 23 og 25 legger til knapper, så den videreføres uten ny runde. `[vis-felt-heller-enn-å-skjule]` ikke utløst; **tas ut av STATUS fordi taket er tre punkter**, teksten står her: felt som bare vises for visse verdier i data jeg ikke kan lese, vises alltid, som valgfritt (Fase 26–27 kan utløse den).
+
+**Nytt punkt:** `[start-verdi-følger-ikke-valg]` — en visning som starter fra et valg (`useState` med verdi fra props) følger ikke med når valget byttes med `router.refresh()`; gi komponenten `key` fra valget. Belegg: «meg øverst» virket for Max, men ikke etter bytte til Ståle, for teamvalget sto igjen fra Max; bruker fant det, ikke jeg.
+
+**Fasesnitt:** Fase 21 fikk plass i én økt uten `/compact`. Planen er utvidet med Fase 22–29 (se logg); ingen ytterligere deling foreslått.
+
 ## 2026-10-13 (avslutning Fase 20) — Mobil/pad-test og logo
 
 **Evaluering av forrige økts punkter:** `[skjemasteg-er-låst-etter-test]` ikke utløst (ingen skjemaendring); Fase 21 og senere kan trenge nye felt, så den videreføres uten ny runde. `[vis-felt-heller-enn-å-skjule]` ikke utløst (ingen nye felt med data Claude ikke kan lese); videreføres uten ny runde. `[klikkflate-hele-ruta]` klikkflaten var allerede hele ruta, så den ble fulgt; bruddet var et annet (se nytt punkt), og punktet utvides i stedet for å få ny runde.

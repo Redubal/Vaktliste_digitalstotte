@@ -24,90 +24,41 @@ Måned hadde ingen slik kolonne. Står igjen i Ansatte-fanen (`VaktlisteClient`)
 
 ## 3. Mobilvisning trenger et bedre format
 
-Løst i Fase 15 (2026-10-13, kort per person under 768 px), se logg.md. Full test på pad og mobil står igjen.
+Løst i Fase 15 (2026-10-13, kort per person under 768 px), se logg.md. Resten av testen på pad og mobil er Fase 28 i `plan.md`.
 **Beslutning (bruker, 2026-09-30):** vi må finne et bedre format for mobil. Kom opp under
 verifiseringen av Fase 1, punkt 9.
 
-##
-Når man gjør endringer på alle steder .. så må det komme tydelig frem at man har endringer som ikke er lagret .. type rød farge og grønn når den er lagret .. gjelder over alt .
+## Levert (pekere)
+- Tydelig ulagret (rødt) / lagret (grønt) — Fase 8 gjaldt hele Admin, se logg 2026-10-13. Ønsket sa «over alt»; om endringsvinduet i Ukeplan/Måned trenger det samme, er ikke vurdert.
+- Full logg over alle endringer — Fase 9, se logg 2026-10-13 og `/admin/logg`.
+- Kom inn, deaktivering og adminstatus for ansatte — Fase 10, `/admin/ansatte`.
+- Masseendring (flere ansatte om gangen) — Fase 11.
+- Gå fra ansatt på forsiden til ansatt i Admin — Fase 12.
+- Sortering i kolonner — Fase 13.
+- Vedlikeholdsmodus — Fase 14.
+- Lagreknapp når man gjør mange endringer («Lagre alle») og filter på roller i Ukeplan/Måned — Fase 16.
+- Etternavn i egen kolonne, navn stigende i Ansatte-listene, egne farger på endringstyper — Fase 17.
+- Godkjenningsliste i Admin, godkjenning fra Ukeplan og Måned og merke på de som venter — Fase 18, `/admin/godkjenning`.
+- Ansatt og admin legger inn/endrer status direkte i Ukeplan og Måned (godkjennes av admin) — Fase 19. Et eget skjema utenfor planen er ikke bygget.
+- Vestfold-logoen på siden (designmanualen) — Fase 20.
+- Den valgte personen øverst og navn stigende i Ukeplan og Måned — Fase 21 (Ukeplan og Måned hadde ingen standardsortering), se logg 2026-10-13.
 
-##
-Full logg over alle endringer — levert i Fase 9, se logg 2026-10-13 og `/admin/logg`.
+## I planen (Fase 22–29, godkjent 2026-10-13)
+- Figur som vandrer rundt på siden, som «Sheep» — Fase 22.
+- «Avvis»-knapp (i dag avvises en endring bare ved å gi en status virkning «Avvist», og ingen får beskjed) og **Beslutning (SR, slette-rett):** bare administrator kan slette en endring (i dag får ansatt slette egne som venter, `kanEndreEndring`) — Fase 23.
+- Ansatt ser hva som er godkjent og får beskjed om godkjent/avvist, i en liste over egne endringer (prøvd som Frode i Fase 18 og Max i Fase 19: godkjente har ikke merke) — Fase 24. **Beslutning (SR, beskjed):** i appen, ikke e-post/Teams nå.
+- Rette en endring fra godkjenningslisten i Admin — Fase 25.
+- Lista over endringer som venter, også i Ukeplan, ikke bare i Måned (sett av bruker i Fase 21) — passer i Fase 24 eller 25; ikke avgjort at den bygges.
+- Dager fra Excel mangler, både skolekalender og fridager — Fase 26 (Admin → Dager, merknader i Måned) og Fase 27 (fridager). Innlastingen leser bare kolonne A–C i arket «Dager», og fridag finnes ikke som begrep.
+- Full mobil- og pad-test — Fase 28.
+- Full sikkerhetsgjennomgang (`/security-review`) — Fase 29.
 
-##
-Mulig å gå fra ansatt på main til ansatt på admin — levert i Fase 12, se logg 2026-10-13.
+## Brukerhandling (ingen fase)
+- «Flyttet» kan lagres uten lokasjon, og dagsruta viser da bare «Flyttet» (sett på Max, uke 42). Lokasjon kreves bare for typer i kategorien «Lokasjon» (`EndringVindu.tsx`, `lib/domene.ts`); ruta var gul, så «Flyttet» ligger trolig i «Annet» (slutning fra bildet, data ikke sett). Rettes ved å sette «Flyttet» til «Lokasjon» i Admin → Endringstyper; eksisterende endring må rettes for seg.
 
-## Fra verifiseringen av Fase 18 (godkjenning), 2026-10-13
-- Rette en endring fra godkjenningslisten i Admin, ikke bare godkjenne den.
-- «Avvis»-knapp. I dag avvises en endring bare ved å gi den en status med virkning «Avvist», og ingen får beskjed.
-- Den ansatte får beskjed når en endring godkjennes eller avvises.
-- Som ansatt (prøvd som Frode) ser man ikke hva som er godkjent: en godkjent endring vises uten merke, og bare de som venter er merket. Sett igjen i Fase 19 (Max fikk ingen beskjed om hva som ble godkjent). Brukers idé: en egen visning eller logg over egne endringer og hva som er godkjent.
-- Den som er valgt i «Velg deg selv», bør stå øverst i Ukeplan og Måned.
-- Sortering på navn stigende ser ikke ut til å virke i Ukeplan (sett av bruker, ikke undersøkt; sorteringen ble ikke endret i Fase 18).
-- Legge inn endring ved å trykke i Ukeplan og Måned — levert i Fase 19, se logg 2026-10-13. Et eget skjema utenfor planen er ikke bygget.
-
-## Ansatte og synk mot Entra
-- Kom inn, deaktivering og adminstatus — levert i Fase 10, se logg 2026-10-13 og `/admin/ansatte`.
-- Mulig å gjøre masse endringer (flere ansatte om gangen)
-- Synk mot Entra: sette når og hvor ofte, og kunne tvinge en synk — parkert, Fase 21 i `plan.md` («Senere»)
-- Det kan hende andre parametere må settes for å få synken til å virke — parkert, Fase 21–23
-
-##
-Sortering i kolonner 
-
-##
-Sette siden i vedlikeholdsmodus
-
-##
-Ansatte må kunne legge inn ny status 
-
-##
-Etternavn i egen kolonne — levert i Fase 17, se logg 2026-10-13.
-
-##
-Mangler en knapp for lagring dersom man gjør mange endringer
-
-##
-superadmin -- som også har tilgang til Entra kobling og database kobling
-
-##
-Fase 21 (synk, parkert): endringsloggen må få en egen avsender for synken (f.eks. «Synk (Entra)»). `endretAv` er i dag id-en til valgt administrator, og `hvem()` i `lib/endringslogg.ts` må godta avsenderen, ellers vises id-teksten rått.
-
-##
-Fase 21 (synk, parkert): en synk gir én logglinje per person og oppsett og kan fylle «Endringslogg». Vurder filter på avsender.
-
-##
-Legge til filtreing på roller på uke/mnd plan
-
-##
-Godkjenningsliste i Admin, godkjenning fra Ukeplan og Måned og tydelig merke på de som venter — levert i Fase 18, se logg 2026-10-13 og `/admin/godkjenning`.
-
-##
-ansatt og admin skal kunne endre staus direkte i ukes/mnd visning
-endringer godkjennes av admin
-
-##
-full mobil og pad test
-
-##
-full claude-security sjekk
-
-##
-Egne farger på endringstyper — levert i Fase 17 (Admin → Endringstyper), se logg 2026-10-13.
-
-##
-hent logo og sett på siden
-https://vestfoldfylke.no/no/Designmanual/meny/logo-og-bruk/
-
-##
-det finnes et program som heter Sheep .. det er en sau som finner på mye tull på skjermen ..
-jeg vil ha noe tilsvarende med en litt fyr som er rundt på siden
-
-##
-Mulighet for å dytte til Outlook ved f.eks sykdom
-
-##
-Navn stigende som standard — levert i Fase 17, se logg 2026-10-13.
-
-##
-Dager fra excel er ikke tatt med
+## Senere (Entra og database, Fase 30–33 i `plan.md`)
+- Synk mot Entra: sette når og hvor ofte, og kunne tvinge en synk — Fase 30. Det kan hende andre parametere må settes for å få synken til å virke — Fase 30–32.
+- Fase 30: endringsloggen må få en egen avsender for synken (f.eks. «Synk (Entra)»). `endretAv` er i dag id-en til valgt administrator, og `hvem()` i `lib/endringslogg.ts` må godta avsenderen, ellers vises id-teksten rått.
+- Fase 30: en synk gir én logglinje per person og oppsett og kan fylle «Endringslogg». Vurder filter på avsender.
+- Superadmin, som også har tilgang til Entra- og databasekoblingen — merknad i Fase 31.
+- Dytte til Outlook, f.eks. ved sykdom — merknad i Fase 32 (samme Graph-tilgang).

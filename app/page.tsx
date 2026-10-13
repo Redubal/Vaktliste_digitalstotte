@@ -42,6 +42,9 @@ export default async function Home({
       }
     : null;
   const jegId = jeg?.id ?? null;
+  // Bytte i «Du er» oppdaterer siden uten å nullstille visningene; nøkkelen gjør at de starter på
+  // nytt, så teamet følger personen som er valgt (ellers blir forrige persons team stående).
+  const visningsNokkel = jegId ?? "ingen";
 
   // Ansatte ser Ukeplan og Måned. Administrator ser i tillegg ansattlista og
   // lenken til admin-sidene. Utvalget gjøres her, på serveren, slik at innhold
@@ -52,6 +55,7 @@ export default async function Home({
       label: "Ukeplan",
       content: (
         <UkeplanClient
+          key={visningsNokkel}
           team={team}
           ansatte={ansatte}
           endringer={endringer}
@@ -69,6 +73,7 @@ export default async function Home({
       label: "Måned",
       content: (
         <MaanedClient
+          key={visningsNokkel}
           team={team}
           ansatte={ansatte}
           endringer={endringer}
