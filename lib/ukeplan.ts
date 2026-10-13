@@ -55,7 +55,7 @@ function inActivePeriod(person: Ansatt, dagIso: string): boolean {
 function godkjentePerPerson(endringer: Endring[]): Map<string, Endring[]> {
   const map = new Map<string, Endring[]>();
   for (const e of endringer) {
-    if (e.status !== "Godkjent") continue;
+    if (!e.visesIPlan) continue;
     const arr = map.get(e.personId);
     if (arr) arr.push(e);
     else map.set(e.personId, [e]);
@@ -130,8 +130,8 @@ export function classifyCelle(celle: UkeplanCelle): CelleType {
   if (celle.utenforPeriode) return "utenfor";
   if (!celle.endring) return "lokasjon";
   if (celle.endring.newLocation) return "endring-lokasjon";
-  const type = (celle.endring.type || "").toLowerCase();
-  if (["ferie", "fri", "avspasering", "fridag / helligdag", "syk"].includes(type)) return "fri";
+  if (celle.endring.kategori === "fravaer") return "fri";
+  if (celle.endring.kategori === "lokasjon") return "endring-lokasjon";
   return "endring-status";
 }
 

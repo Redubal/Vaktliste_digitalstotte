@@ -1,4 +1,4 @@
-import type { DagRad, Team } from "./domene";
+import type { DagRad, Kategori, Team } from "./domene";
 import { lesVaktliste } from "./lager";
 
 export type { Team };
@@ -22,6 +22,8 @@ export type Ansatt = {
 export type Endring = {
   id: string;
   status: string;
+  /** Fra statusen: bare endringer som vises i planen, regnes med i ukeplanen. */
+  visesIPlan: boolean;
   person: string;
   personId: string;
   team: Team;
@@ -30,6 +32,8 @@ export type Endring = {
   fromTime: string;
   toTime: string;
   type: string;
+  /** Fra endringstypen; `null` når endringen ikke har en type. */
+  kategori: Kategori | null;
   newLocation: string;
   comment: string;
 };
@@ -84,9 +88,12 @@ export function getEndringer(): Endring[] {
   const v = lesVaktliste();
   const brukere = new Map(v.brukere.map((b) => [b.id, b]));
   const lokasjoner = new Map(v.lokasjoner.map((l) => [l.id, l]));
+  const statuser = new Map(v.statuser.map((s) => [s.id, s]));
+  const typer = new Map(v.endringstyper.map((t) => [t.id, t]));
   return v.endringer.map((e) => ({
     id: e.id,
-    status: e.status ?? "",
+    status: (e.statusId && statuser.get(e.statusId)?.name) || "",
+    visesIPlan: (e.statusId && statuser.get(e.statusId)?.visesIPlan) === true,
     person: brukere.get(e.brukerId)?.name ?? "",
     personId: e.brukerId,
     team: e.team,
@@ -94,7 +101,8 @@ export function getEndringer(): Endring[] {
     toDate: e.toDate ?? "",
     fromTime: e.fromTime ?? "",
     toTime: e.toTime ?? "",
-    type: e.type ?? "",
+    type: (e.typeId && typer.get(e.typeId)?.name) || "",
+    kategori: (e.typeId && typer.get(e.typeId)?.kategori) || null,
     newLocation: (e.lokasjonId && lokasjoner.get(e.lokasjonId)?.name) || "",
     comment: e.comment ?? "",
   }));

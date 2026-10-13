@@ -42,7 +42,7 @@ Ansatt ser bare Ukeplan og Måned. Administrator (Ståle, Espen) ser i tillegg A
 - **Fase 2 ✅ 2026-09-30** — Hvem er du (identitetsvelger, serverstyrte faner, `/admin`); detaljer i logg.
 - **Fase 3 ✅ 2026-10-13** — Lokasjoner kan redigeres i Admin; detaljer i logg.
 - **Fase 4 — Roller.** Ny tabell, `rolleId` på oppsett. Verifisering: rollene fra dagens data vises i Admin; nytt navn slår gjennom i Ansatte; rolle i bruk kan ikke slettes.
-- **Fase 5 — Endringstyper og statuser.** Rører ukeplanberegningen (`lib/ukeplan.ts:58` og `:129`). Verifisering: ukeplanen ser ut som før; døp om «Godkjent» og planen er uendret; skru av «vises i plan» og radene forsvinner; ny type med kategori «fravær» får fri-farge.
+- **Fase 5 ✅ 2026-10-13** — Endringstyper og statuser kan redigeres i Admin; detaljer i logg. Forbehold: omdøping av «Godkjent» ikke sett.
 - **Fase 6 — Team.** Tyngst: `Team` fra union til data, «Begge» blir filter. Berører `vaktlista.ts`, `ukeplan.ts`, begge klientfilene og de to team-kortene i `VaktlisteClient.tsx`. Felle: objektnøkkel `acc[person.team]` ved `:28` må bli `team.id`. Verifisering: alt ser ut som før; nytt tredje team i Admin dukker opp i teamvelgeren.
 - **Fase 7 — Ansattes rolle, team og lokasjon.** Verifisering: endre team på en ansatt, og personen flytter seg i Ukeplan med en gang.
 

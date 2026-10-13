@@ -34,6 +34,17 @@ funksjon, så omgjøringen finnes bare ett sted. Ny tabell i Fase 5–7: øk `SK
 legg til et `tilVersjonN`-steg. Id-ene som lages er deterministiske, så gjentatt lesing av
 en ulagret v1-fil gir de samme id-ene hver gang.
 
+Fase 5 la til `statuser` (`id, name, visesIPlan`) og `endringstyper` (`id, name, kategori`) og
+byttet `endringer.status`/`endringer.type` (fritekst) mot `statusId`/`typeId`. Skjemaversjonen
+er 3. Avvik fra tabelllisten under: `visesIPlan` (av/på) i stedet for `virkning`
+(`godkjent|venter|avvist`), fordi ukeplanen bare trenger å vite om raden skal med; `sortering`
+og `aktiv` er ikke tatt med (listene sorteres på navn, sletting av rad i bruk nektes).
+`ukeplan.ts` leser `Endring.visesIPlan` og `Endring.kategori`, ikke navn. Kategorien «lokasjon»
+gir lokasjonsfarge, «fravær» fri-farge. Omgjøringen 2 → 3 gir kategori fravær til de fem navnene
+som før fikk fri-farge på navn (ferie, fri, avspasering, fridag / helligdag, syk) og
+`visesIPlan` bare til «Godkjent»; et nytt navn som bare skiller seg i store/små bokstaver slås
+sammen med det første. Side: `/admin/endringstyper` (begge listene).
+
 Appen skal eie dataene og bygges ikke som en avbildning av Excel-arket. Excel blir
 en engangsinnlasting. Modellen er ekte tabeller med primær- og fremmednøkler, så den
 kan flyttes til SQLite senere.

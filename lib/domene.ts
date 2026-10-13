@@ -2,7 +2,7 @@
 // Node importerer .ts direkte, så filen må holde seg til syntaks som kan strippes (ingen enum).
 
 /** Eldre versjoner gjøres om ved lesing av `oppgraderVaktliste`; øk og legg til et steg der. */
-export const SKJEMA_VERSJON = 2;
+export const SKJEMA_VERSJON = 3;
 
 export const TEAM = ["Øst", "Vest"] as const;
 export type Team = (typeof TEAM)[number];
@@ -26,6 +26,26 @@ export type Rolle = {
   name: string;
 };
 
+export type Status = {
+  id: string;
+  name: string;
+  /** Bare endringer med en status som vises i planen, kommer med i ukeplan og månedsoversikt. */
+  visesIPlan: boolean;
+};
+
+export const KATEGORIER = [
+  { id: "fravaer", navn: "Fravær (får fri-farge)" },
+  { id: "lokasjon", navn: "Lokasjon" },
+  { id: "annet", navn: "Annet" },
+] as const;
+export type Kategori = (typeof KATEGORIER)[number]["id"];
+
+export type Endringstype = {
+  id: string;
+  name: string;
+  kategori: Kategori;
+};
+
 export type Oppsett = {
   id: string;
   brukerId: string;
@@ -42,13 +62,13 @@ export type EndringRad = {
   id: string;
   brukerId: string;
   lokasjonId: string | null;
-  status: "Godkjent" | "Forespurt" | "Avslått" | "Utgår" | string | null;
+  statusId: string | null;
   team: Team;
   fromDate: string | null;
   toDate: string | null;
   fromTime: string | null;
   toTime: string | null;
-  type: string | null;
+  typeId: string | null;
   comment: string | null;
 };
 
@@ -67,6 +87,8 @@ export type Vaktliste = {
   sistEndretAv: string | null;
   lokasjoner: Lokasjon[];
   roller: Rolle[];
+  statuser: Status[];
+  endringstyper: Endringstype[];
   brukere: Bruker[];
   oppsett: Oppsett[];
   endringer: EndringRad[];
@@ -80,6 +102,8 @@ export function tomVaktliste(): Vaktliste {
     sistEndretAv: null,
     lokasjoner: [],
     roller: [],
+    statuser: [],
+    endringstyper: [],
     brukere: [],
     oppsett: [],
     endringer: [],
@@ -92,6 +116,8 @@ export type Svar = { ok: boolean; melding: string };
 
 export const LOKASJON_MAKSLENGDE = 60;
 export const ROLLE_MAKSLENGDE = 60;
+export const STATUS_MAKSLENGDE = 60;
+export const ENDRINGSTYPE_MAKSLENGDE = 60;
 
 // Kodene er uten æøå: norske tegn har blitt ødelagt stille i verktøykjeder her.
 export function slugify(input: string): string {
@@ -156,6 +182,31 @@ export function sjekkRolle(rå: { name: string }, andre: Rolle[]): { feil: strin
   return sjekkNavn(rå.name, andre, ROLLE_MAKSLENGDE, { bestemt: "Rollen", ubestemt: "en rolle" });
 }
 
+/** Renser og sjekker feltene fra skjemaet. `andre` er statusene som ikke er den som redigeres. */
+export function sjekkStatus(
+  rå: { name: string; visesIPlan: boolean },
+  andre: Status[],
+): { feil: string } | { name: string; visesIPlan: boolean } {
+  const sjekket = sjekkNavn(rå.name, andre, STATUS_MAKSLENGDE, { bestemt: "Statusen", ubestemt: "en status" });
+  if ("feil" in sjekket) return sjekket;
+  return { name: sjekket.name, visesIPlan: rå.visesIPlan };
+}
+
+/** Renser og sjekker feltene fra skjemaet. `andre` er typene som ikke er den som redigeres. */
+export function sjekkEndringstype(
+  rå: { name: string; kategori: string },
+  andre: Endringstype[],
+): { feil: string } | { name: string; kategori: Kategori } {
+  const sjekket = sjekkNavn(rå.name, andre, ENDRINGSTYPE_MAKSLENGDE, {
+    bestemt: "Endringstypen",
+    ubestemt: "en endringstype",
+  });
+  if ("feil" in sjekket) return sjekket;
+  const kategori = KATEGORIER.find((k) => k.id === rå.kategori);
+  if (!kategori) return { feil: "Velg en kategori." };
+  return { name: sjekket.name, kategori: kategori.id };
+}
+
 function navnPå(v: Vaktliste, brukerIder: Set<string>): string[] {
   const navn = new Map(v.brukere.map((b) => [b.id, b.name]));
   return [...brukerIder]
@@ -174,6 +225,16 @@ export function lokasjonBrukere(v: Vaktliste, lokasjonId: string): string[] {
 /** Navnene på personene som har rollen i et oppsett. Sortert, uten dubletter. */
 export function rolleBrukere(v: Vaktliste, rolleId: string): string[] {
   return navnPå(v, new Set(v.oppsett.filter((o) => o.rolleId === rolleId).map((o) => o.brukerId)));
+}
+
+/** Navnene på personene som har en endring med statusen. Sortert, uten dubletter. */
+export function statusBrukere(v: Vaktliste, statusId: string): string[] {
+  return navnPå(v, new Set(v.endringer.filter((e) => e.statusId === statusId).map((e) => e.brukerId)));
+}
+
+/** Navnene på personene som har en endring av typen. Sortert, uten dubletter. */
+export function endringstypeBrukere(v: Vaktliste, typeId: string): string[] {
+  return navnPå(v, new Set(v.endringer.filter((e) => e.typeId === typeId).map((e) => e.brukerId)));
 }
 
 /** Beskjed når raden ikke kan slettes fordi noen bruker den; `null` når den kan slettes. */
@@ -211,6 +272,56 @@ function tilVersjon2(v: RåVaktliste): RåVaktliste {
   return { ...v, skjemaVersjon: 2, roller, oppsett };
 }
 
+// Typene som før fikk fri-farge i ukeplanen på navn alene (`classifyCelle`); de blir kategori fravær.
+const FRAVAER_NAVN = ["ferie", "fri", "avspasering", "fridag / helligdag", "syk"];
+
+// 2 → 3: status og type var fritekst på endringen og blir egne tabeller. Navn som bare skiller seg
+// i store og små bokstaver blir én rad; første skrivemåte vinner. Bare «Godkjent» vises i planen,
+// som før. En tom status eller type blir null.
+function tilVersjon3(v: RåVaktliste): RåVaktliste {
+  const statuser: Status[] = [];
+  const endringstyper: Endringstype[] = [];
+  const statusPerNavn = new Map<string, string>();
+  const typePerNavn = new Map<string, string>();
+  const statusIder = new Set<string>();
+  const typeIder = new Set<string>();
+  const endringer = (
+    v.endringer as (Omit<EndringRad, "statusId" | "typeId"> & {
+      status?: string | null;
+      type?: string | null;
+    })[]
+  ).map(({ status, type, ...e }) => {
+    const statusNavn = rensNavn(status ?? "");
+    const typeNavn = rensNavn(type ?? "");
+    let statusId: string | null = null;
+    let typeId: string | null = null;
+    if (statusNavn) {
+      statusId = statusPerNavn.get(nøkkel(statusNavn)) ?? null;
+      if (!statusId) {
+        statusId = ledigId(slugify(statusNavn), statusIder, "status");
+        statusIder.add(statusId);
+        statusPerNavn.set(nøkkel(statusNavn), statusId);
+        statuser.push({ id: statusId, name: statusNavn, visesIPlan: statusNavn === "Godkjent" });
+      }
+    }
+    if (typeNavn) {
+      typeId = typePerNavn.get(nøkkel(typeNavn)) ?? null;
+      if (!typeId) {
+        typeId = ledigId(slugify(typeNavn), typeIder, "type");
+        typeIder.add(typeId);
+        typePerNavn.set(nøkkel(typeNavn), typeId);
+        endringstyper.push({
+          id: typeId,
+          name: typeNavn,
+          kategori: FRAVAER_NAVN.includes(nøkkel(typeNavn)) ? "fravaer" : "annet",
+        });
+      }
+    }
+    return { ...e, statusId, typeId };
+  });
+  return { ...v, skjemaVersjon: 3, statuser, endringstyper, endringer };
+}
+
 /**
  * Gjør om innholdet i en eldre skjemaversjon til gjeldende, ett steg om gangen. Endrer ikke
  * `revisjon`. Lagres først når noen lagrer; sikkerhetskopien tas da av den gamle fila.
@@ -219,6 +330,7 @@ export function oppgraderVaktliste(rå: RåVaktliste): Vaktliste {
   const fra = rå.skjemaVersjon;
   let v = rå;
   if (v.skjemaVersjon === 1) v = tilVersjon2(v);
+  if (v.skjemaVersjon === 2) v = tilVersjon3(v);
   if (v.skjemaVersjon !== SKJEMA_VERSJON) {
     throw new Error(`data/vaktliste.json har skjemaversjon ${fra}, appen forventer ${SKJEMA_VERSJON}.`);
   }

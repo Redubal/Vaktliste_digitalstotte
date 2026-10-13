@@ -1,5 +1,14 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 5) — Endringstyper og statuser i Admin
+
+**Evaluering av forrige økts punkter:**
+- `[les-skjermbildet-først]` ikke utløst: bruker meldte ikke at noe manglet på skjermen, bare at omdøping av «Godkjent» ikke var prøvd. Fase 6–7 kan utløse den. Videreført, rundetallet står.
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** Fase 5 fikk plass i én økt uten `/compact`.
+
 ## 2026-10-13 (avslutning Fase 4) — Roller i Admin
 
 **Evaluering av forrige økts punkter:**

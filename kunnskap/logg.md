@@ -1,5 +1,16 @@
 # Logg
 
+## 2026-10-13 — Fase 5 ✅ Endringstyper og statuser kan redigeres i Admin (forbehold: omdøping av «Godkjent» ikke testet)
+
+- Levert: tabellene `statuser` (`id, name, visesIPlan`) og `endringstyper` (`id, name, kategori`), `statusId`/`typeId` på endringene (skjemaversjon 3, `tilVersjon3` i `lib/domene.ts`), seks handlinger i `app/admin/handlinger.ts`, siden `app/admin/endringstyper/page.tsx` og `components/EndringstypeAdmin.tsx`. `lib/ukeplan.ts` leser `Endring.visesIPlan` og `Endring.kategori` i stedet for navnet «Godkjent» og navnelisten.
+- Verifisert av bruker: sa «fase ok». Bruker fikk ikke sett eller testet at omdøping av «Godkjent» lar planen stå uendret; resten av verifiseringen er ikke beskrevet punkt for punkt. Det som gjenstår å se er ført som forbehold i STATUS.
+- **Beslutning (Claude, datamodell):** avkrysning `visesIPlan` på status i stedet for `virkning` (`godkjent|venter|avvist`) fra arkitekturnotatet, og ingen `sortering`/`aktiv`. Begrunnelse: ukeplanen trenger bare å vite om raden skal med, og planens verifisering snakker om «vises i plan». Se `arkitektur.md`.
+- **Beslutning (Claude, kategori «lokasjon»):** kategorien gir lokasjonsfarge i `classifyCelle` selv uten ny lokasjon på raden, så de tre kategoriene i notatet alle har en virkning. Omgjøringen gir aldri denne kategorien.
+- Funn: `python` finnes ikke i denne Git Bash (snarveien peker til Microsoft Store), og en heredoc med flere filer feilet på tolkingen før noe ble skrevet. Filene ble skrevet med Write/Edit i stedet.
+- Sjekk: omgjøringen v2 → v3 testet i Node med oppdiktede rader: «Godkjent»/«godkjent» ble én status, bare den fikk `visesIPlan`, «Syk»/«syk» ble én type med kategori fravær, tomme verdier ble `null`, og de gamle feltene `status`/`type` er borte. `tsc --noEmit`, `npm run lint` og `next build` kjørt grønt etter siste kodeendring, etterpå bare `kunnskap/`-filer. Ikke testet mot ekte data.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 7 treff. `data/` og `*.xlsx` er ikke tracket.
+- STATUS: 34 linjer. fase-slutt: 09:23–09:25, 2 min.
+
 ## 2026-10-13 — Fase 4 ✅ Roller kan redigeres i Admin (forbehold: nytt navn i Ansatte ikke testet)
 
 - Levert: tabellen `roller` og `rolleId` på oppsett (skjemaversjon 2), `oppgraderVaktliste` i `lib/domene.ts`, handlinger for roller i `app/admin/handlinger.ts`, siden `app/admin/roller/page.tsx`, `components/RolleAdmin.tsx` og delte `components/AdminFelles.tsx`. Navnesjekk, id-generering og sletting-nekt er gjort felles for lokasjoner og roller.

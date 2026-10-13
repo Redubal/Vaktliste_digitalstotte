@@ -864,3 +864,11 @@ a.uke-btn {
     padding: 12px 10px;
   }
 }
+
+.admin-avkryssing {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--heading);
+}

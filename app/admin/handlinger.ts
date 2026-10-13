@@ -3,13 +3,17 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import {
+  endringstypeBrukere,
   ledigId,
   lokasjonBrukere,
   nektSletting,
   rolleBrukere,
+  sjekkEndringstype,
   sjekkLokasjon,
   sjekkRolle,
+  sjekkStatus,
   slugify,
+  statusBrukere,
   type Svar,
   type Vaktliste,
 } from "@/lib/domene";
@@ -162,5 +166,126 @@ export async function slettRolle(_forrige: Svar | null, data: FormData): Promise
       return null;
     },
     "Rollen er slettet.",
+  );
+}
+
+// --- Statuser og endringstyper (samme side) ---
+
+const ENDRINGSTYPER_STI = "/admin/endringstyper";
+
+function visesIPlan(data: FormData): boolean {
+  return data.get("visesIPlan") === "on";
+}
+
+export async function leggTilStatus(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(
+    data,
+    ENDRINGSTYPER_STI,
+    (v) => {
+      const sjekket = sjekkStatus({ name: tekst(data, "name"), visesIPlan: visesIPlan(data) }, v.statuser);
+      if ("feil" in sjekket) return sjekket.feil;
+      const id = ledigId(slugify(sjekket.name), new Set(v.statuser.map((s) => s.id)), "status");
+      v.statuser.push({ id, name: sjekket.name, visesIPlan: sjekket.visesIPlan });
+      return null;
+    },
+    "Statusen er lagt til.",
+  );
+}
+
+export async function endreStatus(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(
+    data,
+    ENDRINGSTYPER_STI,
+    (v) => {
+      const status = v.statuser.find((s) => s.id === tekst(data, "id"));
+      if (!status) return "Statusen finnes ikke lenger. Last siden på nytt.";
+      const sjekket = sjekkStatus(
+        { name: tekst(data, "name"), visesIPlan: visesIPlan(data) },
+        v.statuser.filter((s) => s.id !== status.id),
+      );
+      if ("feil" in sjekket) return sjekket.feil;
+      status.name = sjekket.name;
+      status.visesIPlan = sjekket.visesIPlan;
+      return null;
+    },
+    "Endringen er lagret.",
+  );
+}
+
+export async function slettStatus(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(
+    data,
+    ENDRINGSTYPER_STI,
+    (v) => {
+      const status = v.statuser.find((s) => s.id === tekst(data, "id"));
+      if (!status) return "Statusen finnes ikke lenger. Last siden på nytt.";
+      const nektet = nektSletting(
+        status,
+        statusBrukere(v, status.id),
+        "Gi den heller et nytt navn, eller bytt status på endringene deres først.",
+      );
+      if (nektet) return nektet;
+      v.statuser = v.statuser.filter((s) => s.id !== status.id);
+      return null;
+    },
+    "Statusen er slettet.",
+  );
+}
+
+export async function leggTilEndringstype(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(
+    data,
+    ENDRINGSTYPER_STI,
+    (v) => {
+      const sjekket = sjekkEndringstype(
+        { name: tekst(data, "name"), kategori: tekst(data, "kategori") },
+        v.endringstyper,
+      );
+      if ("feil" in sjekket) return sjekket.feil;
+      const id = ledigId(slugify(sjekket.name), new Set(v.endringstyper.map((t) => t.id)), "type");
+      v.endringstyper.push({ id, name: sjekket.name, kategori: sjekket.kategori });
+      return null;
+    },
+    "Endringstypen er lagt til.",
+  );
+}
+
+export async function endreEndringstype(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(
+    data,
+    ENDRINGSTYPER_STI,
+    (v) => {
+      const type = v.endringstyper.find((t) => t.id === tekst(data, "id"));
+      if (!type) return "Endringstypen finnes ikke lenger. Last siden på nytt.";
+      const sjekket = sjekkEndringstype(
+        { name: tekst(data, "name"), kategori: tekst(data, "kategori") },
+        v.endringstyper.filter((t) => t.id !== type.id),
+      );
+      if ("feil" in sjekket) return sjekket.feil;
+      type.name = sjekket.name;
+      type.kategori = sjekket.kategori;
+      return null;
+    },
+    "Endringen er lagret.",
+  );
+}
+
+export async function slettEndringstype(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(
+    data,
+    ENDRINGSTYPER_STI,
+    (v) => {
+      const type = v.endringstyper.find((t) => t.id === tekst(data, "id"));
+      if (!type) return "Endringstypen finnes ikke lenger. Last siden på nytt.";
+      const nektet = nektSletting(
+        type,
+        endringstypeBrukere(v, type.id),
+        "Gi den heller et nytt navn, eller bytt type på endringene deres først.",
+      );
+      if (nektet) return nektet;
+      v.endringstyper = v.endringstyper.filter((t) => t.id !== type.id);
+      return null;
+    },
+    "Endringstypen er slettet.",
   );
 }
