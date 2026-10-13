@@ -182,6 +182,19 @@ export function sjekkLokasjon(
   return { name: sjekket.name, teamId: rå.teamId };
 }
 
+/** Sjekker at valgene for en ansatt finnes. Team er påkrevd; rolle og lokasjon kan stå tomme (`null`). */
+export function sjekkOppsett(
+  rå: { teamId: string; rolleId: string; lokasjonId: string },
+  v: Pick<Vaktliste, "team" | "roller" | "lokasjoner">,
+): { feil: string } | { teamId: string; rolleId: string | null; lokasjonId: string | null } {
+  if (!v.team.some((t) => t.id === rå.teamId)) return { feil: "Velg et team." };
+  if (rå.rolleId && !v.roller.some((r) => r.id === rå.rolleId)) return { feil: "Rollen finnes ikke lenger." };
+  if (rå.lokasjonId && !v.lokasjoner.some((l) => l.id === rå.lokasjonId)) {
+    return { feil: "Lokasjonen finnes ikke lenger." };
+  }
+  return { teamId: rå.teamId, rolleId: rå.rolleId || null, lokasjonId: rå.lokasjonId || null };
+}
+
 /** Renser og sjekker navnet fra skjemaet. `andre` er teamene som ikke er det som redigeres. */
 export function sjekkTeam(rå: { name: string }, andre: Team[]): { feil: string } | { name: string } {
   return sjekkNavn(rå.name, andre, TEAM_MAKSLENGDE, { bestemt: "Teamet", ubestemt: "et team" });

@@ -10,6 +10,7 @@ import {
   rolleBrukere,
   sjekkEndringstype,
   sjekkLokasjon,
+  sjekkOppsett,
   sjekkRolle,
   sjekkStatus,
   sjekkTeam,
@@ -56,6 +57,29 @@ async function utfor(
   revalidatePath(sti);
   revalidatePath("/");
   return { ok: true, melding: okMelding };
+}
+
+// --- Ansatte ---
+
+export async function endreAnsatt(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(
+    data,
+    "/admin/ansatte",
+    (v) => {
+      const oppsett = v.oppsett.find((o) => o.id === tekst(data, "id"));
+      if (!oppsett) return "Ansatten finnes ikke lenger. Last siden på nytt.";
+      const sjekket = sjekkOppsett(
+        { teamId: tekst(data, "teamId"), rolleId: tekst(data, "rolleId"), lokasjonId: tekst(data, "lokasjonId") },
+        v,
+      );
+      if ("feil" in sjekket) return sjekket.feil;
+      oppsett.teamId = sjekket.teamId;
+      oppsett.rolleId = sjekket.rolleId;
+      oppsett.lokasjonId = sjekket.lokasjonId;
+      return null;
+    },
+    "Endringen er lagret.",
+  );
 }
 
 // --- Lokasjoner ---

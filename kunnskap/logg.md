@@ -1,5 +1,18 @@
 # Logg
 
+## 2026-10-13 — Fase 7 ✅ Ansattes team, rolle og lokasjon kan endres i Admin
+
+- Levert: siden `/admin/ansatte` (`app/admin/ansatte/page.tsx`, `components/AnsattAdmin.tsx`), handlingen `endreAnsatt` i `app/admin/handlinger.ts` og regelen `sjekkOppsett` i `lib/domene.ts`. Én rad per oppsett med tre nedtrekkslister (team, rolle, lokasjon) og «Lagre». Knapp «Ansatte» i `/admin`, «Kommer»-linja fjernet. Ingen ny tabell, `SKJEMA_VERSJON` står på 4.
+- Verifisert av bruker: «fungerer» etter å ha byttet team på en ansatt og sett personen flytte seg i Ukeplan. Endring av rolle og lokasjon er ikke bekreftet enkeltvis.
+- **Beslutning (Claude, nøkkel):** skjemaene bruker oppsettets id, ikke brukerens, fordi en person kan ha flere oppsett. Begrunnelse: brukerens id ville truffet feil rad.
+- **Beslutning (Claude, lokasjon):** lokasjonen er ikke bundet til personens team; listen viser teamet ved siden av navnet. Begrunnelse: planen sier ingenting om en slik kobling.
+- **Beslutning (bruker, scope):** «ulagrede endringer» (rød/grønn markering over alt i Admin), full endringslogg, hopp mellom ansatt på forsiden og i Admin, og alt om ansatte og Entra-synk (se når ansatt kom inn, masseendring, deaktivering, synk-tidspunkt og tvunget synk, adminstatus) ble ført i `TODO.md` i stedet for å bygges i fasen. Begrunnelse: utenfor Fase 7.
+- Funn (observert): `cd app` i ett Bash-kall ble stående til neste kall, så en `cd app` til ble kjørt i `app/app` og `git log` ga tomt svar som lignet «ingen treff». Rettet ved å kjøre på nytt med full sti.
+- Sjekk: `tsc --noEmit` og `npm run lint` kjørt rene etter siste kodeendring (etterpå bare `TODO.md` og `kunnskap/`-filer). `next build` kjørt ved faseslutt: grønt, `/admin/ansatte` med i rutelista. Ikke testet mot ekte data.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 4 treff. `data/` er ikke tracket.
+- Plan: Fase 7 kollapset til én linje etter klarsignal.
+- STATUS: 35 linjer. fase-slutt: 10:26–10:27, 1 min (uten ventetid på brukerens klarsignal for planendringen).
+
 ## 2026-10-13 — Fase 6 ✅ Team er data og kan redigeres i Admin
 
 - Levert: tabellen `team` (`id, name`) og `teamId` på oppsett og lokasjoner (skjemaversjon 4, `tilVersjon4` i `lib/domene.ts`), `endringer.team` fjernet. `lib/vaktlista.ts` har `getTeam()` og gir `Ansatt` både `teamId` og `team` (navnet). `lib/ukeplan.ts`: `TeamFilter` er en team-id eller `ALLE_TEAM = "*"`. Ukeplan, Måned og Ansatte får teamlisten fra `app/page.tsx`. Ansatte har ett kort per team i stedet for to faste. Admin: tre handlinger i `app/admin/handlinger.ts`, `app/admin/team/page.tsx`, `components/TeamAdmin.tsx`; `LokasjonAdmin` får team som prop.

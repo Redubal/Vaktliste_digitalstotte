@@ -743,6 +743,11 @@ a.uke-btn {
   flex: 1 1 220px;
 }
 
+.admin-navn {
+  flex: 1 1 180px;
+  color: var(--heading);
+}
+
 .admin-skjema input[name="name"],
 .admin-skjema select {
   border: 1px solid var(--border);

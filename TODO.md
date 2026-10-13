@@ -33,3 +33,23 @@ opprydding i en fase som uansett rører ukeplantabellen.
 Ukeplan og Måned er tabeller som scroller sidelengs på smal skjerm.
 **Beslutning (bruker, 2026-09-30):** vi må finne et bedre format for mobil; tas
 etter Fase 3. Kom opp under verifiseringen av Fase 1, punkt 9.
+
+##
+Når man gjør endringer på alle steder .. så må det komme tydelig frem at man har endringer som ikke er lagret .. type rød farge og grønn når den er lagret .. gjelder over alt .
+
+##
+Full logg over alle endringer
+
+##
+Mulig å gå fra ansatt på main til ansatt på admin
+
+## Ansatte og synk mot Entra
+- Se når en ansatt kom inn i systemet
+- Mulig å gjøre masse endringer (flere ansatte om gangen)
+- Mulig å deaktivere en ansatt
+- Synk mot Entra: sette når og hvor ofte, og kunne tvinge en synk
+- Det kan hende andre parametere må settes for å få synken til å virke
+- Mangler å sette adminstatus, blant annet
+
+##
+Sortering i kolonner 

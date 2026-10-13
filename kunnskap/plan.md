@@ -41,10 +41,10 @@ Ansatt ser bare Ukeplan og Måned. Administrator (Ståle, Espen) ser i tillegg A
 
 - **Fase 2 ✅ 2026-09-30** — Hvem er du (identitetsvelger, serverstyrte faner, `/admin`); detaljer i logg.
 - **Fase 3 ✅ 2026-10-13** — Lokasjoner kan redigeres i Admin; detaljer i logg.
-- **Fase 4 — Roller.** Ny tabell, `rolleId` på oppsett. Verifisering: rollene fra dagens data vises i Admin; nytt navn slår gjennom i Ansatte; rolle i bruk kan ikke slettes.
+- **Fase 4 ✅ 2026-10-13** — Roller i Admin; detaljer i logg. Forbehold: nytt rollenavn i Ansatte ikke testet.
 - **Fase 5 ✅ 2026-10-13** — Endringstyper og statuser kan redigeres i Admin; detaljer i logg. Forbehold: omdøping av «Godkjent» ikke sett.
 - **Fase 6 ✅ 2026-10-13** — Team er data og kan redigeres i Admin; detaljer i logg.
-- **Fase 7 — Ansattes rolle, team og lokasjon.** Verifisering: endre team på en ansatt, og personen flytter seg i Ukeplan med en gang.
+- **Fase 7 ✅ 2026-10-13** — Ansattes team, rolle og lokasjon kan endres i Admin; detaljer i logg.
 
 ---
 

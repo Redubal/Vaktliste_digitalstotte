@@ -35,6 +35,9 @@ export default async function AdminSide() {
           listene appen bygger på kommer én liste om gangen.
         </p>
         <div className="admin-meny">
+          <Link className="uke-btn" href="/admin/ansatte">
+            Ansatte
+          </Link>
           <Link className="uke-btn" href="/admin/team">
             Team
           </Link>
@@ -48,10 +51,6 @@ export default async function AdminSide() {
             Endringstyper og statuser
           </Link>
         </div>
-        <p className="admin-ingress">Kommer:</p>
-        <ul className="admin-liste">
-          <li>Ansatte — endre rolle, team og lokasjon</li>
-        </ul>
         <p className="admin-advarsel">
           Identiteten over er et midlertidig valg, ikke innlogging. Hvem som helst kan velge
           en administrator i nedtrekkslisten og komme hit. Ekte tilgangsstyring kommer med

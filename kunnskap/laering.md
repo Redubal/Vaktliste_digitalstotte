@@ -1,5 +1,15 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 7) — Ansatte i Admin
+
+**Evaluering av forrige økts punkter:**
+- `[les-skjermbildet-først]` ikke utløst: bruker meldte ikke at noe manglet på skjermen. Planen har ingen flere faser, så punktet strykes (se logg 2026-10-13, Fase 7).
+
+**Nye punkter:**
+- `[bash-cd-persisterer]` Mappebyttet fra `cd` i ett Bash-kall blir stående. Belegg: ved faseoppstart ga en andre `cd app` tomt `git log`-svar fra `app/app`. Bruk full sti i hvert kall, og tolk ikke tomt svar som «ingenting» før mappen er sjekket.
+
+**Fasesnitt:** Fase 7 fikk plass i én økt uten `/compact`. Planen har ingen flere faser.
+
 ## 2026-10-13 (avslutning Fase 6) — Team som data
 
 **Evaluering av forrige økts punkter:**
