@@ -815,6 +815,59 @@ a.uke-btn {
   background: #f1f8f2;
 }
 
+/* Ansattrad med avkrysning til venstre og skjemaet til høyre. */
+.admin-ansattrad {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.admin-ansattrad > input[type="checkbox"] {
+  margin-top: 14px;
+}
+
+.admin-ansattinnhold {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-ansattinnhold > form {
+  margin-bottom: 0;
+}
+
+/* Samme linje som skjemaet så lenge det er plass: smalere valg, ingen reservert plass til tom status. */
+.admin-ansattinnhold .admin-navn {
+  flex: 1 1 100px;
+}
+
+.admin-ansattinnhold .admin-bruk {
+  white-space: nowrap;
+}
+
+.admin-ansattinnhold select {
+  max-width: 200px;
+  min-width: 0;
+}
+
+.admin-ansattinnhold .admin-status:empty {
+  display: none;
+}
+
+.admin-ansattinnhold > form:first-child {
+  flex: 1 1 auto;
+}
+
+/* Linjen øverst for masseendring. */
+.admin-masse {
+  padding: 10px 0;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 0;
+}
+
 /* Deaktiverte ansatte: grået, nederst i lista. */
 .admin-deaktivert {
   opacity: 0.55;

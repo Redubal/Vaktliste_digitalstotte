@@ -1,8 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
-import { endreAnsatt, settAnsattAktiv } from "@/app/admin/handlinger";
-import type { Lokasjon, Rolle, Team } from "@/lib/domene";
+import { useActionState, useState } from "react";
+import { endreAnsatt, masseendreAnsatte, settAnsattAktiv } from "@/app/admin/handlinger";
+import { MASSE_INGEN, type Lokasjon, type Rolle, type Svar, type Team } from "@/lib/domene";
 import { Feil, Lagringsstatus, useSkjemaStatus } from "./AdminFelles";
 
 export type AnsattVisning = {
@@ -41,7 +41,19 @@ function AktivKnapp({ ansatt, revisjon }: { ansatt: AnsattVisning; revisjon: num
   );
 }
 
-function AnsattRad({ ansatt, valg, revisjon }: { ansatt: AnsattVisning; valg: Valg; revisjon: number }) {
+function AnsattRad({
+  ansatt,
+  valg,
+  revisjon,
+  avkrysset,
+  onVelg,
+}: {
+  ansatt: AnsattVisning;
+  valg: Valg;
+  revisjon: number;
+  avkrysset: boolean;
+  onVelg: (valgt: boolean) => void;
+}) {
   const [svar, handling, lagrer] = useActionState(endreAnsatt, null);
   const status = useSkjemaStatus(
     {
@@ -54,7 +66,14 @@ function AnsattRad({ ansatt, valg, revisjon }: { ansatt: AnsattVisning; valg: Va
   );
 
   return (
-    <li>
+    <li className="admin-ansattrad">
+      <input
+        type="checkbox"
+        checked={avkrysset}
+        onChange={(e) => onVelg(e.target.checked)}
+        aria-label={`Velg ${ansatt.name}`}
+      />
+      <div className="admin-ansattinnhold">
       <form action={handling} className={status.skjemaKlasse} onInput={status.onInput}>
         <input type="hidden" name="revisjon" value={revisjon} />
         <input type="hidden" name="id" value={ansatt.id} />
@@ -98,19 +117,22 @@ function AnsattRad({ ansatt, valg, revisjon }: { ansatt: AnsattVisning; valg: Va
         <Feil svar={svar} />
       </form>
       <AktivKnapp ansatt={ansatt} revisjon={revisjon} />
+      </div>
     </li>
   );
 }
 
 function DeaktivertRad({ ansatt, revisjon }: { ansatt: AnsattVisning; revisjon: number }) {
   return (
-    <li className="admin-deaktivert">
-      <div className="admin-skjema">
-        <strong className="admin-navn">{ansatt.name}</strong>
-        <span className="admin-bruk">Kom inn: {komInn(ansatt.opprettet)}</span>
-        <span className="admin-bruk">Deaktivert</span>
+    <li className="admin-deaktivert admin-ansattrad">
+      <div className="admin-ansattinnhold">
+        <div className="admin-skjema" style={{ flex: "1 1 auto", marginBottom: 0 }}>
+          <strong className="admin-navn">{ansatt.name}</strong>
+          <span className="admin-bruk">Kom inn: {komInn(ansatt.opprettet)}</span>
+          <span className="admin-bruk">Deaktivert</span>
+        </div>
+        <AktivKnapp ansatt={ansatt} revisjon={revisjon} />
       </div>
-      <AktivKnapp ansatt={ansatt} revisjon={revisjon} />
     </li>
   );
 }
@@ -129,16 +151,104 @@ export function AnsattAdmin({
   revisjon: number;
 }) {
   const valg: Valg = { team, roller, lokasjoner, teamNavn: new Map(team.map((t) => [t.id, t.name])) };
+  const aktive = ansatte.filter((a) => a.aktiv);
+  const [krysset, setKrysset] = useState<Set<string>>(new Set());
+  // Radene er ukontrollerte og tar ikke imot nye verdier fra siden. Etter en masseendring får
+  // de berørte radene ny nøkkel, så de vises på nytt med det som nå er lagret. Andre rader røres ikke.
+  const [versjon, setVersjon] = useState<Record<string, number>>({});
+  // Radene som ble endret, og revisjonen de ble sendt inn på. Nøkkelen byttes først når siden
+  // har fått ny revisjon fra serveren; ellers starter radene på nytt med de gamle verdiene.
+  const [ventende, setVentende] = useState<{ ider: string[]; revisjon: number } | null>(null);
+  if (ventende && revisjon !== ventende.revisjon) {
+    setVentende(null);
+    setVersjon((v) => Object.fromEntries([...Object.entries(v), ...ventende.ider.map((id) => [id, (v[id] ?? 0) + 1])]));
+  }
+  // Bare aktive kan være valgt (en deaktivert rad har ingen avkrysning).
+  const valgte = aktive.filter((a) => krysset.has(a.id)).map((a) => a.id);
+
+  function velg(id: string, valgt: boolean) {
+    const ny = new Set(krysset);
+    if (valgt) ny.add(id);
+    else ny.delete(id);
+    setKrysset(ny);
+  }
+
+  async function masseHandling(forrige: Svar | null, data: FormData): Promise<Svar> {
+    const svar = await masseendreAnsatte(forrige, data);
+    if (svar.ok) {
+      const ider = data.getAll("id").filter((x): x is string => typeof x === "string");
+      setVentende({ ider, revisjon: Number(data.get("revisjon")) });
+      if (data.get("handling") === "deaktiver") setKrysset(new Set());
+    }
+    return svar;
+  }
+
+  const [masseSvar, masse, masserLagrer] = useActionState(masseHandling, null);
+
   // Hver rad husker sine egne verdier; en lagring i én rad nullstiller ikke de andre.
   // Deaktiverte ligger nederst, grået.
   return (
     <div>
-      <ul className="admin-lokasjoner">
-        {ansatte
-          .filter((a) => a.aktiv)
-          .map((a) => (
-            <AnsattRad key={a.id} ansatt={a} valg={valg} revisjon={revisjon} />
+      <form action={masse} className="admin-skjema admin-masse">
+        <input type="hidden" name="revisjon" value={revisjon} />
+        {valgte.map((id) => (
+          <input key={id} type="hidden" name="id" value={id} />
+        ))}
+        <label className="admin-avkryssing">
+          <input
+            type="checkbox"
+            checked={aktive.length > 0 && valgte.length === aktive.length}
+            onChange={(e) => setKrysset(e.target.checked ? new Set(aktive.map((a) => a.id)) : new Set())}
+          />
+          Velg alle synlige
+        </label>
+        <span className="admin-bruk">{valgte.length} valgt</span>
+        <select name="teamId" defaultValue="" aria-label="Sett team for valgte">
+          <option value="">Team: uendret</option>
+          {team.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name}
+            </option>
           ))}
+        </select>
+        <select name="rolleId" defaultValue="" aria-label="Sett rolle for valgte">
+          <option value="">Rolle: uendret</option>
+          <option value={MASSE_INGEN}>Fjern rolle</option>
+          {roller.map((r) => (
+            <option key={r.id} value={r.id}>
+              {r.name}
+            </option>
+          ))}
+        </select>
+        <select name="lokasjonId" defaultValue="" aria-label="Sett lokasjon for valgte">
+          <option value="">Lokasjon: uendret</option>
+          <option value={MASSE_INGEN}>Fjern lokasjon</option>
+          {lokasjoner.map((l) => (
+            <option key={l.id} value={l.id}>
+              {l.name} ({valg.teamNavn.get(l.teamId) ?? l.teamId})
+            </option>
+          ))}
+        </select>
+        <button className="uke-btn" type="submit" name="handling" value="sett" disabled={masserLagrer}>
+          Bruk på valgte
+        </button>
+        <button className="uke-btn" type="submit" name="handling" value="deaktiver" disabled={masserLagrer}>
+          Deaktiver valgte
+        </button>
+        {masseSvar?.ok && <span className="admin-status" role="status">{masseSvar.melding}</span>}
+        <Feil svar={masseSvar} />
+      </form>
+      <ul className="admin-lokasjoner">
+        {aktive.map((a) => (
+          <AnsattRad
+            key={`${a.id}:${versjon[a.id] ?? 0}`}
+            ansatt={a}
+            valg={valg}
+            revisjon={revisjon}
+            avkrysset={krysset.has(a.id)}
+            onVelg={(v) => velg(a.id, v)}
+          />
+        ))}
         {ansatte
           .filter((a) => !a.aktiv)
           .map((a) => (

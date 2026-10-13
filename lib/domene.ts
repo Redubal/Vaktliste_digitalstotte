@@ -188,6 +188,9 @@ export function sjekkLokasjon(
   return { name: sjekket.name, teamId: rå.teamId };
 }
 
+/** Verdien i rolle-/lokasjonsvelgeren for masseendring som betyr «fjern». Tom verdi betyr «la stå». */
+export const MASSE_INGEN = "__ingen";
+
 /** Sjekker at valgene for en ansatt finnes. Team er påkrevd; rolle og lokasjon kan stå tomme (`null`). */
 export function sjekkOppsett(
   rå: { teamId: string; rolleId: string; lokasjonId: string },

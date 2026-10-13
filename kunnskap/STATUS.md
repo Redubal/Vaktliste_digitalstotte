@@ -4,17 +4,17 @@
 **Gjenstående:** `TODO.md` i rotkatalogen
 
 ## Tilstand
-Fase 1–10 ✅. Fase 10 (kom inn, deaktivering, adminstatus) er avsluttet 2026-10-13 etter at brukeren kalte faseslutt; hva som ble prøvd i nettleseren ble ikke oppgitt. Forbehold fra tidligere: omdøping av «Godkjent» lar planen stå uendret er ikke sett (Fase 5); nytt rollenavn i Ansatte er ikke testet (Fase 4); rolle og lokasjon på en ansatt er ikke bekreftet enkeltvis (Fase 7). Mobilvisningen trenger et bedre format (utsatt, `TODO.md`).
+Fase 1–11 ✅. Fase 11 (masseendring av ansatte) er avsluttet 2026-10-13: brukeren bekreftet at lokasjon byttes på tre valgte og at layouten er bra. Forbehold fra Fase 10 (hva som ble prøvd ble ikke oppgitt) og tidligere: omdøping av «Godkjent» lar planen stå uendret er ikke sett (Fase 5); nytt rollenavn i Ansatte er ikke testet (Fase 4); rolle og lokasjon på en ansatt er ikke bekreftet enkeltvis (Fase 7). Mobilvisningen trenger et bedre format (utsatt, `TODO.md`).
 Administratorer: Espen, Ståle og Jens.
 Stack: Next.js 16.3.7 (nytt API, les `node_modules/next/dist/docs/` før kode), React 19, Tailwind v4.
 Git-repoet ligger i `app/`, remote: github.com/Redubal/Vaktliste_digitalstotte (privat), gren `master`.
 
 ## Verifisert
-- `tsc --noEmit` og `npm run lint` rene etter siste kodeendring i Fase 10. `next build` ble ikke kjørt i Fase 10 (en kjørende `next dev` kan komme i konflikt); sist kjørt ved faseslutt i Fase 8.
-- Omgjøringene v2 → v3, v3 → v4 og v4 → v5 er testet med oppdiktede rader i Node, ikke mot ekte data. `beregnEndringer` (endringsloggen) er ikke kjørt i Node. Ikke testet i nettleser av meg: alt i Fase 10 (deaktivering/aktivering, adminavkrysning, selvdeaktivering), samt fra før: loggføring av lagt til og fjernet rader, ødelagt linje i loggfila, taket på 500 linjer, omdøping av «Godkjent», «Vises i plan» av/på, sletting av status/type i bruk, to faner samtidig, ny lagring ved låst fil, opprydding av sikkerhetskopier, team med flere enn to team i alle visninger, «Lagret»-farge i «legg til»-skjemaene, advarsel ved menyvalg mellom Admin-sider.
+- `tsc --noEmit` og `npm run lint` rene etter siste kodeendring i Fase 11. `next build` ble ikke kjørt i Fase 10 eller 11 (en kjørende `next dev` kan komme i konflikt); sist kjørt ved faseslutt i Fase 8.
+- Omgjøringene v2 → v3, v3 → v4 og v4 → v5 er testet med oppdiktede rader i Node, ikke mot ekte data. `beregnEndringer` (endringsloggen) er ikke kjørt i Node. Ikke bekreftet av bruker: tre loggrader etter masseendring, «Velg alle synlige», «Deaktiver valgte», rolle-/teamvalg og «Fjern», feilmeldingene i masseendringen. Ikke testet i nettleser av meg: alt i Fase 10 (deaktivering/aktivering, adminavkrysning, selvdeaktivering), samt fra før: loggføring av lagt til og fjernet rader, ødelagt linje i loggfila, taket på 500 linjer, omdøping av «Godkjent», «Vises i plan» av/på, sletting av status/type i bruk, to faner samtidig, ny lagring ved låst fil, opprydding av sikkerhetskopier, team med flere enn to team i alle visninger, «Lagret»-farge i «legg til»-skjemaene, advarsel ved menyvalg mellom Admin-sider.
 
 ## Neste
-Fase 11, «Masseendring av ansatte» (`plan.md`), på Sonnet. Fase 16–19 går på tyngste modell; 17–19 venter på tilganger (app-registrering, Graph, database). «Lagre alle»-knapp er ønsket av bruker, utenfor planen, se `TODO.md`.
+Fase 12, «Hopp mellom ansatt på forsiden og i Admin, og bort med Fast lokasjon» (`plan.md`), på Sonnet. Fase 16–19 går på tyngste modell; 17–19 venter på tilganger (app-registrering, Graph, database). «Lagre alle»-knapp og rollefilter i uke-/månedsplanen er ønsket av bruker, utenfor planen, se `TODO.md`.
 
 ## Arbeidsmåte neste økt
 Ingen aktive punkter.
@@ -28,7 +28,7 @@ Ingen aktive punkter.
 - `lib/domene.ts` deles med skriptene og har ingen imports. Node 26.8.2 importerer `.ts` direkte (gir en ufarlig modultype-advarsel; `node --no-warnings` skjuler den). I `node`-skript på Windows må absolutte stier i `import` skrives som `file:///C:/...`.
 - Admin er egne sider under `/admin` (team, ansatte, lokasjoner, roller, endringstyper, logg), ikke en fane. Sider som leser fra disk trenger `export const dynamic = "force-dynamic"`. Ansatte-skjemaene bruker oppsettets id, ikke brukerens: en person kan ha flere oppsett.
 - **Deaktiverte ansatte (`Bruker.aktiv = false`) er ikke med i `getAnsatte`** (plan, velger, adgangssjekk). Admin → Ansatte leser `lesVaktliste()` direkte for å vise dem; ny kode som trenger alle personer må gjøre det samme. `entraId` er tom til Fase 16.
-- Admin-skjemaer er ukontrollerte og bruker `useSkjemaStatus` i `components/AdminFelles.tsx` (rød/grønn rad, `beforeunload`). Nye `*Admin`-skjemaer skal bruke den samme kroken, ikke `key={revisjon}`.
+- Admin-skjemaer er ukontrollerte og bruker `useSkjemaStatus` i `components/AdminFelles.tsx` (rød/grønn rad, `beforeunload`). Nye `*Admin`-skjemaer skal bruke den samme kroken, ikke `key={revisjon}`. Feltene er `defaultValue` og tar ikke imot nye verdier fra siden: endres en rad utenfra (masseendring), bytt nøkkel først når siden har fått ny revisjon (`ventende` i `AnsattAdmin.tsx`), ellers vises gamle verdier. En `"use server"`-fil kan bare eksportere funksjoner; konstanter ligger i `lib/domene.ts`.
 - «Velg deg selv» er ikke sikkerhet; hvem som helst kan velge en administrator. Erstattes av Entra.
 - Ukeplanen tar bare med endringer der statusen har `visesIPlan`, og fri-farge styres av `kategori` på typen (`lib/ukeplan.ts`). Navn på status og type betyr ingenting for beregningen.
 - Team er data: filter og telling går på `teamId`, navnet (`Ansatt.team`) er bare til visning. Valget «Alle team» er `ALLE_TEAM = "*"` i `lib/ukeplan.ts`. Rekkefølgen i tabellen `team` er rekkefølgen i velgeren.

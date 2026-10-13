@@ -72,3 +72,6 @@ Fase 16 (synk): endringsloggen må få en egen avsender for synken (f.eks. «Syn
 
 ##
 Fase 16 (synk): en synk gir én logglinje per person og oppsett og kan fylle «Endringslogg». Vurder filter på avsender.
+
+#
+Legge til filtreing på roller på uke/mnd plan

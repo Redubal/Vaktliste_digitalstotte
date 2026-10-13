@@ -1,5 +1,19 @@
 # Logg
 
+## 2026-10-13 — Fase 11 ✅ Masseendring av ansatte
+
+- Levert: Admin → Ansatte har avkrysning per aktive rad (deaktiverte har ingen), «Velg alle synlige», teller og en linje øverst med valg for team, rolle og lokasjon («uendret» er standard, rolle og lokasjon har også «Fjern») og knappene «Bruk på valgte» og «Deaktiver valgte». Handlingen `masseendreAnsatte` i `app/admin/handlinger.ts` tar flere `id` (oppsett-id) og går gjennom `utfor` og `endreVaktliste`: én revisjon, alt eller ingenting (all validering før noe endres), endringsloggen skriver én rad per berørt oppsett/bruker. Deaktivering bruker `sjekkAnsattStatus` per person, så å ta med seg selv nekter hele samlingen. `MASSE_INGEN` ligger i `lib/domene.ts`. Rader og knapper: `components/AnsattAdmin.tsx`, `.admin-masse` og `.admin-ansattrad` i `globals.css`.
+- **Funn (observert, bruker meldte):** første versjon oppdaterte ikke radene etter lagring. Radenes valg er ukontrollerte (`defaultValue`), så de tar ikke imot nye verdier fra siden, og et nøkkelbytte rett etter at handlingen svarte startet radene på nytt med de gamle verdiene. Rettet: `AnsattAdmin` husker hvilke rader som ble endret og hvilken revisjon de ble sendt på, og bytter nøkkel først når siden har fått ny revisjon. Bruker bekreftet etterpå at lokasjonen bytter.
+- **Funn:** en `"use server"`-fil kan bare eksportere funksjoner; konstanten `MASSE_INGEN` måtte derfor ligge i `lib/domene.ts`. Funnet av meg før kjøring (skrev feil først), ikke sett som feilmelding.
+- Utover planen: layout. Etter bruker-skjermbilder lå «Lagre» og «Deaktiver» under resten av raden. Rettet to ganger i `globals.css` (rad som flex, tom `.admin-status` skjules, valg maks 200 px); bruker sa «ble bra».
+- Verifisering: bruker bekreftet at lokasjonen bytter på de tre valgte. Ikke bekreftet av bruker: de tre linjene i endringsloggen, «Velg alle synlige», «Deaktiver valgte», rolle- og teamvalg, «Fjern»-valgene og feilmeldingene (ingenting valgt, deaktivere seg selv).
+- Brudd: jeg kjørte `cd` i Bash i første kodeutforskning (regelen i `app/CLAUDE.md`); fanget av meg samme melding og brukte full sti etterpå.
+- Ikke kjørt: `next build` (en kjørende `next dev` kan komme i konflikt).
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 9 treff. Ingen filer i `data/` ligger i git.
+- Sjekk: `tsc --noEmit` og `npm run lint` grønne kl. 11:42, etter siste kodeendring (kun `kunnskap/` endret etterpå).
+- STATUS: 38 linjer.
+- fase-slutt: 11:40–11:42, 2 min.
+
 ## 2026-10-13 — Fase 10 ✅ Ansatte: kom inn, deaktivering og adminstatus
 
 - Levert: skjemaversjon 5 (`SKJEMA_VERSJON`, `tilVersjon5` i `lib/domene.ts`): `Bruker` har `opprettet` (`null` = «før loggen»), `aktiv` (alle starter `true`) og `entraId` (`null`, til Fase 16). `getAnsatte` i `lib/vaktlista.ts` utelater deaktiverte, så de forsvinner fra Ukeplan, Måned, «Velg deg selv» og Ansatte-fanen, og mister admintilgang (`finnAnsatt` finner dem ikke). Admin → Ansatte (`components/AnsattAdmin.tsx`, `app/admin/ansatte/page.tsx`) leser tabellene direkte og viser «Kom inn», avkrysning «Administrator» (lagres med «Lagre» via `endreAnsatt`) og egen knapp Deaktiver/Aktiver (`settAnsattAktiv` i `app/admin/handlinger.ts`); deaktiverte ligger nederst, grået (`.admin-deaktivert`). `FELTNAVN` i `lib/endringslogg.ts` har `aktiv`, `opprettet` og `entraId`. Importskriptene skrev versjon 1 og oppgraderes ved lesing, så de er uendret.

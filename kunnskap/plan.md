@@ -91,11 +91,7 @@ Fase 9 ✅ 2026-10-13 — detaljer i logg
 
 Fase 10 ✅ 2026-10-13 — detaljer i logg
 
-**Fase 11 — Masseendring av ansatte.**
-Avkrysning per rad i Admin → Ansatte, «Velg alle synlige», og en linje øverst: sett team / rolle /
-lokasjon / deaktiver for alle valgte. Én handling, én revisjon, én loggrad per ansatt.
-**Verifisering:** du krysser av tre ansatte, setter rolle på alle samtidig og ser alle tre med ny rolle
-i listen og tre linjer i endringsloggen.
+Fase 11 ✅ 2026-10-13 — detaljer i logg
 
 **Fase 12 — Hopp mellom ansatt på forsiden og i Admin, og bort med «Fast lokasjon».**
 For administratorer blir navnet i Ukeplan og Måned en lenke til `/admin/ansatte#<brukerId>`, der raden

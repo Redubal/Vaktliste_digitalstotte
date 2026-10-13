@@ -1,5 +1,13 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 11) — Masseendring av ansatte
+
+**Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere. Regelen om `cd` i Bash (nå i `app/CLAUDE.md`) ble brutt én gang: `cd .. && ls` i første kodeutforskning, så full sti. Ingen nytt punkt i STATUS, fordi regelen alt står i CLAUDE.md (én adresse).
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** Fase 11 fikk plass i én økt uten `/compact`. Resten av planen står uendret.
+
 ## 2026-10-13 (avslutning Fase 10) — Ansatte: kom inn, deaktivering og adminstatus
 
 **Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere. `git -C` med full sti ble brukt i hele økten (regelen i `app/CLAUDE.md` holdt).

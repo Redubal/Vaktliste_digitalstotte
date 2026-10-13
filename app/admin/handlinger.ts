@@ -6,6 +6,7 @@ import {
   endringstypeBrukere,
   ledigId,
   lokasjonBrukere,
+  MASSE_INGEN,
   nektSletting,
   rolleBrukere,
   sjekkAnsattStatus,
@@ -118,6 +119,69 @@ export async function settAnsattAktiv(_forrige: Svar | null, data: FormData): Pr
       return null;
     },
     aktiv ? "Personen er aktivert." : "Personen er deaktivert.",
+  );
+}
+
+/**
+ * Setter team, rolle og/eller lokasjon, eller deaktiverer, for alle oppsett i `id` (kan stå flere
+ * ganger i skjemaet). Alt eller ingenting: finner vi én feil, lagres ingenting.
+ */
+export async function masseendreAnsatte(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  const jegId = await minId();
+  const deaktiver = tekst(data, "handling") === "deaktiver";
+  const ider = [...new Set(data.getAll("id").filter((x): x is string => typeof x === "string"))];
+  const antall = `${ider.length} ${ider.length === 1 ? "ansatt" : "ansatte"}`;
+  return utfor(
+    data,
+    "/admin/ansatte",
+    (v) => {
+      if (ider.length === 0) return "Kryss av minst én ansatt først.";
+      const valgte = [];
+      for (const id of ider) {
+        const oppsett = v.oppsett.find((o) => o.id === id);
+        const bruker = oppsett && v.brukere.find((b) => b.id === oppsett.brukerId);
+        if (!oppsett || !bruker) return "En av de valgte finnes ikke lenger. Last siden på nytt.";
+        valgte.push({ oppsett, bruker });
+      }
+
+      if (deaktiver) {
+        for (const { bruker } of valgte) {
+          const status = sjekkAnsattStatus(
+            { aktiv: false, erAdministrator: bruker.erAdministrator === true },
+            bruker.id,
+            jegId,
+          );
+          if ("feil" in status) return status.feil;
+        }
+        for (const { bruker } of valgte) bruker.aktiv = false;
+        return null;
+      }
+
+      const teamId = tekst(data, "teamId");
+      const rolleId = tekst(data, "rolleId");
+      const lokasjonId = tekst(data, "lokasjonId");
+      if (!teamId && !rolleId && !lokasjonId) return "Velg hva som skal endres: team, rolle eller lokasjon.";
+      const nye: { teamId: string; rolleId: string | null; lokasjonId: string | null }[] = [];
+      for (const { oppsett } of valgte) {
+        const sjekket = sjekkOppsett(
+          {
+            teamId: teamId || oppsett.teamId,
+            rolleId: rolleId === MASSE_INGEN ? "" : rolleId || (oppsett.rolleId ?? ""),
+            lokasjonId: lokasjonId === MASSE_INGEN ? "" : lokasjonId || (oppsett.lokasjonId ?? ""),
+          },
+          v,
+        );
+        if ("feil" in sjekket) return sjekket.feil;
+        nye.push(sjekket);
+      }
+      valgte.forEach(({ oppsett }, i) => {
+        oppsett.teamId = nye[i].teamId;
+        oppsett.rolleId = nye[i].rolleId;
+        oppsett.lokasjonId = nye[i].lokasjonId;
+      });
+      return null;
+    },
+    deaktiver ? `${antall} er deaktivert.` : `Endringen er lagret for ${antall}.`,
   );
 }
 
