@@ -4,7 +4,7 @@
 **Gjenstående:** `TODO.md` i rotkatalogen
 
 ## Tilstand
-Fase 1–21 og 22A ✅. Fase 22B («Levende figur: atferd») er skrevet 2026-10-13, men **ikke verifisert av bruker**: sove og gjespe, musa, klatre, spray/spade/brekkjern/spark. Ingenting er sett i nettleseren; bare typesjekk og lint er grønne. Ikke prøvd fra 22A: figuren følger flaten ved rulling, er borte når «Legg inn endring» er åpen, klikk virker der den står, «Figur: av» + omlasting, smalt vindu, ytelse. Ikke prøvd fra Fase 21: «Navn» som snur lista i Ukeplan, person med flere oppsett, nettbrettbredde (769–1024 px), Admin-sidene og endringsvinduet på smal skjerm, ekte telefon eller pad. Fase 13: resultatet etter siste justering av Admin → Ansatte er ikke sett. Fase 4: nytt rollenavn i Ansatte ikke testet; Fase 7: rolle og lokasjon på en ansatt ikke bekreftet enkeltvis.
+Fase 1–21, 22A og 22B ✅ (22B bekreftet av Ståle 2026-10-13 med «vi er ferdig med 22B», uten at enkeltpunkter er oppgitt). Ikke prøvd fra 22A/22B: figuren følger flaten ved rulling, er borte når «Legg inn endring» er åpen, klikk virker der den står, «Figur: av» + omlasting, smalt vindu, ytelse; klatring på blokker kan være sjelden (se loggen). Ikke prøvd fra Fase 21: «Navn» som snur lista i Ukeplan, person med flere oppsett, nettbrettbredde (769–1024 px), Admin-sidene og endringsvinduet på smal skjerm, ekte telefon eller pad. Fase 13: resultatet etter siste justering av Admin → Ansatte er ikke sett. Fase 4: nytt rollenavn i Ansatte ikke testet; Fase 7: rolle og lokasjon på en ansatt ikke bekreftet enkeltvis.
 Administratorer: Espen, Ståle og Jens.
 Stack: Next.js 16.3.7 (nytt API, les `node_modules/next/dist/docs/` før kode), React 19, Tailwind v4.
 Git-repoet ligger i `app/`, remote: github.com/Redubal/Vaktliste_digitalstotte (privat), gren `master`.
@@ -15,11 +15,11 @@ Git-repoet ligger i `app/`, remote: github.com/Redubal/Vaktliste_digitalstotte (
 - Ikke prøvd fra før: retting og sletting i vinduet, klikk i Måned (prikk og mobilkalender), vedlikeholdsmodus mot en ansatt som lagrer, to faner samtidig, alt i Fase 18, 17, 16, 15, 14, 13, 12 og 10, endringslogg, masseendring, sletting av status/type i bruk, ny lagring ved låst fil, team med flere enn to team.
 
 ## Neste
-**Verifiser 22B først** (Ctrl+F5, start `npm run dev` om den ikke går): se verifiseringslinja i `plan.md`. Er den OK, ber du om faseslutt; er noe feil, rettes det i samme fase (hypotese: klatring på blokker kan bli sjelden, se loggen). Deretter Fase 23–29 i `plan.md`: 23 «Avvis» og bare administrator sletter (tyngste), 24 «Mine endringer» (tyngste), 25 rette fra godkjenningslista, 26 Admin → Dager, 27 fridager, 28 mobil/pad-rest, 29 sikkerhetsgjennomgang (tyngste). Entra og database er parkert som Fase 30–33. Rekkefølgen er brukerens valg. Planmodus først hvis noe nytt skal inn i planen.
+**Fase 23** i `plan.md`: «Avvis» og bare administrator sletter (tyngste modell, endrer skjemaet til versjon 11). Deretter 24 «Mine endringer» (tyngste), 25 rette fra godkjenningslista, 26 Admin → Dager, 27 fridager, 28 mobil/pad-rest, 29 sikkerhetsgjennomgang (tyngste). Entra og database er parkert som Fase 30–33. Rekkefølgen er brukerens valg. Planmodus først hvis noe nytt skal inn i planen.
 
 ## Arbeidsmåte neste økt
-- `[skjemasteg-er-låst-etter-test]` Er datafila lagret etter at et versjonssteg ble skrevet, rett data med et nytt steg, ikke ved å endre det gamle.
-- `[klikkflate-hele-ruta]` Noe som skal trykkes gjøres klikkbart over hele ruta, og ser trykkbart ut også uten mus (ramme eller bakgrunn, ikke bare hover).
+- `[skjemasteg-er-låst-etter-test]` Er datafila lagret etter at et versjonssteg ble skrevet, rett data med et nytt steg, ikke ved å endre det gamle. (Fase 23 lager versjon 11.)
+- `[klikkflate-hele-ruta]` Noe som skal trykkes gjøres klikkbart over hele ruta, og ser trykkbart ut også uten mus (ramme eller bakgrunn, ikke bare hover). (Fase 23 legger til «Avvis».)
 - `[utseende-spør-først]` (2. runde) Ønsker brukeren noe som skal se ut eller oppføre seg på en bestemt måte og det finnes ingen referanse: be om en, eller vis ett enkelt utkast, FØR et helt system bygges på gjetning. Brutt i 22B: lovet det, bygde alt etter «start».
 
 ## Det en ny økt må vite
