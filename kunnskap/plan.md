@@ -147,11 +147,7 @@ Fase 26 ✅ 2026-10-13 — detaljer i logg
 
 Fase 27 ✅ 2026-10-13 — detaljer i logg
 
-**Fase 28 — Resten av mobil/pad-testen (Sonnet).**
-Det Fase 20 ikke prøvde: nettbrettbredde (769–1279 px, Admin → Ansatte bryter ujevnt), Admin-sidene
-og endringsvinduet på smal skjerm, Måned på smal skjerm, ekte telefon eller pad.
-**Verifisering:** du ser at Admin → Ansatte holder på nettbrettbredde, og at endringsvinduet og
-Måned kan brukes på telefonen din.
+Fase 28 ✅ 2026-10-13 — detaljer i logg
 
 **Fase 29 — Sikkerhetsgjennomgang (tyngste modell).**
 `/security-review` over hele koden mot `kunnskap/sikkerhet.md`, med rettinger; særlig rettighetene
