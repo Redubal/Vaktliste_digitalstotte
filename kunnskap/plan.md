@@ -155,15 +155,7 @@ Fase 29 ✅ 2026-10-13 — detaljer i logg
 Parkert 2026-10-13 etter ønske fra bruker. Fasene er uendret bortsett fra nummer (var 16–19, så 21–24,
 så 22–25; nå 30–33 etter at TODO-punktene ble Fase 22–29).
 
-**Fase 30 — Synk av ansatte, med lokal testkilde (tyngste modell).**
-`lib/synk.ts` med kilde-grensesnitt; testkilden leser `data/entra-test.json` (oppdiktede personer).
-Regler: match på `entraId`, deretter `upn`; ny person → `opprettet` = nå, havner under «Nye, mangler
-team» i Admin; borte fra gruppen → `aktiv: false`, aldri slettet. Innstillinger: tidspunkt og
-hyppighet (f.eks. daglig kl. 06), sist kjørt og utfall; «Synk nå»-knapp. Kjøres når en side lastes og
-siste synk er eldre enn intervallet (ingen egen tidsplanlegger på serveren).
-**Verifisering:** du legger en oppdiktet person til i testfila, trykker «Synk nå» og ser personen under
-«Nye» med dagens dato; du fjerner en person fra fila, synker og ser vedkommende deaktivert; «Sist
-synket» viser klokkeslettet.
+Fase 30 ✅ 2026-10-13 — detaljer i logg
 
 **Fase 31 — Innlogging med Entra (tyngste modell, krever app-registrering).**
 Erstatter «Velg deg selv» i drift; `AUTH_MODUS=lokal` beholder velgeren under utvikling. Bibliotek

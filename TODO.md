@@ -108,9 +108,7 @@ ikke listes uendelig. Ikke vurdert hvordan det skal løses. Trenger plan.
 - «Flyttet» kan lagres uten lokasjon, og dagsruta viser da bare «Flyttet» (sett på Max, uke 42). Lokasjon kreves bare for typer i kategorien «Lokasjon» (`EndringVindu.tsx`, `lib/domene.ts`); ruta var gul, så «Flyttet» ligger trolig i «Annet» (slutning fra bildet, data ikke sett). Rettes ved å sette «Flyttet» til «Lokasjon» i Admin → Endringstyper; eksisterende endring må rettes for seg.
 
 ## Senere (Entra og database, Fase 30–33 i `plan.md`)
-- Synk mot Entra: sette når og hvor ofte, og kunne tvinge en synk — Fase 30. Det kan hende andre parametere må settes for å få synken til å virke — Fase 30–32.
-- Fase 30: endringsloggen må få en egen avsender for synken (f.eks. «Synk (Entra)»). `endretAv` er i dag id-en til valgt administrator, og `hvem()` i `lib/endringslogg.ts` må godta avsenderen, ellers vises id-teksten rått.
-- Fase 30: en synk gir én logglinje per person og oppsett og kan fylle «Endringslogg». Vurder filter på avsender.
+- Synk-tidspunkt, «Synk nå» og egen avsender i loggen — Fase 30, se logg 2026-10-13. Filter på avsender ikke bygget; kjøringer filtreres via «Synk av ansatte» i Tabell-lista. Det kan hende andre parametere må settes for å få synken mot ekte Entra til å virke — Fase 31–32.
 - Superadmin, som også har tilgang til Entra- og databasekoblingen — merknad i Fase 31.
 - Fase 32: lagre fornavn og etternavn fra Entra som egne felt på personen (synken leser dem allerede, `KildePerson.fornavn/etternavn`), og la visningen bruke dem i stedet for `delNavn` (siste ord = etternavn). Ellers vises doble etternavn feil. Spurt av Ståle 2026-10-13 under Fase 30.
 - Dytte til Outlook, f.eks. ved sykdom — merknad i Fase 32 (samme Graph-tilgang).
