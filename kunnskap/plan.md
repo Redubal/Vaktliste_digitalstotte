@@ -149,11 +149,7 @@ Fase 27 ✅ 2026-10-13 — detaljer i logg
 
 Fase 28 ✅ 2026-10-13 — detaljer i logg
 
-**Fase 29 — Sikkerhetsgjennomgang (tyngste modell).**
-`/security-review` over hele koden mot `kunnskap/sikkerhet.md`, med rettinger; særlig rettighetene
-fra Fase 23–25. Funn føres i `sikkerhet.md`.
-**Verifisering:** du leser funnlista i `sikkerhet.md` og ser at hvert funn er rettet eller har en
-begrunnet beslutning.
+Fase 29 ✅ 2026-10-13 — detaljer i logg
 
 ## Senere (Entra og database)
 Parkert 2026-10-13 etter ønske fra bruker. Fasene er uendret bortsett fra nummer (var 16–19, så 21–24,

@@ -86,7 +86,7 @@ ukenummer i Måned. Må få fasenummer i planen før den gjøres.
 - Figur som vandrer rundt på siden, som «Sheep» — Fase 22.
 - Dager fra Excel: skolekalender (Fase 26) og fridager (Fase 27) levert, se logg 2026-10-13. Radtellingen av innlastingen er ikke gjort (se STATUS).
 - Full mobil- og pad-test — Fase 28.
-- Full sikkerhetsgjennomgang (`/security-review`) — Fase 29.
+- Full sikkerhetsgjennomgang — gjort i Fase 29, se logg 2026-10-13 og `kunnskap/sikkerhet.md`.
 
 ## Brukerhandling (ingen fase)
 - «Flyttet» kan lagres uten lokasjon, og dagsruta viser da bare «Flyttet» (sett på Max, uke 42). Lokasjon kreves bare for typer i kategorien «Lokasjon» (`EndringVindu.tsx`, `lib/domene.ts`); ruta var gul, så «Flyttet» ligger trolig i «Annet» (slutning fra bildet, data ikke sett). Rettes ved å sette «Flyttet» til «Lokasjon» i Admin → Endringstyper; eksisterende endring må rettes for seg.

@@ -1,5 +1,13 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 29) — Sikkerhetsgjennomgang
+
+**Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere.
+
+**Nye punkter:** ingen. Beslutningene (innlogging, nettverk, xlsx, oppslagslogg) ble lagt fram som valg og ført med begrunnelse; bruker valgte, Claude utførte bare det som ble valgt. Fase-slutt-vakten fyrte riktig: «ser i orden ut» ble møtt med forslag og venting.
+
+**Fasesnitt:** 29 fikk plass i én økt uten `/compact`; ingen deling foreslått.
+
 ## 2026-10-13 (avslutning Fase 28) — Mobil/pad-testen
 
 **Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere.

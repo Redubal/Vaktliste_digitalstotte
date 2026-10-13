@@ -1,5 +1,24 @@
 # Logg
 
+## 2026-10-13 — Fase 29 ✅ Sikkerhetsgjennomgang
+
+- **Gjennomført:** hele koden lest mot `kunnskap/sikkerhet.md` (ikke `/security-review`, som bare ser på endringer på grenen). Funnliste F1–F10 med status i `sikkerhet.md`; alle er rettet eller har en beslutning med begrunnelse.
+- **Verifisert av bruker:** Ståle skrev «ser i orden ut» etter å ha startet dev-serveren på nytt. Ikke oppgitt hva som ble sett: at kommentarer på andres endringer er skjult for en ansatt, og at feilen under ikke kom tilbake.
+- **Fasesnitt:** 29 fikk plass i én økt uten `/compact`.
+- **Levert:** `app/page.tsx` sender ikke lenger avviste endringer, e-post (`upn`) eller ansatt-kommentar til nettleseren, og kommentaren på andres endringer bare til administratorer. `next.config.ts` har sikkerhetshoder (`X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy: same-origin`). `next` og `eslint-config-next` 16.3.7 → 16.4.0.
+- **Beslutning (Ståle, innlogging):** «Velg deg selv» godtas til Entra (Fase 31), fordi appen bare kjøres lokalt eller i lukket nett og ekte persondata venter på behandlingsgrunnlag.
+- **Beslutning (Ståle, Next):** oppgrader nå, fordi 16.3.7 har høyalvorlige sårbarheter, blant annet i utviklingsserveren som er den som brukes.
+- **Beslutning (Ståle, xlsx):** godtatt uten retting, fordi pakken bare brukes i engangsimporten mot teamets egen fil.
+- **Beslutning (Ståle, kommentarer):** kommentarer på endringer bare til personen selv og administratorer, fordi de kan inneholde helseopplysninger.
+- **Beslutning (Ståle, nettverk):** dev-serveren får fortsatt lytte på nettet (`10.192.189.24:3000`), fordi appen er i test og ikke har GDPR-data. Tas opp igjen før ekte persondata (F10).
+- **Beslutning (Ståle, utviklingsverktøy):** `npm audit fix` kjørt (`source-map-js` oppdatert); `braces` godtas fordi den bare brukes i lint og retting krever nedgradering av `eslint-config-next`. Etterpå: `npm audit` 6 høye (`braces`-kjeden og `xlsx`), `tsc --noEmit` og `npm run lint` grønne.
+- **Beslutning (Ståle, oppslagslogg):** oppslag logges ikke før Entra, fordi appen er i test uten GDPR-data og «Du er» ikke viser hvem som faktisk ser.
+- **Funn (observert av bruker):** etter oppgraderingen viste dev-serveren `[browser] ⨯ unhandledRejection: TypeError: Cannot read properties of undefined (reading 't')` ved `/admin/logg` (siden svarte 200). Ingen `.t` i `components/`. Hypotese: nettleseren eller `.next` holder filer fra 16.3.7; avgjøres av om feilen kommer tilbake etter Ctrl+F5 eller etter at `.next` er slettet.
+- **Funn:** `npm install` kjørte ikke installasjonsskriptet til `unrs-resolver` (ikke godkjent i npm sin `allowScripts`); lint gikk likevel grønt. Ikke godkjent av Claude.
+- **Sjekk:** `tsc --noEmit` og `npm run lint` kjørt grønne etter `npm audit fix` (siste endring i kodefiler og pakker), etterpå bare `kunnskap/`-filer. `npm audit` etter `npm audit fix`: 6 høye (`braces`-kjeden og `xlsx`), `next` og `source-map-js` borte. `next build` ikke kjørt etter oppgraderingen til 16.4.0; dev-serveren ble startet av bruker.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 2 treff. Ingen filer under `data/`, `*.xlsx` eller `*.jsonl` i git. STATUS: 45 linjer.
+- fase-slutt: 22:15–22:17, ca. 2 min (klokka på maskinen; inkluderer ikke ventetid på svar).
+
 ## 2026-10-13 — Fase 28 ✅ Mobil/pad-testen (delvis oppgitt)
 
 - **Levert (to rettinger i `app/globals.css`):** endringsloggen (`/admin/logg`) rullet sidelengs på mobil fordi alle tabeller har `min-width: 760px`; `.logg-tabell` (ikke `venter-` og `mine-tabell`) har nå `min-width: 0` og mindre cellemarg under 768 px. Knappen «Figur: av/på» sto under 640 px på linje med logoen og så ut som en del av den; den er nå `display: block` med `margin: 8px 0 0 auto` (egen linje, til høyre).

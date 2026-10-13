@@ -21,13 +21,20 @@ export default async function Home({
   const { person, fane } = await searchParams;
   const utheves = typeof person === "string" ? person : null;
   const ansatte = getAnsatte();
-  const endringer = getEndringer();
   const dager = getDager();
   const team = getTeam();
 
   const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
   const jeg = finnAnsatt(ansatte, valgtId);
   const erAdmin = erAdministrator(jeg);
+
+  // Til nettleseren: e-post og kommentar på ansatte brukes ikke i visningene, og avviste endringer
+  // vises ikke i planen. Kommentaren på en endring kan handle om helse, så den sendes bare til
+  // personen selv og administratorer. Holdes igjen her, så det ikke sendes ut (Fase 29).
+  const ansatteUt = ansatte.map((a) => ({ ...a, upn: "", comment: "" }));
+  const endringer = getEndringer()
+    .filter((e) => e.virkning !== "avvist")
+    .map((e) => (erAdmin || e.personId === jeg?.id ? e : { ...e, comment: "" }));
   // Bare når noen har valgt seg selv: revisjonen og valgene til vinduet for endringer (og
   // «Godkjenn» for administratorer). Uten dem kan ingen dag klikkes.
   const v = jeg ? lesVaktliste() : null;
@@ -58,7 +65,7 @@ export default async function Home({
         <UkeplanClient
           key={visningsNokkel}
           team={team}
-          ansatte={ansatte}
+          ansatte={ansatteUt}
           endringer={endringer}
           dager={dager}
           erAdmin={erAdmin}
@@ -76,7 +83,7 @@ export default async function Home({
         <MaanedClient
           key={visningsNokkel}
           team={team}
-          ansatte={ansatte}
+          ansatte={ansatteUt}
           endringer={endringer}
           dager={dager}
           erAdmin={erAdmin}
@@ -101,7 +108,7 @@ export default async function Home({
     tabs.push({
       id: "ansatte",
       label: "Ansatte",
-      content: <VaktlisteClient employees={ansatte} team={team} />,
+      content: <VaktlisteClient employees={ansatteUt} team={team} />,
     });
   }
 
