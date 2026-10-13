@@ -1,5 +1,31 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 15) — Bedre format på mobil
+
+**Evaluering av forrige økts punkter:** `[sjekk-mål-før-layout]` fulgt (leste `.page-shell`- og `.panel`-polstring og eksisterende bruddpunkter før kortene ble bygget): strykes. `[ingen-cd-i-bash]` fulgt (`git -C` og full sti, ingen `cd`): strykes.
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** Fase 15 fikk plass i én økt uten `/compact`. Resten av planen står uendret.
+
+## 2026-10-13 (avslutning Fase 14) — Vedlikeholdsmodus
+
+**Evaluering av forrige økts punkter:** `[sjekk-mål-før-layout]` ikke utløst (bare et gult bånd i CSS, ingen kolonnebredder). Fase 15 (mobil) kan utløse det: videreføres, runde står.
+
+**Nye punkter:**
+- `[ingen-cd-i-bash]` Brukte `cd <sti> && npx tsc` i ett Bash-kall, mot CLAUDE.md-regelen; mappebyttet ble stående. Bruk `npx tsc --noEmit` uten `cd` (arbeidsmappen er alt `app/`) eller full sti. Belegg: miljøet meldte at arbeidsmappen byttet.
+
+**Fasesnitt:** Fase 14 fikk plass i én økt uten `/compact`. Utvidelsen (logging) kom som del av fasen etter brukerens ønske, ikke som egen fase. Resten av planen står uendret.
+
+## 2026-10-13 (avslutning Fase 13) — Sortering i kolonner
+
+**Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere. `git -C` med full sti ble brukt; ingen `cd`.
+
+**Nye punkter:**
+- `[sjekk-mål-før-layout]` Smale kolonner i Admin → Ansatte ble satt med anslåtte breddetall, og raden stakk ut av rammen (brukerens skjermbilde). Gjør bredde-/layoutendringer ved å lese rammens faktiske bredde i CSS først (`max-width` på `.page-shell`, polstring i `.panel`), ikke gjette. Belegg: to runder med skjermbilder.
+
+**Fasesnitt:** Fase 13 fikk plass i én økt uten `/compact`, men layout i Admin → Ansatte ble en egen runde. Resten av planen står uendret.
+
 ## 2026-10-13 (avslutning Fase 12) — Hopp mellom ansatt på forsiden og i Admin
 
 **Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere. `git -C` med full sti ble brukt i hele økten; ingen `cd`.

@@ -15,7 +15,7 @@ export default async function Home({
 }: {
   searchParams: Promise<{ [nøkkel: string]: string | string[] | undefined }>;
 }) {
-  const person = (await searchParams).person;
+  const { person, fane } = await searchParams;
   const utheves = typeof person === "string" ? person : null;
   const ansatte = getAnsatte();
   const endringer = getEndringer();
@@ -81,7 +81,7 @@ export default async function Home({
         </div>
       </header>
 
-      <Tabs initialTabId="ukeplan" tabs={tabs} />
+      <Tabs initialTabId={typeof fane === "string" && tabs.some((t) => t.id === fane) ? fane : "ukeplan"} tabs={tabs} />
     </main>
   );
 }

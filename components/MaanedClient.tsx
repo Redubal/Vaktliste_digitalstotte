@@ -12,7 +12,10 @@ import {
   type CelleType,
   type TeamFilter,
 } from "@/lib/ukeplan";
+import { ariaSort, sorterRader } from "@/lib/sortering";
 import { formatDayShort, formatMonthName, todayUtc } from "@/lib/uker";
+import { PERSON_KOLONNER, PERSON_VERDIER } from "./personSortering";
+import { SorterKnapp, useSortering } from "./Sortering";
 
 type Props = {
   team: Team[];
@@ -50,6 +53,9 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
     () => beregnMaaned({ team, aar, maaned, ansatte, endringer, dager }),
     [team, aar, maaned, ansatte, endringer, dager],
   );
+
+  const { sortering, sorterPaa } = useSortering(PERSON_KOLONNER);
+  const rader = useMemo(() => sorterRader(plan.rader, sortering, PERSON_VERDIER), [plan.rader, sortering]);
 
   return (
     <section aria-label="Månedsoversikt">
@@ -100,11 +106,20 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
       </ul>
 
       <div className="panel panel--ukeplan">
-        <div className="table-wrapper">
+        <div className="table-wrapper visning-tabell">
           <table className="maaned-table">
             <thead>
               <tr>
-                <th className="col-person">Ansatt</th>
+                <th className="col-person" aria-sort={ariaSort(sortering, sortering?.kolonne ?? "")}>
+                  <div className="sorter-gruppe">
+                    <SorterKnapp kolonne="navn" sortering={sortering} onSorter={sorterPaa}>
+                      Navn
+                    </SorterKnapp>
+                    <SorterKnapp kolonne="rolle" sortering={sortering} onSorter={sorterPaa}>
+                      Rolle
+                    </SorterKnapp>
+                  </div>
+                </th>
                 {plan.dager.map((d, i) => {
                   const noter = plan.merknader[i];
                   return (
@@ -131,7 +146,7 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
                   </td>
                 </tr>
               )}
-              {plan.rader.map((rad) => (
+              {rader.map((rad) => (
                 <tr key={`${rad.person.teamId}-${rad.person.id}`}>
                   <th scope="row" className="col-person">
                     {erAdmin ? (
@@ -168,6 +183,67 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
               ))}
             </tbody>
           </table>
+        </div>
+
+        <div className="visning-kort">
+          <div className="sorter-gruppe kort-sortering">
+            <SorterKnapp kolonne="navn" sortering={sortering} onSorter={sorterPaa}>
+              Navn
+            </SorterKnapp>
+            <SorterKnapp kolonne="rolle" sortering={sortering} onSorter={sorterPaa}>
+              Rolle
+            </SorterKnapp>
+          </div>
+          {plan.rader.length === 0 && <p className="empty-row">Ingen aktive personer denne måneden.</p>}
+          <ul className="kortliste">
+            {rader.map((rad) => (
+              <li key={`${rad.person.teamId}-${rad.person.id}`} className="kort">
+                <div className="person-cell">
+                  {erAdmin ? (
+                    <Link className="person-name person-lenke" href={`/admin/ansatte#${rad.person.id}`}>
+                      {rad.person.name}
+                    </Link>
+                  ) : (
+                    <span className="person-name">{rad.person.name}</span>
+                  )}
+                  <span className="person-meta">
+                    {rad.person.team} · {rad.person.role}
+                  </span>
+                </div>
+                <div className="mkal">
+                  {["M", "T", "O", "T", "F", "L", "S"].map((b, i) => (
+                    <span key={i} className="mkal-uke-dag">{b}</span>
+                  ))}
+                  {/* Første dag får riktig ukedagskolonne (mandag = 0). */}
+                  {Array.from({ length: (plan.dager[0].getUTCDay() + 6) % 7 }, (_, i) => (
+                    <span key={`tom-${i}`} />
+                  ))}
+                  {rad.celler.map((celle, i) => {
+                    const e = celle.endring;
+                    const dag = plan.dager[i];
+                    const tittel = [
+                      `${formatDayShort(dag)} ${dag.getUTCDate()}.`,
+                      celle.primær,
+                      e && e.newLocation ? e.type : null,
+                      e?.comment || null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ");
+                    return (
+                      <span
+                        key={celle.iso}
+                        className={`mkal-dag ${PRIKK_KLASSE[classifyCelle(celle)]}`}
+                        title={tittel}
+                        aria-label={tittel}
+                      >
+                        {dag.getUTCDate()}
+                      </span>
+                    );
+                  })}
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>

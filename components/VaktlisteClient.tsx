@@ -1,7 +1,27 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ariaSort, sorterRader } from "@/lib/sortering";
 import type { Employee, Team } from "@/lib/vaktlista";
+import { SorterKnapp, useSortering } from "./Sortering";
+
+const KOLONNER = [
+  { id: "navn", tittel: "Navn" },
+  { id: "team", tittel: "Team" },
+  { id: "rolle", tittel: "Rolle" },
+  { id: "lokasjon", tittel: "Fast lokasjon" },
+  { id: "fra", tittel: "Aktiv fra" },
+  { id: "til", tittel: "Aktiv til" },
+];
+const KOLONNE_IDER = KOLONNER.map((k) => k.id);
+const VERDIER: Record<string, (p: Employee) => string> = {
+  navn: (p) => p.name,
+  team: (p) => p.team,
+  rolle: (p) => p.role,
+  lokasjon: (p) => p.location,
+  fra: (p) => p.activeFrom,
+  til: (p) => p.activeTo,
+};
 
 export function VaktlisteClient({ employees, team }: { employees: Employee[]; team: Team[] }) {
   const [teamFilter, setTeamFilter] = useState("Alle");
@@ -22,7 +42,13 @@ export function VaktlisteClient({ employees, team }: { employees: Employee[]; te
     });
   }, [employees, search, teamFilter]);
 
-  const teamSummary = filteredEmployees.reduce(
+  const { sortering, sorterPaa } = useSortering(KOLONNE_IDER);
+  const sorterte = useMemo(
+    () => sorterRader(filteredEmployees, sortering, VERDIER),
+    [filteredEmployees, sortering],
+  );
+
+  const teamSummary =filteredEmployees.reduce(
     (acc, person) => {
       acc[person.teamId] = (acc[person.teamId] ?? 0) + 1;
       return acc;
@@ -104,16 +130,17 @@ export function VaktlisteClient({ employees, team }: { employees: Employee[]; te
           <table>
             <thead>
               <tr>
-                <th>Navn</th>
-                <th>Team</th>
-                <th>Rolle</th>
-                <th>Fast lokasjon</th>
-                <th>Aktiv fra</th>
-                <th>Aktiv til</th>
+                {KOLONNER.map(({ id, tittel }) => (
+                  <th key={id} aria-sort={ariaSort(sortering, id)}>
+                    <SorterKnapp kolonne={id} sortering={sortering} onSorter={sorterPaa}>
+                      {tittel}
+                    </SorterKnapp>
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {filteredEmployees.map((person) => (
+              {sorterte.map((person) => (
                 <tr key={`${person.teamId}-${person.id}`}>
                   <td>
                     <span className="person-name">{person.name}</span>

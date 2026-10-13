@@ -109,12 +109,7 @@ Forbehold til Entra er på plass: hvem som helst kan velge en administrator i «
 **Verifisering:** du skrur på vedlikehold, velger deg selv som vanlig ansatt og ser bare meldingen;
 som administrator ser du siden som vanlig med et gult bånd øverst; du skrur av og alt er tilbake.
 
-**Fase 15 — Bedre format på mobil.**
-Under en viss bredde blir Ukeplan og Måned en liste per person (kort med dagene under hverandre) i
-stedet for en tabell som scroller sidelengs. Formatet velges sammen med deg ved faseoppstart, med to
-skisser å velge mellom.
-**Verifisering:** du gjør nettleservinduet smalt (eller åpner på mobil) og ser Ukeplan og Måned uten
-sidelengs scrolling, med alle dagene lesbare.
+Fase 15 ✅ 2026-10-13 — detaljer i logg
 
 **Fase 16 — Synk av ansatte, med lokal testkilde (tyngste modell).**
 `lib/synk.ts` med kilde-grensesnitt; testkilden leser `data/entra-test.json` (oppdiktede personer).

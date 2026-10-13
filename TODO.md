@@ -24,9 +24,9 @@ Måned hadde ingen slik kolonne. Står igjen i Ansatte-fanen (`VaktlisteClient`)
 
 ## 3. Mobilvisning trenger et bedre format
 
-Ukeplan og Måned er tabeller som scroller sidelengs på smal skjerm.
-**Beslutning (bruker, 2026-09-30):** vi må finne et bedre format for mobil; tas
-etter Fase 3. Kom opp under verifiseringen av Fase 1, punkt 9.
+Løst i Fase 15 (2026-10-13, kort per person under 768 px), se logg.md. Full test på pad og mobil står igjen.
+**Beslutning (bruker, 2026-09-30):** vi må finne et bedre format for mobil. Kom opp under
+verifiseringen av Fase 1, punkt 9.
 
 ##
 Når man gjør endringer på alle steder .. så må det komme tydelig frem at man har endringer som ikke er lagret .. type rød farge og grønn når den er lagret .. gjelder over alt .
@@ -78,3 +78,25 @@ skal kunne godkjenne fra uke/mnd visning .. ikke godkjente må være tydelig mar
 ansatt og admin skal kunne endre staus direkte i ukes/mnd visning
 endringer godkjennes av admin
 
+##
+full mobil og pad test
+
+##
+full claude-security sjekk
+
+##
+mulighet til å endere til egne farger på endringstyper
+
+##
+hent logo og sett på siden
+https://vestfoldfylke.no/no/Designmanual/meny/logo-og-bruk/
+
+##
+det finnes et program som heter Sheep .. det er en sau som finner på mye tull på skjermen ..
+jeg vil ha noe tilsvarende med en litt fyr som er rundt på siden
+
+##
+Mulighet for å dytte til Outlook ved f.eks sykdom
+
+##
+Sortere nav asc default

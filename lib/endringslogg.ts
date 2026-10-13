@@ -15,7 +15,8 @@ export type Tabellnøkkel =
   | "brukere"
   | "oppsett"
   | "endringer"
-  | "dager";
+  | "dager"
+  | "innstillinger";
 
 export type LoggFelt = { felt: string; gammel: string | null; ny: string | null };
 
@@ -87,7 +88,21 @@ export const TABELLER: Tabellinfo[] = [
     refs: {},
     etikett: (_v, r) => `${r.fromDate}–${r.toDate}`,
   },
+  // Ikke en tabell: `rader` gjør innstillingene om til én rad.
+  {
+    nøkkel: "innstillinger",
+    entall: "innstilling",
+    overskrift: "Innstillinger",
+    refs: {},
+    etikett: () => "Vedlikeholdsmodus",
+  },
 ];
+
+/** Radene i en tabell. Innstillingene er ett objekt og blir én rad med id «vedlikehold». */
+function rader(v: Vaktliste, nøkkel: Tabellnøkkel): Rad[] {
+  if (nøkkel === "innstillinger") return [{ id: "vedlikehold", ...v.innstillinger }];
+  return v[nøkkel] as unknown as Rad[];
+}
 
 const FELTNAVN: Record<string, string> = {
   name: "Navn",
@@ -112,6 +127,8 @@ const FELTNAVN: Record<string, string> = {
   toDate: "Til dato",
   fromTime: "Fra kl.",
   toTime: "Til kl.",
+  vedlikehold: "Vedlikehold",
+  melding: "Melding",
 };
 
 /** `erAdministrator` mangler på de fleste personer; manglende og «nei» er det samme. */
@@ -147,8 +164,8 @@ export function beregnEndringer(før: Vaktliste, etter: Vaktliste, endretAvId: s
   const linjer: LoggLinje[] = [];
   const endretAv = hvem(før, endretAvId);
   for (const info of TABELLER) {
-    const gamle = new Map((før[info.nøkkel] as unknown as Rad[]).map((r) => [r.id, r]));
-    const nye = new Map((etter[info.nøkkel] as unknown as Rad[]).map((r) => [r.id, r]));
+    const gamle = new Map(rader(før, info.nøkkel).map((r) => [r.id, r]));
+    const nye = new Map(rader(etter, info.nøkkel).map((r) => [r.id, r]));
     const ider = new Set([...gamle.keys(), ...nye.keys()]);
     for (const id of ider) {
       const g = gamle.get(id);

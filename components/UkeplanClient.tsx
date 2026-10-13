@@ -12,7 +12,10 @@ import {
   type CelleType,
   type TeamFilter,
 } from "@/lib/ukeplan";
+import { ariaSort, sorterRader } from "@/lib/sortering";
 import { formatDayNumber, formatDayShort, formatWeekRange, isoWeek, todayUtc } from "@/lib/uker";
+import { PERSON_KOLONNER, PERSON_VERDIER } from "./personSortering";
+import { SorterKnapp, useSortering } from "./Sortering";
 
 type Props = {
   team: Team[];
@@ -39,8 +42,11 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdm
     ansatte.find((a) => a.id === utheves)?.teamId ?? alleTeam[0]?.id ?? ALLE_TEAM,
   );
   const utheveRef = useRef<HTMLTableRowElement | null>(null);
+  const utheveKortRef = useRef<HTMLLIElement | null>(null);
   useEffect(() => {
-    utheveRef.current?.scrollIntoView({ block: "center" });
+    // Tabellen eller kortlisten er skjult (display: none) etter bredden; bare den synlige kan rulles til.
+    const synlig = utheveRef.current?.offsetParent ? utheveRef.current : utheveKortRef.current;
+    synlig?.scrollIntoView({ block: "center" });
   }, []);
   const [{ aar, uke }, setUke] = useState<{ aar: number; uke: number }>({
     aar: today.year,
@@ -52,7 +58,13 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdm
     [team, aar, uke, ansatte, endringer, dager],
   );
 
-  const goToday = () => setUke({ aar: today.year, uke: today.week });
+  const { sortering, sorterPaa } = useSortering(PERSON_KOLONNER);
+  const rader = useMemo(
+    () => sorterRader(ukeplan.rader, sortering, PERSON_VERDIER),
+    [ukeplan.rader, sortering],
+  );
+
+  const goToday =() => setUke({ aar: today.year, uke: today.week });
   const goPrev = () => setUke(({ aar, uke }) => {
     const p = forrigeUke(aar, uke);
     return { aar: p.aar, uke: p.uke };
@@ -93,11 +105,20 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdm
       </div>
 
       <div className="panel panel--ukeplan">
-        <div className="table-wrapper">
+        <div className="table-wrapper visning-tabell">
           <table className="ukeplan-table">
             <thead>
               <tr>
-                <th className="col-person">Ansatt</th>
+                <th className="col-person" aria-sort={ariaSort(sortering, sortering?.kolonne ?? "")}>
+                  <div className="sorter-gruppe">
+                    <SorterKnapp kolonne="navn" sortering={sortering} onSorter={sorterPaa}>
+                      Navn
+                    </SorterKnapp>
+                    <SorterKnapp kolonne="rolle" sortering={sortering} onSorter={sorterPaa}>
+                      Rolle
+                    </SorterKnapp>
+                  </div>
+                </th>
                 {ukeplan.dager.map((d, i) => {
                   const noter = ukeplan.merknader[i];
                   return (
@@ -126,7 +147,7 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdm
                   </td>
                 </tr>
               )}
-              {ukeplan.rader.map((rad) => (
+              {rader.map((rad) => (
                 <tr
                   key={`${rad.person.teamId}-${rad.person.id}`}
                   ref={rad.person.id === utheves ? utheveRef : undefined}
@@ -173,6 +194,60 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdm
               ))}
             </tbody>
           </table>
+        </div>
+
+        <div className="visning-kort">
+          <div className="sorter-gruppe kort-sortering">
+            <SorterKnapp kolonne="navn" sortering={sortering} onSorter={sorterPaa}>
+              Navn
+            </SorterKnapp>
+            <SorterKnapp kolonne="rolle" sortering={sortering} onSorter={sorterPaa}>
+              Rolle
+            </SorterKnapp>
+          </div>
+          {ukeplan.rader.length === 0 && <p className="empty-row">Ingen aktive personer denne uken.</p>}
+          <ul className="kortliste">
+            {rader.map((rad) => (
+              <li
+                key={`${rad.person.teamId}-${rad.person.id}`}
+                ref={rad.person.id === utheves ? utheveKortRef : undefined}
+                className={rad.person.id === utheves ? "kort rad--uthevet" : "kort"}
+              >
+                <div className="person-cell">
+                  {erAdmin ? (
+                    <Link className="person-name person-lenke" href={`/admin/ansatte#${rad.person.id}`}>
+                      {rad.person.name}
+                    </Link>
+                  ) : (
+                    <span className="person-name">{rad.person.name}</span>
+                  )}
+                  <span className="person-meta">
+                    {rad.person.team} · {rad.person.role}
+                  </span>
+                </div>
+                <ul className="kort-dager">
+                  {rad.celler.map((celle, i) => {
+                    const d = ukeplan.dager[i];
+                    const noter = ukeplan.merknader[i];
+                    return (
+                      <li key={celle.iso} className="kort-dag">
+                        <span className="kort-dag-navn">
+                          {formatDayShort(d)} {formatDayNumber(d)}
+                          {noter.length > 0 && <span className="kort-dag-note">{noter.join(", ")}</span>}
+                        </span>
+                        <div className={CELLE_KLASSE[classifyCelle(celle)]}>
+                          <span className="celle-tekst">{celle.primær}</span>
+                          {celle.endring && celle.endring.newLocation && (
+                            <span className="celle-badge">{celle.endring.type}</span>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>

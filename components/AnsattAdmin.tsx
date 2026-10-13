@@ -4,7 +4,16 @@ import Link from "next/link";
 import { useActionState, useState, useSyncExternalStore } from "react";
 import { endreAnsatt, masseendreAnsatte, settAnsattAktiv } from "@/app/admin/handlinger";
 import { MASSE_INGEN, type Lokasjon, type Rolle, type Svar, type Team } from "@/lib/domene";
+import { ariaSort, sorterRader } from "@/lib/sortering";
 import { Feil, Lagringsstatus, useSkjemaStatus } from "./AdminFelles";
+import { SorterKnapp, useSortering } from "./Sortering";
+
+const ADMIN_KOLONNER = [
+  { id: "navn", tittel: "Navn" },
+  { id: "team", tittel: "Team" },
+  { id: "rolle", tittel: "Rolle" },
+  { id: "lokasjon", tittel: "Lokasjon" },
+];
 
 export type AnsattVisning = {
   /** Id-en til oppsettet (ikke brukeren): en person kan ha flere oppsett. */
@@ -149,6 +158,7 @@ function DeaktivertRad({
 }) {
   return (
     <li id={ankerId} className={uthevet ? "admin-deaktivert admin-ansattrad rad--uthevet" : "admin-deaktivert admin-ansattrad"}>
+      <span className="avkryssing-plass" />
       <div className="admin-ansattinnhold">
         <div className="admin-skjema" style={{ flex: "1 1 auto", marginBottom: 0 }}>
           <strong className="admin-navn">{ansatt.name}</strong>
@@ -175,7 +185,17 @@ export function AnsattAdmin({
   revisjon: number;
 }) {
   const valg: Valg = { team, roller, lokasjoner, teamNavn: new Map(team.map((t) => [t.id, t.name])) };
-  const aktive = ansatte.filter((a) => a.aktiv);
+  const { sortering, sorterPaa } = useSortering(ADMIN_KOLONNER.map((k) => k.id));
+  const rolleNavn = new Map(roller.map((r) => [r.id, r.name]));
+  const lokasjonNavn = new Map(lokasjoner.map((l) => [l.id, l.name]));
+  const verdier: Record<string, (a: AnsattVisning) => string> = {
+    navn: (a) => a.name,
+    team: (a) => valg.teamNavn.get(a.teamId) ?? a.teamId,
+    rolle: (a) => (a.rolleId ? (rolleNavn.get(a.rolleId) ?? "") : ""),
+    lokasjon: (a) => (a.lokasjonId ? (lokasjonNavn.get(a.lokasjonId) ?? "") : ""),
+  };
+  const sortert = sorterRader(ansatte, sortering, verdier);
+  const aktive = sortert.filter((a) => a.aktiv);
   // Raden fra lenken i Ukeplan/Måned (`#<brukerId>`) utheves. Ankeret ligger bare på første rad per bruker.
   const hash = useSyncExternalStore(abonnerPaaHash, () => window.location.hash, () => "");
   const utheves = decodeURIComponent(hash.slice(1));
@@ -271,6 +291,34 @@ export function AnsattAdmin({
         {masseSvar?.ok && <span className="admin-status" role="status">{masseSvar.melding}</span>}
         <Feil svar={masseSvar} />
       </form>
+      <div className="sorter-rad" role="group" aria-label="Sorter ansatte">
+        <span className="admin-bruk">Sorter på:</span>
+        {ADMIN_KOLONNER.map(({ id, tittel }) => (
+          <span key={id} aria-sort={ariaSort(sortering, id)}>
+            <SorterKnapp kolonne={id} sortering={sortering} onSorter={sorterPaa}>
+              {tittel}
+            </SorterKnapp>
+          </span>
+        ))}
+      </div>
+      <div className="ansatt-hode">
+        <span className="avkryssing-plass" />
+        <div className="ansatt-hode-ytre">
+          <div className="ansatt-rutenett">
+            {(["navn", "", "team", "rolle", "lokasjon"] as const).map((id, i) =>
+              id ? (
+                <span key={id} aria-sort={ariaSort(sortering, id)}>
+                  <SorterKnapp kolonne={id} sortering={sortering} onSorter={sorterPaa}>
+                    {ADMIN_KOLONNER.find((k) => k.id === id)?.tittel}
+                  </SorterKnapp>
+                </span>
+              ) : (
+                <span key={`tom-${i}`} />
+              ),
+            )}
+          </div>
+        </div>
+      </div>
       <ul className="admin-lokasjoner">
         {aktive.map((a) => (
           <AnsattRad
@@ -284,7 +332,7 @@ export function AnsattAdmin({
             uthevet={a.brukerId === utheves}
           />
         ))}
-        {ansatte
+        {sortert
           .filter((a) => !a.aktiv)
           .map((a) => (
             <DeaktivertRad

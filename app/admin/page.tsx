@@ -1,7 +1,9 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { VedlikeholdAdmin } from "@/components/VedlikeholdAdmin";
 import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
+import { lesVaktliste } from "@/lib/lager";
 import { getAnsatte } from "@/lib/vaktlista";
 
 // Uten denne blir sida bygget som statisk HTML og viser data fra byggetidspunktet.
@@ -12,6 +14,7 @@ export default async function AdminSide() {
   const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
   const jeg = finnAnsatt(getAnsatte(), valgtId);
   if (!erAdministrator(jeg)) redirect("/");
+  const v = lesVaktliste();
 
   return (
     <main className="page-shell">
@@ -28,7 +31,7 @@ export default async function AdminSide() {
       <section className="panel">
         <div className="section-head">
           <h2>Vedlikehold</h2>
-          <span className="counter">kommer</span>
+          <span className="counter">{v.innstillinger.vedlikehold ? "vedlikehold på" : "vedlikehold av"}</span>
         </div>
         <p className="admin-ingress">
           Du er logget på som <strong>{jeg?.name}</strong> og har admintilgang. Vedlikehold av
@@ -54,6 +57,7 @@ export default async function AdminSide() {
             Endringslogg
           </Link>
         </div>
+        <VedlikeholdAdmin innstillinger={v.innstillinger} revisjon={v.revisjon} />
         <p className="admin-advarsel">
           Identiteten over er et midlertidig valg, ikke innlogging. Hvem som helst kan velge
           en administrator i nedtrekkslisten og komme hit. Ekte tilgangsstyring kommer med

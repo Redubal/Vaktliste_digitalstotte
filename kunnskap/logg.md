@@ -1,5 +1,42 @@
 # Logg
 
+## 2026-10-13 — Fase 15 ✅ Bedre format på mobil
+
+- Levert: under 768 px skjules tabellene i Ukeplan og Måned (`.visning-tabell`) og en kortliste vises (`.visning-kort`, begge i `globals.css`). Ukeplan: ett kort per person, dagene under hverandre med lokasjon, farge og dagsmerknad. Måned: ett kort per person med kalender i sju kolonner (M T O T F L S), fargede ruter med dagnummer, første dag i riktig ukedagskolonne. Navn-/Rolle-sortering er flyttet over kortlisten. Uthevingen fra Admin ruller til det synlige elementet (tabellrad eller kort, valgt med `offsetParent`).
+- **Beslutning (bruker, mobilformat):** «kort per person» valgt framfor «dag for dag». Begrunnelse: planen ba om liste per person, og kortet viser hva én person gjør hele uka; skisse av dagvelger (én dag om gangen) ble senere nevnt som mulig alternativ, men ikke valgt.
+- Observert: brukeren så først den gamle tabellen på smal skjerm; årsaken var nettleserens hurtigbuffer (bekreftet av bruker: «det var cash»), ikke koden. Etter oppdatering: «ser ok ut, finner ingen åpenbare feil».
+- Verifisering: bruker bekreftet i ord, uten punkt for punkt. Ikke sett: «Vis i ukeplan» fra Admin som ruller til kortet, sortering på kortene, Måned-kalenderen med måneder som starter midt i uka, bredt vindu tilbake til tabell.
+- Sjekk: `tsc --noEmit` rent etter siste kodeendring i `.tsx` (CSS kom før typesjekken, påvirker den ikke); `npm run lint` kjørt ved faseslutt, ingen feil. `next build` ikke kjørt.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 1 treff. Ingen filer i `data/` ligger i git.
+- Fase 13–14 (ucommittet fra forrige økt) og de nye filene `components/Sortering.tsx`, `VedlikeholdAdmin.tsx`, `personSortering.ts` og `lib/sortering.ts` tas med i samme commit; `.claude/settings.json` tas ikke med.
+- STATUS: 41 linjer.
+- fase-slutt: 12:32–12:36, 4 min (inkl. ventetid på svar om plan og `TODO.md`).
+
+## 2026-10-13 — Fase 14 ✅ Vedlikeholdsmodus
+
+- Levert: `innstillinger` (`vedlikehold`, `melding`) i `vaktliste.json`, skjemaversjon 5 → 6 (`tilVersjon6` i `lib/domene.ts`, avskrudd som standard). `app/layout.tsx` (nå `async`, leser cookie og vaktliste) viser bare meldingen for dem som ikke er administrator, med «Velg deg selv» stående så man kan bytte tilbake; administratorer får et gult bånd (`.vedlikehold-band`). Bryter og meldingsfelt i Admin (`components/VedlikeholdAdmin.tsx`, handling `settVedlikehold`). `utfor` kaller nå `revalidatePath("/", "layout")` så layouten ikke står igjen med gammel tilstand.
+- **Beslutning (bruker, logging av vedlikehold):** brukeren ba om at å skru vedlikehold på/av føres i endringsloggen med hvem som gjorde det. Begrunnelse: vedlikeholdsmodus stenger appen for alle andre, så det må kunne spores. `innstillinger` er et objekt, ikke en tabell; `rader()` i `lib/endringslogg.ts` gjør det til én rad (id «vedlikehold»), og «Innstillinger» er ny tabell i filteret.
+- Planen sier «`utfor` nekter skriving for andre»: ingen ny kode, `utfor` nekter allerede alt som ikke er administrator.
+- Hypotese (ikke sett): layouter rendres ikke på nytt ved navigering på klientsiden (Next-dokumentasjonen), så en som har siden åpen ser den uendret til oppdatering. `router.refresh()` i «Velg deg selv» rendrer layouten på nytt. Avgjøres ved å la en ansatt ha siden åpen mens administrator skrur på.
+- Verifisering: bruker svarte «14 er ok» under faseslutt, uten å oppgi hva som ble prøvd punkt for punkt. Ikke sett i ord: meldingen som vanlig ansatt, gult bånd som administrator, skru av, de to loggradene, oppgradering 5 → 6 mot ekte fil, `next build`.
+- Sjekk: `tsc --noEmit` og `npm run lint` rene etter siste kodeendring (`endringslogg.ts`); etterpå bare `kunnskap/`. Rettet underveis: klassenavn med «å» byttet til ASCII.
+- Fase 13 (sortering, ucommittet fra forrige økt) er tatt med i samme commit.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 7 treff. Ingen filer i `data/` ligger i git.
+- STATUS: 40 linjer.
+- fase-slutt: 12:17–12:19, 2 min (inkl. ventetid på svar om plan og `TODO.md`).
+
+## 2026-10-13 — Fase 13 ✅ Sortering i kolonner
+
+- Levert: `lib/sortering.ts` (ren, uten imports): `?sorter=kolonne` / `?sorter=-kolonne`, `sorterRader` (stabil, `Intl.Collator("nb", numeric)`, tomme verdier nederst), `nesteSortering` (ny kolonne stigende, samme kolonne snur), `ariaSort`. `components/Sortering.tsx`: `useSortering` (leser `useSearchParams`, skriver med `window.history.replaceState`, ingen ny henting og ingen ny historikkrad) og `SorterKnapp` (knapp med ▲/▼/↕). `personSortering.ts` deler kolonner/verdier mellom Ukeplan og Måned (Navn, Rolle). Ansatte-fanen: alle seks overskrifter sorterbare. Admin → Ansatte: sortering på Navn, Team, Rolle, Lokasjon (navn slås opp fra id). Alle visninger deler `?sorter=`; en kolonne en visning ikke har, ignoreres der.
+- Utenfor planteksten: valgt fane huskes i adressen (`?fane=`, `Tabs.tsx` + `app/page.tsx`), ellers hoppet en oppdatering tilbake til Ukeplan og sorteringen i Ansatte-fanen var ikke synlig.
+- **Beslutning (bruker, layout i Admin → Ansatte):** sorteringsraden «Sorter på» virket ikke praktisk over rader som brytes (skjermbilde). Jeg foreslo nedtrekksliste eller `TODO.md`; brukeren svarte «gjør dette bedre» og sendte nytt skjermbilde. Valget ble ekte kolonner med overskrifter over fra bredde 1280 px (CSS grid på `.admin-ansattinnhold` og skjemaet), og «Sorter på»-raden beholdt for smal skjerm. Begrunnelse: overskrifter kan bare stå over «sine» kolonner når radene har kolonner.
+- Funn (observert av bruker, skjermbilde): første kolonnebredder ga rader som stakk ut av den hvite rammen. Årsak er hypotese: breddene ble regnet mot en bredere ramme enn siden har (rammen ser ut til å være ca. 1100–1150 CSS-px). Kolonnene ble smalere (128/70/128/170/120/70 px, knappene 96 og 128 px), første kolonne `minmax(60px, 1fr)`, ytre `minmax(0, 1fr)`. Resultatet er ikke sett etter siste justering.
+- Verifisering: brukeren ba om faseslutt uten å oppgi hva som ble prøvd; planens test (klikke «Navn», «Team», oppdatere siden) er ikke bekreftet i ord. Ikke sett: sortering i Ukeplan/Måned, Admin → Ansatte etter siste breddejustering, lange navn i smale kolonner, `aria-sort` på overskriftene med to knapper (Ukeplan/Måned), dato-sortering av «Aktiv fra»/«Aktiv til» (sorteres som tekst; riktig bare om datoene er ISO), `?fane=` sammen med `?person=`, smal-skjerm-visningen.
+- Ikke kjørt: `next build`.
+- Sjekk: `tsc --noEmit` og `npm run lint` rene etter den siste kodeendringen i `.tsx`/`.ts`; etterpå bare CSS (`globals.css`) og `kunnskap/`.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 6 treff. Ingen filer i `data/` ligger i git.
+- STATUS: 38 linjer.
+
 ## 2026-10-13 — Fase 12 ✅ Hopp mellom ansatt på forsiden og i Admin, og bort med «Fast lokasjon»
 
 - Levert: for administratorer er navnet i Ukeplan og Måned en lenke til `/admin/ansatte#<brukerId>`; raden i Admin utheves (`rad--uthevet`, gul bakgrunn og ramme). Hver aktive rad i Admin har «Vis i ukeplan» (`/?person=<brukerId>`): `app/page.tsx` leser `searchParams` (en `Promise`, som i `admin/logg/page.tsx`), `UkeplanClient` starter på personens team og ruller raden til midten. Nøkkelen i Ukeplan og Måned er nå `teamId-id` (som i `VaktlisteClient`). Kolonnen «Fast lokasjon» og `.col-home` (også i smal-skjerm-regelen) er fjernet fra Ukeplan; Måned hadde ingen slik kolonne, bare forklaringen «Fast lokasjon» (uendret). `erAdmin` sendes fra `page.tsx` til begge klientene.

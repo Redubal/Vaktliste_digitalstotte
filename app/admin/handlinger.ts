@@ -16,6 +16,7 @@ import {
   sjekkRolle,
   sjekkStatus,
   sjekkTeam,
+  sjekkInnstillinger,
   slugify,
   statusBrukere,
   teamBrukere,
@@ -57,8 +58,26 @@ async function utfor(
   }
 
   revalidatePath(sti);
-  revalidatePath("/");
+  // «layout» også: rotlayouten viser vedlikeholdsmeldingen og skal ikke stå igjen med gammel tilstand.
+  revalidatePath("/", "layout");
   return { ok: true, melding: okMelding };
+}
+
+// --- Vedlikeholdsmodus ---
+
+export async function settVedlikehold(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  const vedlikehold = tekst(data, "vedlikehold") === "true";
+  return utfor(
+    data,
+    "/admin",
+    (v) => {
+      const sjekket = sjekkInnstillinger({ vedlikehold, melding: tekst(data, "melding") });
+      if ("feil" in sjekket) return sjekket.feil;
+      v.innstillinger = sjekket;
+      return null;
+    },
+    vedlikehold ? "Vedlikehold er slått på." : "Vedlikehold er slått av.",
+  );
 }
 
 // --- Ansatte ---

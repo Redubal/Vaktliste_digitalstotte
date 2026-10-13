@@ -2,7 +2,7 @@
 // Node importerer .ts direkte, så filen må holde seg til syntaks som kan strippes (ingen enum).
 
 /** Eldre versjoner gjøres om ved lesing av `oppgraderVaktliste`; øk og legg til et steg der. */
-export const SKJEMA_VERSJON = 5;
+export const SKJEMA_VERSJON = 6;
 
 /** Rekkefølgen i tabellen er rekkefølgen i teamvelgeren. */
 export type Team = {
@@ -87,12 +87,22 @@ export type DagRad = {
   comment: string;
 };
 
+/** Settes i Admin. Ved vedlikehold ser alle som ikke er administrator bare `melding`. */
+export type Innstillinger = {
+  vedlikehold: boolean;
+  melding: string;
+};
+
+export const VEDLIKEHOLD_MELDING_MAKSLENGDE = 300;
+export const STANDARD_VEDLIKEHOLDSMELDING = "Vaktlista er stengt for vedlikehold. Prøv igjen senere.";
+
 /** Hele databasen i én fil, `data/vaktliste.json`. Tabellene har id-er og fremmednøkler som i SQL. */
 export type Vaktliste = {
   skjemaVersjon: number;
   /** Teller opp ved hver lagring; brukes til å oppdage at to faner har endret samtidig. */
   revisjon: number;
   sistEndretAv: string | null;
+  innstillinger: Innstillinger;
   team: Team[];
   lokasjoner: Lokasjon[];
   roller: Rolle[];
@@ -109,6 +119,7 @@ export function tomVaktliste(): Vaktliste {
     skjemaVersjon: SKJEMA_VERSJON,
     revisjon: 0,
     sistEndretAv: null,
+    innstillinger: { vedlikehold: false, melding: STANDARD_VEDLIKEHOLDSMELDING },
     team: [],
     lokasjoner: [],
     roller: [],
@@ -437,6 +448,27 @@ function tilVersjon5(v: RåVaktliste): RåVaktliste {
   return { ...v, skjemaVersjon: 5, brukere };
 }
 
+// 5 → 6: `innstillinger` med vedlikeholdsmodus, avskrudd. En innstilling som allerede står der, beholdes.
+function tilVersjon6(v: RåVaktliste): RåVaktliste {
+  return {
+    ...v,
+    skjemaVersjon: 6,
+    innstillinger: v.innstillinger ?? { vedlikehold: false, melding: STANDARD_VEDLIKEHOLDSMELDING },
+  };
+}
+
+/** Renser meldingen fra skjemaet. Tom melding blir standardmeldingen. */
+export function sjekkInnstillinger(rå: {
+  vedlikehold: boolean;
+  melding: string;
+}): { feil: string } | Innstillinger {
+  const melding = rå.melding.replace(/\s+/g, " ").trim() || STANDARD_VEDLIKEHOLDSMELDING;
+  if (melding.length > VEDLIKEHOLD_MELDING_MAKSLENGDE) {
+    return { feil: `Meldingen kan ha opptil ${VEDLIKEHOLD_MELDING_MAKSLENGDE} tegn.` };
+  }
+  return { vedlikehold: rå.vedlikehold, melding };
+}
+
 /** Sjekker en endring av adminstatus og aktiv for en person. Nekter at man tar fra seg selv tilgangen. */
 export function sjekkAnsattStatus(
   rå: { aktiv: boolean; erAdministrator: boolean },
@@ -461,6 +493,7 @@ export function oppgraderVaktliste(rå: RåVaktliste): Vaktliste {
   if (v.skjemaVersjon === 2) v = tilVersjon3(v);
   if (v.skjemaVersjon === 3) v = tilVersjon4(v);
   if (v.skjemaVersjon === 4) v = tilVersjon5(v);
+  if (v.skjemaVersjon === 5) v = tilVersjon6(v);
   if (v.skjemaVersjon !== SKJEMA_VERSJON) {
     throw new Error(`data/vaktliste.json har skjemaversjon ${fra}, appen forventer ${SKJEMA_VERSJON}.`);
   }

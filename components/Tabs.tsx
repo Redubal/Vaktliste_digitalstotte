@@ -22,7 +22,13 @@ export function Tabs({ tabs, initialTabId }: { tabs: TabDefinition[]; initialTab
             role="tab"
             aria-selected={t.id === active}
             className={t.id === active ? "tab-btn tab-btn--active" : "tab-btn"}
-            onClick={() => setActive(t.id)}
+            onClick={() => {
+              setActive(t.id);
+              // Fanen huskes i adressen, så en oppdatering ikke hopper tilbake til første fane.
+              const url = new URL(window.location.href);
+              url.searchParams.set("fane", t.id);
+              window.history.replaceState(null, "", url);
+            }}
           >
             {t.label}
           </button>

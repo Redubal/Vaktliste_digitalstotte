@@ -918,6 +918,99 @@ a.uke-btn {
   cursor: default;
 }
 
+/* --- Kortvisning (smal skjerm): Ukeplan og Måned --- */
+
+.visning-kort {
+  display: none;
+}
+
+.kortliste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.kort {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--panel);
+}
+
+.kort-sortering {
+  margin-bottom: 12px;
+}
+
+.kort-dager {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kort-dag {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+
+.kort-dag-navn {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--heading);
+}
+
+.kort-dag-note {
+  font-size: 0.68rem;
+  font-weight: 400;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.mkal {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.mkal-uke-dag {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.mkal .mkal-dag {
+  width: auto;
+  height: auto;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--heading);
+}
+
+@media (max-width: 768px) {
+  .visning-tabell {
+    display: none;
+  }
+
+  .visning-kort {
+    display: block;
+  }
+}
+
 /* --- Responsivt --- */
 
 @media (max-width: 768px) {
@@ -1009,4 +1102,188 @@ a.uke-btn {
   gap: 6px;
   font-size: 0.9rem;
   color: var(--heading);
+}
+
+.sorter-knapp {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sorter-knapp:hover .sorter-pil,
+.sorter-knapp:focus-visible .sorter-pil {
+  opacity: 1;
+}
+
+.sorter-pil {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+.sorter-rad {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+}
+
+.sorter-gruppe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+/* Admin → Ansatte: på bred skjerm står radene i kolonner med sorterbare overskrifter over.
+   På smal skjerm brytes radene som før, og sorteringen ligger i raden «Sorter på». */
+.admin-ansattrad > input[type="checkbox"],
+.avkryssing-plass {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin: 14px 0 0;
+}
+
+.ansatt-hode {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .sorter-rad {
+    display: none;
+  }
+
+  .ansatt-hode {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ansatt-hode .avkryssing-plass {
+    height: 1px;
+    margin: 0;
+  }
+
+  .ansatt-hode-ytre {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 96px 128px;
+    gap: 10px;
+  }
+
+  .ansatt-rutenett,
+  .admin-ansattinnhold > .admin-skjema:first-child {
+    display: grid;
+    grid-template-columns: minmax(60px, 1fr) 128px 70px 128px 170px 120px 70px;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .ansatt-rutenett {
+    padding-left: 14px;
+  }
+
+  :where(.admin-ansattinnhold) > .admin-skjema:first-child {
+    border-left: 4px solid transparent;
+    padding-left: 10px;
+  }
+
+  .admin-ansattinnhold {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 96px 128px;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .admin-ansattinnhold > .admin-skjema:first-child .admin-feil,
+  .admin-ansattinnhold > .admin-skjema:first-child .admin-status {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+
+  .admin-ansattinnhold .uke-btn {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .admin-ansattinnhold > .admin-skjema:first-child {
+    min-width: 0;
+  }
+
+  .admin-ansattinnhold > .admin-skjema:first-child select {
+    width: 100%;
+    max-width: none;
+  }
+
+  .admin-ansattinnhold .admin-bruk {
+    min-width: 0;
+  }
+
+  .admin-ansattinnhold > .admin-skjema:not(:first-child) {
+    margin-bottom: 0;
+  }
+
+  .admin-ansattinnhold > .admin-skjema:not(:first-child) .uke-btn,
+  .admin-ansattinnhold > a.uke-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* --- Vedlikeholdsmodus --- */
+
+.vedlikehold-band {
+  padding: 10px 20px;
+  background: #fff3bf;
+  border-bottom: 1px solid #e0c64a;
+  color: #5c4700;
+  text-align: center;
+}
+
+.vedlikehold-side {
+  max-width: 560px;
+  margin: 10vh auto 0;
+  display: grid;
+  gap: 12px;
+}
+
+.vedlikehold-tekst {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.vedlikehold-skjema {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.vedlikehold-melding {
+  display: grid;
+  gap: 6px;
+}
+
+.vedlikehold-melding textarea {
+  width: 100%;
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.vedlikehold-knapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
