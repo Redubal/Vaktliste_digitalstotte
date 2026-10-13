@@ -10,6 +10,12 @@ export function tekst(data: FormData, felt: string): string {
   return typeof verdi === "string" ? verdi : "";
 }
 
+/** Den som er valgt i «Velg deg selv», eller `null`. */
+export async function valgtAnsatt(): Promise<Ansatt | null> {
+  const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
+  return finnAnsatt(getAnsatte(), valgtId);
+}
+
 /**
  * Felles for handlingene: sjekker hvem som er valgt, lagrer og laster siden på nytt.
  * Sjekkes i hver handling: en handling er et åpent POST-endepunkt, så å skjule skjemaet
@@ -23,8 +29,7 @@ export async function utforSom(
   endre: (v: Vaktliste, jeg: Ansatt) => string | null,
   okMelding: string,
 ): Promise<Svar> {
-  const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
-  const jeg = finnAnsatt(getAnsatte(), valgtId);
+  const jeg = await valgtAnsatt();
   if (!jeg || (krav === "administrator" && !erAdministrator(jeg))) {
     return {
       ok: false,

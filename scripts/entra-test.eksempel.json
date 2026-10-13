@@ -1,0 +1,5 @@
+[
+  { "id": "test-0001", "givenName": "Testa", "surname": "Testesen", "userPrincipalName": "testa.testesen@eksempel.invalid" },
+  { "id": "test-0002", "givenName": "Prøve", "surname": "Prøvesen", "userPrincipalName": "prove.provesen@eksempel.invalid" },
+  { "id": "test-0003", "givenName": "Demo", "surname": "Demosen", "userPrincipalName": "demo.demosen@eksempel.invalid" }
+]

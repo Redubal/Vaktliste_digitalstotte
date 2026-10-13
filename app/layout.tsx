@@ -3,10 +3,12 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
+import { after } from "next/server";
 import { Figur } from "@/components/figur/Figur";
 import { IdentitetsVelger } from "@/components/IdentitetsVelger";
 import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
 import { lesVaktliste } from "@/lib/lager";
+import { synkHvisForfalt } from "@/lib/synk";
 import { getAnsatte } from "@/lib/vaktlista";
 import "./globals.css";
 
@@ -26,7 +28,9 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const { innstillinger } = lesVaktliste();
+  const { innstillinger, synk } = lesVaktliste();
+  // Ingen tidsplanlegger på serveren: en forfalt synk kjøres etter at siden er sendt, og vises ved neste lasting.
+  after(() => synkHvisForfalt(synk));
   const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
   const ansatte = getAnsatte();
   const jeg = finnAnsatt(ansatte, valgtId);

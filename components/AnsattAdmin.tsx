@@ -38,12 +38,18 @@ function abonnerPaaHash(varsle: () => void) {
   return () => window.removeEventListener("hashchange", varsle);
 }
 
-function komInn(opprettet: string | null): string {
+export function komInn(opprettet: string | null): string {
   return opprettet ? opprettet.slice(0, 10) : "før loggen";
 }
 
 /** Knappen som deaktiverer eller aktiverer en person. Eget skjema, så den ikke lagrer resten av raden. */
-function AktivKnapp({ ansatt, revisjon }: { ansatt: AnsattVisning; revisjon: number }) {
+export function AktivKnapp({
+  ansatt,
+  revisjon,
+}: {
+  ansatt: Pick<AnsattVisning, "brukerId" | "aktiv">;
+  revisjon: number;
+}) {
   const [svar, handling, lagrer] = useActionState(settAnsattAktiv, null);
   return (
     <form action={handling} className="admin-skjema">

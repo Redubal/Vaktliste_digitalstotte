@@ -2,7 +2,7 @@
 // Node importerer .ts direkte, så filen må holde seg til syntaks som kan strippes (ingen enum).
 
 /** Eldre versjoner gjøres om ved lesing av `oppgraderVaktliste`; øk og legg til et steg der. */
-export const SKJEMA_VERSJON = 12;
+export const SKJEMA_VERSJON = 13;
 
 /** Rekkefølgen i tabellen er rekkefølgen i teamvelgeren. */
 export type Team = {
@@ -299,6 +299,24 @@ export type Innstillinger = {
 export const VEDLIKEHOLD_MELDING_MAKSLENGDE = 300;
 export const STANDARD_VEDLIKEHOLDSMELDING = "Vaktlista er stengt for vedlikehold. Prøv igjen senere.";
 
+/**
+ * Når synken av ansatte kjører av seg selv: fra `klokkeslett` («06:00»), hver `intervallTimer` time.
+ * 0 = av; da kjører den bare når en administrator trykker «Synk nå».
+ */
+export type SynkInnstillinger = { klokkeslett: string; intervallTimer: number };
+
+export const SYNK_INTERVALLER = [
+  { timer: 0, navn: "Av (bare «Synk nå»)" },
+  { timer: 1, navn: "Hver time" },
+  { timer: 6, navn: "Hver 6. time" },
+  { timer: 12, navn: "Hver 12. time" },
+  { timer: 24, navn: "Daglig" },
+] as const;
+
+export const STANDARD_SYNK: SynkInnstillinger = { klokkeslett: "06:00", intervallTimer: 0 };
+
+/** Står i `endretAv` og `sistEndretAv` når synken lagrer; endringsloggen viser det som «Synk av ansatte». */
+export const SYNK_AVSENDER = "synk";
 /** Hele databasen i én fil, `data/vaktliste.json`. Tabellene har id-er og fremmednøkler som i SQL. */
 export type Vaktliste = {
   skjemaVersjon: number;
@@ -306,6 +324,7 @@ export type Vaktliste = {
   revisjon: number;
   sistEndretAv: string | null;
   innstillinger: Innstillinger;
+  synk: SynkInnstillinger;
   team: Team[];
   lokasjoner: Lokasjon[];
   roller: Rolle[];
@@ -323,6 +342,7 @@ export function tomVaktliste(): Vaktliste {
     revisjon: 0,
     sistEndretAv: null,
     innstillinger: { vedlikehold: false, melding: STANDARD_VEDLIKEHOLDSMELDING },
+    synk: { ...STANDARD_SYNK },
     team: [],
     lokasjoner: [],
     roller: [],
@@ -743,6 +763,11 @@ function tilVersjon12(v: RåVaktliste): RåVaktliste {
   return { ...v, skjemaVersjon: 12, dager };
 }
 
+// 12 → 13: `synk` med automatisk synk avskrudd. En innstilling som allerede står der, beholdes.
+function tilVersjon13(v: RåVaktliste): RåVaktliste {
+  return { ...v, skjemaVersjon: 13, synk: v.synk ?? { ...STANDARD_SYNK } };
+}
+
 /** Renser meldingen fra skjemaet. Tom melding blir standardmeldingen. */
 export function sjekkInnstillinger(rå: {
   vedlikehold: boolean;
@@ -786,8 +811,151 @@ export function oppgraderVaktliste(rå: RåVaktliste): Vaktliste {
   if (v.skjemaVersjon === 9) v = tilVersjon10(v);
   if (v.skjemaVersjon === 10) v = tilVersjon11(v);
   if (v.skjemaVersjon === 11) v = tilVersjon12(v);
+  if (v.skjemaVersjon === 12) v = tilVersjon13(v);
   if (v.skjemaVersjon !== SKJEMA_VERSJON) {
     throw new Error(`data/vaktliste.json har skjemaversjon ${fra}, appen forventer ${SKJEMA_VERSJON}.`);
   }
   return v as Vaktliste;
+}
+
+// --- Synk av ansatte (Fase 30) ---
+
+/** Sjekker tidspunkt og hyppighet fra skjemaet. */
+export function sjekkSynkInnstillinger(rå: {
+  klokkeslett: string;
+  intervallTimer: string;
+}): { feil: string } | SynkInnstillinger {
+  const klokkeslett = rå.klokkeslett.trim();
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(klokkeslett)) return { feil: "Klokkeslettet må være på formen TT:MM." };
+  const intervall = SYNK_INTERVALLER.find((i) => String(i.timer) === rå.intervallTimer);
+  if (!intervall) return { feil: "Velg hvor ofte synken skal kjøre." };
+  return { klokkeslett, intervallTimer: intervall.timer };
+}
+
+/**
+ * Det siste planlagte tidspunktet til og med `nå`: `klokkeslett` i dag, pluss eller minus hele
+ * intervaller. `null` når automatisk synk er av. Regnes i serverens lokaltid.
+ */
+export function sisteSynkTidspunkt(s: SynkInnstillinger, nå: Date): Date | null {
+  if (s.intervallTimer <= 0) return null;
+  const [timer, minutter] = s.klokkeslett.split(":").map(Number);
+  const anker = new Date(nå);
+  anker.setHours(timer, minutter, 0, 0);
+  const steg = s.intervallTimer * 3_600_000;
+  return new Date(anker.getTime() + Math.floor((nå.getTime() - anker.getTime()) / steg) * steg);
+}
+
+/** Skal synken kjøre nå? Ja når et planlagt tidspunkt er passert etter forrige forsøk. */
+export function synkErForfalt(s: SynkInnstillinger, sistForsøk: string | null, nå: Date): boolean {
+  const siste = sisteSynkTidspunkt(s, nå);
+  if (!siste) return false;
+  return !sistForsøk || new Date(sistForsøk).getTime() < siste.getTime();
+}
+
+/** Én person fra kilden: testfila nå, Entra-gruppen senere. `name` er fornavn og etternavn satt sammen. */
+export type KildePerson = { entraId: string; fornavn: string; etternavn: string; name: string; upn: string | null };
+
+/**
+ * Sjekker innholdet fra kilden: en liste med brukere i formen Microsoft Graph gir dem: `id`,
+ * `givenName` (fornavn), `surname` (etternavn), `userPrincipalName` (e-post) og `displayName`, som
+ * bare brukes når fornavn og etternavn mangler. En tom liste avvises, så en feil i kilden ikke
+ * deaktiverer alle.
+ */
+export function sjekkKildePersoner(rå: unknown): { feil: string } | KildePerson[] {
+  if (!Array.isArray(rå)) return { feil: "Kilden må være en liste med personer." };
+  if (rå.length === 0) return { feil: "Kilden ga ingen personer. Synken stoppet, så ingen blir deaktivert ved en feil." };
+  const personer: KildePerson[] = [];
+  const sett = new Set<string>();
+  const tekstFelt = (p: Record<string, unknown>, felt: string) => (typeof p[felt] === "string" ? rensNavn(p[felt]) : "");
+  for (const [i, r] of rå.entries()) {
+    const p = typeof r === "object" && r !== null ? (r as Record<string, unknown>) : {};
+    const entraId = tekstFelt(p, "id");
+    const fornavn = tekstFelt(p, "givenName");
+    const etternavn = tekstFelt(p, "surname");
+    const name = [fornavn, etternavn].filter(Boolean).join(" ") || tekstFelt(p, "displayName");
+    const upn = tekstFelt(p, "userPrincipalName") || null;
+    if (!entraId) return { feil: `Person nr. ${i + 1} i kilden mangler id.` };
+    if (!name) return { feil: `Person nr. ${i + 1} i kilden mangler givenName og surname.` };
+    if (sett.has(entraId)) return { feil: `id «${entraId}» står flere ganger i kilden.` };
+    sett.add(entraId);
+    personer.push({ entraId, fornavn, etternavn, name, upn });
+  }
+  return personer;
+}
+
+export type SynkResultat = {
+  nye: string[];
+  deaktivert: string[];
+  /** Navn eller e-post endret i kilden. */
+  oppdatert: string[];
+  /** Fantes fra før uten Entra-id, og ble koblet på e-post. */
+  koblet: string[];
+  /** Burde vært deaktivert, men er siste aktive administrator. */
+  holdtIgjen: string[];
+  /** Aktive personer uten Entra-id; synken rører dem ikke. */
+  ukoblet: number;
+};
+
+export function synkHarEndringer(r: SynkResultat): boolean {
+  return r.nye.length + r.deaktivert.length + r.oppdatert.length + r.koblet.length > 0;
+}
+
+/**
+ * Bruker kilden på `v`. Match på `entraId`, deretter e-post (`upn`) blant dem som ikke er koblet;
+ * en treff på e-post får Entra-id-en. Ingen treff = ny person, uten team, `opprettet` = `nå`.
+ * Bare personer med Entra-id som er borte fra kilden, deaktiveres; de som aldri er koblet, røres
+ * ikke. Ingen slettes, ingen aktiveres igjen, og siste aktive administrator deaktiveres ikke.
+ */
+export function anvendSynk(v: Vaktliste, personer: KildePerson[], nå: string): SynkResultat {
+  const r: SynkResultat = { nye: [], deaktivert: [], oppdatert: [], koblet: [], holdtIgjen: [], ukoblet: 0 };
+  for (const p of personer) {
+    let bruker = v.brukere.find((b) => b.entraId === p.entraId);
+    if (!bruker && p.upn) {
+      const epost = nøkkel(p.upn);
+      bruker = v.brukere.find((b) => !b.entraId && b.upn && nøkkel(b.upn) === epost);
+      if (bruker) {
+        bruker.entraId = p.entraId;
+        r.koblet.push(p.name);
+      }
+    }
+    if (!bruker) {
+      const id = ledigId(slugify(p.name), new Set(v.brukere.map((b) => b.id)), "person");
+      v.brukere.push({ id, name: p.name, upn: p.upn, opprettet: nå, aktiv: true, entraId: p.entraId });
+      r.nye.push(p.name);
+      continue;
+    }
+    const nyUpn = p.upn ?? bruker.upn;
+    if (bruker.name !== p.name || bruker.upn !== nyUpn) {
+      bruker.name = p.name;
+      bruker.upn = nyUpn;
+      r.oppdatert.push(p.name);
+    }
+  }
+  const iKilden = new Set(personer.map((p) => p.entraId));
+  for (const bruker of v.brukere) {
+    if (!bruker.aktiv || !bruker.entraId || iKilden.has(bruker.entraId)) continue;
+    const andreAdmin = v.brukere.some((b) => b !== bruker && b.aktiv && b.erAdministrator === true);
+    if (bruker.erAdministrator === true && !andreAdmin) {
+      r.holdtIgjen.push(bruker.name);
+      continue;
+    }
+    bruker.aktiv = false;
+    r.deaktivert.push(bruker.name);
+  }
+  r.ukoblet = v.brukere.filter((b) => b.aktiv && !b.entraId).length;
+  return r;
+}
+
+/** Utfallet som én linje til Admin. */
+export function beskrivSynk(r: SynkResultat, antallIKilden: number): string {
+  const deler = [`${antallIKilden} i kilden`];
+  const liste = (navn: string[]) => (navn.length <= 3 ? `: ${navn.join(", ")}` : "");
+  if (r.nye.length) deler.push(`${r.nye.length} ny${r.nye.length === 1 ? "" : "e"}${liste(r.nye)}`);
+  if (r.deaktivert.length) deler.push(`${r.deaktivert.length} deaktivert${liste(r.deaktivert)}`);
+  if (r.oppdatert.length) deler.push(`${r.oppdatert.length} oppdatert`);
+  if (r.koblet.length) deler.push(`${r.koblet.length} koblet på e-post`);
+  if (r.holdtIgjen.length) deler.push(`ikke deaktivert fordi siste administrator: ${r.holdtIgjen.join(", ")}`);
+  if (!synkHarEndringer(r)) deler.push("ingen endringer");
+  if (r.ukoblet) deler.push(`${r.ukoblet} uten kobling til Entra (røres ikke)`);
+  return deler.join(" · ");
 }

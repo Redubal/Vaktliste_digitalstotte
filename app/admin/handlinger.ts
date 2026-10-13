@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import {
   avvisEndring,
@@ -19,14 +20,16 @@ import {
   sjekkStatus,
   sjekkTeam,
   sjekkInnstillinger,
+  sjekkSynkInnstillinger,
   slugify,
   statusBrukere,
   teamBrukere,
   type Svar,
   type Vaktliste,
 } from "@/lib/domene";
-import { IDENTITET_COOKIE } from "@/lib/identitet";
-import { tekst, utforSom } from "@/lib/utfor";
+import { IDENTITET_COOKIE, erAdministrator } from "@/lib/identitet";
+import { kjørSynk } from "@/lib/synk";
+import { tekst, utforSom, valgtAnsatt } from "@/lib/utfor";
 
 /** Fargen fra skjemaet: bare med når «Egen farge» er krysset av, ellers tom (= ingen egen farge). */
 function fargeFra(data: FormData): string {
@@ -55,7 +58,66 @@ export async function settVedlikehold(_forrige: Svar | null, data: FormData): Pr
   );
 }
 
+// --- Synk av ansatte ---
+
+export async function settSynk(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(
+    data,
+    "/admin",
+    (v) => {
+      const sjekket = sjekkSynkInnstillinger({
+        klokkeslett: tekst(data, "klokkeslett"),
+        intervallTimer: tekst(data, "intervallTimer"),
+      });
+      if ("feil" in sjekket) return sjekket.feil;
+      v.synk = sjekket;
+      return null;
+    },
+    "Innstillingene for synk er lagret.",
+  );
+}
+
+/** «Synk nå». Går ikke gjennom `utfor`: synken lagrer selv, med egen avsender, og bare når noe er endret. */
+export async function synkNaa(): Promise<Svar> {
+  const jeg = await valgtAnsatt();
+  if (!erAdministrator(jeg)) {
+    return { ok: false, melding: jeg ? "Du har ikke tilgang til å endre dette." : "Velg deg selv øverst på siden først." };
+  }
+  const status = await kjørSynk(`${jeg?.name ?? "ukjent"} («Synk nå»)`);
+  revalidatePath("/admin");
+  revalidatePath("/", "layout");
+  return { ok: status.ok === true, melding: status.melding ?? "" };
+}
+
 // --- Ansatte ---
+
+/** Gir en ny person (uten oppsett, typisk fra synken) et team, så vedkommende kommer med i planen. */
+export async function giTeam(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(
+    data,
+    "/admin/ansatte",
+    (v) => {
+      const bruker = v.brukere.find((b) => b.id === tekst(data, "brukerId"));
+      if (!bruker) return "Personen finnes ikke lenger. Last siden på nytt.";
+      if (!bruker.aktiv) return "Personen er deaktivert. Aktiver vedkommende først.";
+      if (v.oppsett.some((o) => o.brukerId === bruker.id)) return "Personen har allerede et team. Last siden på nytt.";
+      const sjekket = sjekkOppsett({ teamId: tekst(data, "teamId"), rolleId: "", lokasjonId: "" }, v);
+      if ("feil" in sjekket) return sjekket.feil;
+      const id = ledigId(`${bruker.id}-start`, new Set(v.oppsett.map((o) => o.id)), "oppsett");
+      v.oppsett.push({
+        id,
+        brukerId: bruker.id,
+        ...sjekket,
+        activeFrom: null,
+        activeTo: null,
+        sortOrder: null,
+        comment: null,
+      });
+      return null;
+    },
+    "Personen har fått team.",
+  );
+}
 
 /** Id-en til den som er valgt i «Velg deg selv». `utfor` har allerede sjekket at personen er admin. */
 async function minId(): Promise<string> {

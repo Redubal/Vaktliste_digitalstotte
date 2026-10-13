@@ -1,5 +1,24 @@
 # Logg
 
+## 2026-10-13 — Fase 30 ✅ Synk av ansatte med lokal testkilde
+
+- **Verifisert av bruker:** Ståle så de tre testpersonene under «Nye, mangler team» med «Kom inn: 2026-10-13», så Demo Demosen deaktivert (grå, «Aktiver») etter at han ble fjernet fra testfila, og skrev om «Sist synket» og loggen: «Begge deler kan finnes». **Ikke oppgitt:** loggingen av hver kjøring («kjørte (vellykket)» / «kjørte (feilet)»), som kom til etter dette; automatisk synk (tidspunkt og hyppighet) er ikke prøvd i nettleseren.
+- **Rettet underveis:** radene i «Nye, mangler team» overlappet (gjenbrukte `.admin-ansattinnhold`, som har fast rutenett på bred skjerm); fikk egne klasser `.admin-nyrad`/`.admin-nyinnhold`.
+- **Funn fra bruker (ført i `TODO.md` 7 og 8):** kolonnene i Admin → Ansatte overlapper (fantes før fasen), og lista over deaktiverte vil bli lang.
+- **Sjekk ved faseslutt:** `tsc --noEmit` og `npm run lint` grønne etter siste kodeendring (logging av kjøringer); `npm run build` (`next build`, første gang siden Fase 8) grønn, 11 ruter, alle dynamiske.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, datamappa i git 0, kontrollsøk 3 treff.
+- STATUS: 41 linjer. fase-slutt: 22:54–22:57, 3 min.
+- Observert: dev-serveren bygde og lastet `/` på nytt i løkke etter omstart; stoppet da fanen ble lukket og kom ikke tilbake. Årsak ikke funnet (ingen kode skriver filer ved vanlig sidevisning).
+
+- **Bygget:** `lib/synk.ts` (kilde-grensesnitt `SynkKilde`, `testkilde` som leser `data/entra-test.json`, `kjørSynk`, `synkHvisForfalt`), reglene som rene funksjoner i `lib/domene.ts` (`anvendSynk`, `sjekkKildePersoner`, `sisteSynkTidspunkt`, `synkErForfalt`), skjemaversjon 13 (`Vaktliste.synk`). Admin har seksjonen «Synk av ansatte» (`components/SynkAdmin.tsx`), og Admin → Ansatte har «Nye, mangler team» (`components/NyeAnsatte.tsx`, handling `giTeam`). Eksempelfil: `scripts/entra-test.eksempel.json`.
+- Observert (Node, oppdiktede rader): 37 av 37 sjekker OK etter Graph-feltene (omgjøring 12 → 13, ny person, kobling på e-post, deaktivering, urørte ukoblede, siste admin, kildesjekk, tidspunkt for daglig og hver 6. time).
+- **Beslutning (Claude, deaktivering ved synk):** bare personer med `entraId` (koblet av synken) deaktiveres når de er borte fra kilden; personer uten kobling røres ikke og telles i utfallet. Avvik fra planens «borte fra gruppen → deaktivert». Begrunnelse: alle personer i appen i dag mangler `entraId`, så en testfil med bare oppdiktede personer ville ellers deaktivert alle, også administratorene. Mot ekte Entra (Fase 32) kobles de fleste på e-post ved første synk.
+- **Beslutning (Claude, vern i synken):** en tom kilde stopper synken; siste aktive administrator deaktiveres aldri av synken; synken aktiverer ingen igjen (en administrator gjør det i Ansatte). Begrunnelse: en feil i kilden skal ikke stenge alle ute, og en manuell deaktivering skal ikke overstyres av neste synk.
+- **Beslutning (Claude, synkstatus):** når synken sist kjørte og utfallet ligger i `data/synkstatus.json`, ikke i `vaktliste.json`; bare synker som endrer personer går gjennom `endreVaktliste` (avsender `synk`, vist som «Synk av ansatte» i loggen). Begrunnelse: en synk uten endringer skal ikke gi ny revisjon («Listen er endret av noen andre») eller sikkerhetskopi.
+- **Beslutning (Ståle, navn fra Entra):** fornavn og etternavn skal hentes fra Entra. Testkilden bruker derfor Graph-feltene `id`, `givenName`, `surname`, `userPrincipalName` (og `displayName` som reserve), og `name` bygges av fornavn + etternavn. Å lagre dem som egne felt på personen er ført i `TODO.md` til Fase 32. Begrunnelse: testfila skal ha samme form som Entra, så Fase 32 bare bytter kilde.
+- **Beslutning (Ståle, logging av synk):** hver kjøring av synken skal stå i endringsloggen, også uten endringer, og feilmeldinger skal logges. Løst med handlingen «kjørt» i tabellen «synk» (`loggKjøring` i `lib/synk.ts`) med «Startet av», «Kilde» og «Utfall». Begrunnelse: en synk som ikke endret noe, eller som feilet, var bare synlig i `data/synkstatus.json` og i Admin.
+- **Beslutning (Claude, automatikk):** automatisk synk er av som standard; den kjøres med `after()` i rotlayouten etter en sidevisning når et planlagt tidspunkt er passert, så siden ikke venter på den. Begrunnelse: planens «ingen egen tidsplanlegger», og testdata skal ikke synkes uten at noen har skrudd det på.
+
 ## 2026-10-13 — Fase 29 ✅ Sikkerhetsgjennomgang
 
 - **Gjennomført:** hele koden lest mot `kunnskap/sikkerhet.md` (ikke `/security-review`, som bare ser på endringer på grenen). Funnliste F1–F10 med status i `sikkerhet.md`; alle er rettet eller har en beslutning med begrunnelse.

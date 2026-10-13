@@ -1,5 +1,14 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 30) — Synk av ansatte
+
+**Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere.
+
+**Nye punkter:**
+- `[css-gjenbruk]` Før en eksisterende layoutklasse brukes i en ny komponent: søk etter klassen i `globals.css`, også i `@media`-blokkene. Belegg: «Nye, mangler team» fikk `.admin-ansattinnhold`, som har et fast rutenett med åtte kolonner på bred skjerm, og tekst lå oppå hverandre i brukerens første skjermbilde.
+
+**Fasesnitt:** 30 fikk plass i én økt uten `/compact`, men vokste underveis: Graph-feltnavn og logging av hver kjøring kom fra brukeren under verifiseringen. Ingen deling foreslått.
+
 ## 2026-10-13 (avslutning Fase 29) — Sikkerhetsgjennomgang
 
 **Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere.

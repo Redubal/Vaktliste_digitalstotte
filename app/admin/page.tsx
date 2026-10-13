@@ -1,11 +1,20 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { SynkAdmin } from "@/components/SynkAdmin";
 import { VedlikeholdAdmin } from "@/components/VedlikeholdAdmin";
-import { virkningFor } from "@/lib/domene";
+import { sisteSynkTidspunkt, virkningFor } from "@/lib/domene";
 import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
 import { lesVaktliste } from "@/lib/lager";
+import { aktivKilde, lesSynkStatus } from "@/lib/synk";
 import { getAnsatte } from "@/lib/vaktlista";
+
+function tidspunkt(iso: string | Date): string {
+  const d = new Date(iso);
+  const dato = d.toLocaleDateString("nb-NO", { timeZone: "Europe/Oslo" });
+  const kl = d.toLocaleTimeString("nb-NO", { timeZone: "Europe/Oslo", hour: "2-digit", minute: "2-digit" });
+  return `${dato} kl. ${kl}`;
+}
 
 // Uten denne blir sida bygget som statisk HTML og viser data fra byggetidspunktet.
 // Den feilen virker i `next dev` og dukker først opp i produksjon.
@@ -17,6 +26,16 @@ export default async function AdminSide() {
   if (!erAdministrator(jeg)) redirect("/");
   const v = lesVaktliste();
   const antallVenter = v.endringer.filter((e) => virkningFor(e.statusId, v.statuser) === "venter").length;
+  const synkStatus = lesSynkStatus();
+  const nå = new Date();
+  const siste = sisteSynkTidspunkt(v.synk, nå);
+  const synkVisning = {
+    kilde: aktivKilde().navn,
+    sistSynket: synkStatus.sistOk ? tidspunkt(synkStatus.sistOk) : null,
+    feiletSist: synkStatus.ok === false && synkStatus.sistForsøk ? tidspunkt(synkStatus.sistForsøk) : null,
+    melding: synkStatus.melding,
+    neste: siste ? tidspunkt(new Date(siste.getTime() + v.synk.intervallTimer * 3_600_000)) : null,
+  };
 
   return (
     <main className="page-shell">
@@ -71,6 +90,14 @@ export default async function AdminSide() {
           en administrator i nedtrekkslisten og komme hit. Ekte tilgangsstyring kommer med
           Entra SSO.
         </p>
+      </section>
+
+      <section className="panel">
+        <div className="section-head">
+          <h2>Synk av ansatte</h2>
+          <span className="counter">{v.synk.intervallTimer ? "automatisk på" : "automatisk av"}</span>
+        </div>
+        <SynkAdmin innstillinger={v.synk} visning={synkVisning} revisjon={v.revisjon} />
       </section>
     </main>
   );

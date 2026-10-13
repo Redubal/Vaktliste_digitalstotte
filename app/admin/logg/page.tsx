@@ -28,6 +28,7 @@ function datoTekst(dato: string): string {
 }
 
 function setning(l: LoggLinje): string {
+  if (l.handling === "kjørt") return `${l.endretAv} kjørte (${l.rad})`;
   const info = TABELLER.find((t) => t.nøkkel === l.tabell);
   return `${l.endretAv} ${l.handling} ${info?.entall ?? l.tabell} «${l.rad}»`;
 }

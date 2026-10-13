@@ -1458,6 +1458,28 @@ a.uke-btn {
   flex: 1 1 auto;
 }
 
+/* «Nye, mangler team»: navn, e-post, dato, teamvalg og knapper på én linje som brytes ved behov. */
+.admin-nyinnhold {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-nyinnhold > form {
+  flex: 1 1 auto;
+  margin-bottom: 0;
+}
+
+.admin-nyinnhold .admin-navn {
+  flex: 0 1 220px;
+}
+
+.admin-nyinnhold .admin-bruk {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 /* Linjen øverst for masseendring. */
 .admin-masse {
   padding: 10px 0;

@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { KATEGORIER, VIRKNINGER, type Vaktliste } from "./domene";
+import { KATEGORIER, SYNK_AVSENDER, SYNK_INTERVALLER, VIRKNINGER, type Vaktliste } from "./domene";
 
 const LOGG_FIL = path.join(path.resolve(process.cwd(), "data"), "endringslogg.jsonl");
 
@@ -16,7 +16,8 @@ export type Tabellnøkkel =
   | "oppsett"
   | "endringer"
   | "dager"
-  | "innstillinger";
+  | "innstillinger"
+  | "synk";
 
 export type LoggFelt = { felt: string; gammel: string | null; ny: string | null };
 
@@ -25,7 +26,8 @@ export type LoggLinje = {
   tid: string;
   endretAvId: string;
   endretAv: string;
-  handling: "lagt til" | "endret" | "fjernet";
+  /** «kjørt» = en kjøring av synken (tabell «synk»), med eller uten endringer. */
+  handling: "lagt til" | "endret" | "fjernet" | "kjørt";
   tabell: Tabellnøkkel;
   radId: string;
   rad: string;
@@ -96,11 +98,20 @@ export const TABELLER: Tabellinfo[] = [
     refs: {},
     etikett: () => "Vedlikeholdsmodus",
   },
+  // Også ett objekt. Når synken kjørte, står i `data/synkstatus.json`, ikke her.
+  {
+    nøkkel: "synk",
+    entall: "synk-innstilling",
+    overskrift: "Synk av ansatte",
+    refs: {},
+    etikett: () => "Synk av ansatte",
+  },
 ];
 
-/** Radene i en tabell. Innstillingene er ett objekt og blir én rad med id «vedlikehold». */
+/** Radene i en tabell. Innstillingene er ett objekt og blir én rad med id «vedlikehold»; synken likeså. */
 function rader(v: Vaktliste, nøkkel: Tabellnøkkel): Rad[] {
   if (nøkkel === "innstillinger") return [{ id: "vedlikehold", ...v.innstillinger }];
+  if (nøkkel === "synk") return [{ id: "synk", ...v.synk }];
   return v[nøkkel] as unknown as Rad[];
 }
 
@@ -133,6 +144,8 @@ const FELTNAVN: Record<string, string> = {
   avvistGrunn: "Begrunnelse for avvisning",
   vedlikehold: "Vedlikehold",
   melding: "Melding",
+  klokkeslett: "Klokkeslett",
+  intervallTimer: "Hyppighet",
 };
 
 /** `erAdministrator` mangler på de fleste personer; manglende og «nei» er det samme. */
@@ -148,6 +161,7 @@ function vis(v: Vaktliste, info: Tabellinfo, felt: string, verdi: unknown): stri
   if (ref) return navnFra(v, ref, String(verdi));
   if (felt === "kategori") return KATEGORIER.find((k) => k.id === verdi)?.navn ?? String(verdi);
   if (felt === "virkning") return VIRKNINGER.find((k) => k.id === verdi)?.navn ?? String(verdi);
+  if (felt === "intervallTimer") return SYNK_INTERVALLER.find((i) => i.timer === verdi)?.navn ?? String(verdi);
   return String(verdi);
 }
 
@@ -159,6 +173,7 @@ function feltene(a: Rad | undefined, b: Rad | undefined): string[] {
 
 /** Hvem som endret: id-en er oppsettets id (en person kan ha flere), så navnet slås opp via oppsettet. */
 function hvem(v: Vaktliste, id: string): string {
+  if (id === SYNK_AVSENDER) return "Synk av ansatte";
   const oppsett = v.oppsett.find((o) => o.id === id);
   const bruker = v.brukere.find((b) => b.id === (oppsett?.brukerId ?? id));
   return bruker?.name ?? id;

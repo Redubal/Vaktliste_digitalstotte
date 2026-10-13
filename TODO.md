@@ -62,6 +62,22 @@ fra Fase 25, «Rett» i Admin → Godkjenning.
 `lib/ukeplan.ts` har allerede ISO-ukeregning (`isoWeek`), men ingen visning av
 ukenummer i Måned. Må få fasenummer i planen før den gjøres.
 
+## 7. Kolonnene i Admin → Ansatte overlapper
+
+Sett av Ståle 2026-10-13 under Fase 30 (skjermbilder, bred skjerm): overskriftene
+«Fornavn» og «Etternavn» står oppå hverandre, og i de deaktiverte radene går
+etternavnet («Demosen») inn i «Kom inn». Fantes før Fase 30. Trolig de to første
+kolonnene i rutenettet (`minmax(50px, 1fr)` i `.admin-ansattinnhold >
+.admin-skjema:first-child`, `globals.css`) og at `DeaktivertRad` i
+`components/AnsattAdmin.tsx` ikke bruker samme rutenett. Ikke undersøkt. Fase 28
+sjekket ikke denne bredden.
+
+## 8. Lista over deaktiverte ansatte vil bli lang
+
+Ståle 2026-10-13 under Fase 30: deaktiverte ligger nederst i Admin → Ansatte,
+alle sammen. Med synk fra Entra vokser lista for hver som slutter, og den kan
+ikke listes uendelig. Ikke vurdert hvordan det skal løses. Trenger plan.
+
 ## Levert (pekere)
 - Tydelig ulagret (rødt) / lagret (grønt) — Fase 8 gjaldt hele Admin, se logg 2026-10-13. Ønsket sa «over alt»; om endringsvinduet i Ukeplan/Måned trenger det samme, er ikke vurdert.
 - Full logg over alle endringer — Fase 9, se logg 2026-10-13 og `/admin/logg`.
@@ -96,5 +112,6 @@ ukenummer i Måned. Må få fasenummer i planen før den gjøres.
 - Fase 30: endringsloggen må få en egen avsender for synken (f.eks. «Synk (Entra)»). `endretAv` er i dag id-en til valgt administrator, og `hvem()` i `lib/endringslogg.ts` må godta avsenderen, ellers vises id-teksten rått.
 - Fase 30: en synk gir én logglinje per person og oppsett og kan fylle «Endringslogg». Vurder filter på avsender.
 - Superadmin, som også har tilgang til Entra- og databasekoblingen — merknad i Fase 31.
+- Fase 32: lagre fornavn og etternavn fra Entra som egne felt på personen (synken leser dem allerede, `KildePerson.fornavn/etternavn`), og la visningen bruke dem i stedet for `delNavn` (siste ord = etternavn). Ellers vises doble etternavn feil. Spurt av Ståle 2026-10-13 under Fase 30.
 - Dytte til Outlook, f.eks. ved sykdom — merknad i Fase 32 (samme Graph-tilgang).
 - Varsel utenfor appen (e-post eller Teams) når en endring blir godkjent, avvist eller får annen status. Spurt av Ståle 2026-10-13 under Fase 23. Beskjeden **i appen** er Fase 24 og skal komme uansett: «det må likevel være en del av siden». Varsel utenfor appen trenger Graph-tilgang som Fase 30–32, og vet først hvem mottakeren er når e-post kommer fra Entra.
