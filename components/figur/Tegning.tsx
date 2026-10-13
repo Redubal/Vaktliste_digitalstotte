@@ -2,6 +2,8 @@
 // motoren vrir rundt sitt eget dreiepunkt: skulder (20, 14.5), albue (20, 20), hofte (20, 25),
 // kne (20, 32.5), nakke (20, 14). Leddene bak tegnes litt lysere for dybde.
 
+import type { ReactNode } from "react";
+
 export const LEDD = [
   "vend",
   "skygge",
@@ -9,6 +11,10 @@ export const LEDD = [
   "overkropp",
   "hode",
   "oye",
+  "munn",
+  "spade",
+  "spray",
+  "brekk",
   "armAOver",
   "armAUnder",
   "armBOver",
@@ -36,12 +42,13 @@ function Bein({ side, farge }: { side: "A" | "B"; farge: string }) {
   );
 }
 
-function Arm({ side, farge }: { side: "A" | "B"; farge: string }) {
+function Arm({ side, farge, children }: { side: "A" | "B"; farge: string; children?: ReactNode }) {
   return (
     <g data-ledd={`arm${side}Over`} stroke={farge}>
       <line x1="20" y1="14.5" x2="20" y2="20" />
       <g data-ledd={`arm${side}Under`}>
         <line x1="20" y1="20" x2="20" y2="24.5" />
+        {children}
         <circle cx="20" cy="25" r="1.3" fill={farge} stroke="none" />
       </g>
     </g>
@@ -70,8 +77,22 @@ export function Tegning() {
                 <circle cx="22.9" cy="8.8" r="0.8" fill={FRAM} stroke="none" />
               </g>
               <line x1="22.4" y1="11.7" x2="24" y2="11.3" stroke="#fff" strokeWidth="0.6" />
+              <ellipse data-ledd="munn" cx="23" cy="12.2" rx="1.1" ry="1.5" fill="#fff" stroke="none" opacity="0" />
             </g>
-            <Arm side="B" farge={FRAM} />
+            <Arm side="B" farge={FRAM}>
+              {/* Verktøyene ligger langs underarmen fra hånda; motoren viser ett om gangen. */}
+              <g data-ledd="spade" display="none">
+                <line x1="20" y1="21.5" x2="20" y2="34" stroke="#8a5a2b" strokeWidth="1.4" />
+                <path d="M17.8 33.5 H22.2 L21.4 38 Q20 39.2 18.6 38 Z" fill="#8c959c" stroke="none" />
+              </g>
+              <g data-ledd="spray" display="none">
+                <rect x="18.3" y="23.4" width="3.4" height="6" rx="0.8" fill="#d62d20" stroke="none" />
+                <rect x="19.3" y="29.2" width="1.4" height="1.3" fill="#bbb" stroke="none" />
+              </g>
+              <g data-ledd="brekk" display="none">
+                <path d="M20 21 L20 35.5 Q20 37.6 22.2 37.8" stroke="#5a6470" strokeWidth="1.4" fill="none" />
+              </g>
+            </Arm>
           </g>
           <Bein side="B" farge={FRAM} />
         </g>

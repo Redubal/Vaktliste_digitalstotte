@@ -122,6 +122,109 @@ body {
   overflow: visible;
 }
 
+/* Det figuren etterlater seg (components/figur/pynt.ts). Plasseres med transform fra motoren. */
+.figur-pynt {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.figur-pynt > * {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+
+.figur-z {
+  font: italic 700 13px/1 system-ui, sans-serif;
+  color: #111;
+  animation: figur-z 2.4s ease-out forwards;
+}
+
+@keyframes figur-z {
+  from {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.7);
+  }
+  15% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translate(14px, -34px) scale(1.4);
+  }
+}
+
+.figur-bokstav {
+  width: 12px;
+  height: 16px;
+  font: 800 16px/16px system-ui, sans-serif;
+  color: #111;
+  text-align: center;
+  will-change: transform;
+  transition: opacity 1.5s;
+  animation: figur-inn 0.3s ease-out;
+}
+
+@keyframes figur-inn {
+  from {
+    opacity: 0;
+  }
+}
+
+.figur-merke {
+  width: 30px;
+  height: 30px;
+  transition: opacity 1.5s;
+}
+
+.figur-merke svg {
+  display: block;
+}
+
+/* Merket tegnes fram strek for strek mens figuren sprayer. */
+.figur-merke path {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: figur-strek 1.9s 0.25s linear forwards;
+}
+
+@keyframes figur-strek {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.figur-prikk {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+}
+
+.figur-jord {
+  width: 3px;
+  height: 3px;
+  background: #6b4a2b;
+}
+
+.figur-haug {
+  top: auto;
+  bottom: 0;
+  transform: translateX(-50%);
+  background: #6b4a2b;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  transition: width 0.2s, height 0.2s, opacity 1.5s;
+}
+
+.figur-forsvinn {
+  opacity: 0 !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .figur-lag {
     display: none;

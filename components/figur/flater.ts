@@ -1,7 +1,8 @@
 // Flater figuren kan stå på: øvre kant av synlige blokker i siden, i vinduskoordinater, pluss
 // gulvet (vinduets bunn). Leser bare plassering, aldri tekst eller verdier.
 
-export type Flate = { el: Element | null; x1: number; x2: number; y: number };
+// y er øvre kant (der figuren står), y2 nedre kant (avgjør om sidekanten er en vegg å klatre i).
+export type Flate = { el: Element | null; x1: number; x2: number; y: number; y2: number };
 
 const UTVALG = [
   ".logo-band",
@@ -28,7 +29,7 @@ const MIN_BREDDE = 40;
 const TAKHOYDE = 44;
 
 export function gulv(): Flate {
-  return { el: null, x1: 0, x2: window.innerWidth, y: window.innerHeight };
+  return { el: null, x1: 0, x2: window.innerWidth, y: window.innerHeight, y2: window.innerHeight };
 }
 
 function somFlate(el: Element): Flate | null {
@@ -38,7 +39,7 @@ function somFlate(el: Element): Flate | null {
   const x1 = Math.max(0, r.left);
   const x2 = Math.min(window.innerWidth, r.right);
   if (x2 - x1 < MIN_BREDDE) return null;
-  return { el, x1, x2, y: r.top };
+  return { el, x1, x2, y: r.top, y2: r.bottom };
 }
 
 export function samleFlater(lag: Element): Flate[] {

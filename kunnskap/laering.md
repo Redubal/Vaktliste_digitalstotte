@@ -1,5 +1,13 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 22B) — Levende figur, atferd
+
+**Evaluering av forrige økts punkter:** `[skjemasteg-er-låst-etter-test]` ikke utløst (ingen skjemaendring); Fase 23 og 27 lager nye steg, videreføres uten ny runde. `[klikkflate-hele-ruta]` ikke utløst (ingen nye knapper); Fase 23 og 25 legger til knapper, videreføres uten ny runde. `[utseende-spør-først]` **brutt igjen (2. runde):** jeg lovet å spørre om referanse eller vise ett utkast, men bygde all atferd på gjetning etter «start».
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** 22B fikk plass i én økt uten `/compact`; ingen deling foreslått.
+
 ## 2026-10-13 (avslutning Fase 22A) — Levende figur
 
 **Evaluering av forrige økts punkter:** `[skjemasteg-er-låst-etter-test]` ikke utløst (ingen skjemaendring); Fase 23 og 27 lager nye steg, videreføres uten ny runde. `[klikkflate-hele-ruta]` ikke utløst (bare «Figur»-bryteren er ny, en vanlig knapp); Fase 23 og 25 legger til knapper, videreføres uten ny runde. `[start-verdi-følger-ikke-valg]` ikke utløst (figuren har ingen verdi fra props); **tas ut av STATUS fordi taket er tre punkter**, teksten står her: en visning som starter fra et valg (`useState` med verdi fra props) følger ikke med når valget byttes med `router.refresh()`; gi komponenten `key` fra valget (Fase 24–25 kan utløse den).
