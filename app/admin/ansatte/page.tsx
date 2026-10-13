@@ -13,16 +13,23 @@ export default async function AnsatteSide() {
   if (!erAdministrator(finnAnsatt(getAnsatte(), valgtId))) redirect("/");
 
   const v = lesVaktliste();
-  const navn = new Map(v.brukere.map((b) => [b.id, b.name.trim()]));
+  const brukere = new Map(v.brukere.map((b) => [b.id, b]));
   const ansatte = v.oppsett
-    .filter((o) => navn.get(o.brukerId))
-    .map((o) => ({
-      id: o.id,
-      name: navn.get(o.brukerId) ?? "",
-      teamId: o.teamId,
-      rolleId: o.rolleId,
-      lokasjonId: o.lokasjonId,
-    }))
+    .filter((o) => brukere.get(o.brukerId)?.name.trim())
+    .map((o) => {
+      const b = brukere.get(o.brukerId)!;
+      return {
+        id: o.id,
+        brukerId: b.id,
+        name: b.name.trim(),
+        teamId: o.teamId,
+        rolleId: o.rolleId,
+        lokasjonId: o.lokasjonId,
+        erAdministrator: b.erAdministrator === true,
+        aktiv: b.aktiv,
+        opprettet: b.opprettet,
+      };
+    })
     .sort((a, b) => a.name.localeCompare(b.name, "nb"));
 
   return (
@@ -39,7 +46,7 @@ export default async function AnsatteSide() {
 
       <section className="panel">
         <div className="section-head">
-          <h2>Endre team, rolle og lokasjon</h2>
+          <h2>Endre team, rolle, lokasjon og adminstatus</h2>
           <span className="counter">{ansatte.length} ansatte</span>
         </div>
         <AnsattAdmin

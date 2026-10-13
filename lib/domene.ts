@@ -2,7 +2,7 @@
 // Node importerer .ts direkte, så filen må holde seg til syntaks som kan strippes (ingen enum).
 
 /** Eldre versjoner gjøres om ved lesing av `oppgraderVaktliste`; øk og legg til et steg der. */
-export const SKJEMA_VERSJON = 4;
+export const SKJEMA_VERSJON = 5;
 
 /** Rekkefølgen i tabellen er rekkefølgen i teamvelgeren. */
 export type Team = {
@@ -16,6 +16,12 @@ export type Bruker = {
   upn: string | null;
   /** Admintilgang, bevisst atskilt fra jobbrollen i `Oppsett.role`. Byttes mot en Entra-gruppe. */
   erAdministrator?: boolean;
+  /** ISO-tid for når personen ble lagt inn i appen; `null` for dem som fantes før loggen («før loggen»). */
+  opprettet: string | null;
+  /** `false` = deaktivert: vises ikke i planen eller i «Velg deg selv» og har ikke admintilgang. */
+  aktiv: boolean;
+  /** Id-en i Entra; brukes av synkroniseringen i Fase 16. */
+  entraId: string | null;
 };
 
 export type Lokasjon = {
@@ -416,6 +422,31 @@ function tilVersjon4(v: RåVaktliste): RåVaktliste {
   return { ...v, skjemaVersjon: 4, team, oppsett, lokasjoner, endringer };
 }
 
+// 4 → 5: personene får `opprettet` (null = fantes før loggen), `aktiv` (alle er aktive) og
+// `entraId` (null). Verdier som allerede står der, beholdes.
+function tilVersjon5(v: RåVaktliste): RåVaktliste {
+  const brukere = (v.brukere as (Partial<Bruker> & { id: string })[]).map((b) => ({
+    ...b,
+    opprettet: b.opprettet ?? null,
+    aktiv: b.aktiv ?? true,
+    entraId: b.entraId ?? null,
+  }));
+  return { ...v, skjemaVersjon: 5, brukere };
+}
+
+/** Sjekker en endring av adminstatus og aktiv for en person. Nekter at man tar fra seg selv tilgangen. */
+export function sjekkAnsattStatus(
+  rå: { aktiv: boolean; erAdministrator: boolean },
+  personId: string,
+  jegId: string,
+): { feil: string } | { aktiv: boolean; erAdministrator: boolean } {
+  if (personId === jegId && !rå.aktiv) return { feil: "Du kan ikke deaktivere deg selv." };
+  if (personId === jegId && !rå.erAdministrator) {
+    return { feil: "Du kan ikke ta bort din egen administratortilgang." };
+  }
+  return { aktiv: rå.aktiv, erAdministrator: rå.erAdministrator };
+}
+
 /**
  * Gjør om innholdet i en eldre skjemaversjon til gjeldende, ett steg om gangen. Endrer ikke
  * `revisjon`. Lagres først når noen lagrer; sikkerhetskopien tas da av den gamle fila.
@@ -426,6 +457,7 @@ export function oppgraderVaktliste(rå: RåVaktliste): Vaktliste {
   if (v.skjemaVersjon === 1) v = tilVersjon2(v);
   if (v.skjemaVersjon === 2) v = tilVersjon3(v);
   if (v.skjemaVersjon === 3) v = tilVersjon4(v);
+  if (v.skjemaVersjon === 4) v = tilVersjon5(v);
   if (v.skjemaVersjon !== SKJEMA_VERSJON) {
     throw new Error(`data/vaktliste.json har skjemaversjon ${fra}, appen forventer ${SKJEMA_VERSJON}.`);
   }

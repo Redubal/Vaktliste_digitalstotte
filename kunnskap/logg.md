@@ -1,5 +1,17 @@
 # Logg
 
+## 2026-10-13 — Fase 10 ✅ Ansatte: kom inn, deaktivering og adminstatus
+
+- Levert: skjemaversjon 5 (`SKJEMA_VERSJON`, `tilVersjon5` i `lib/domene.ts`): `Bruker` har `opprettet` (`null` = «før loggen»), `aktiv` (alle starter `true`) og `entraId` (`null`, til Fase 16). `getAnsatte` i `lib/vaktlista.ts` utelater deaktiverte, så de forsvinner fra Ukeplan, Måned, «Velg deg selv» og Ansatte-fanen, og mister admintilgang (`finnAnsatt` finner dem ikke). Admin → Ansatte (`components/AnsattAdmin.tsx`, `app/admin/ansatte/page.tsx`) leser tabellene direkte og viser «Kom inn», avkrysning «Administrator» (lagres med «Lagre» via `endreAnsatt`) og egen knapp Deaktiver/Aktiver (`settAnsattAktiv` i `app/admin/handlinger.ts`); deaktiverte ligger nederst, grået (`.admin-deaktivert`). `FELTNAVN` i `lib/endringslogg.ts` har `aktiv`, `opprettet` og `entraId`. Importskriptene skrev versjon 1 og oppgraderes ved lesing, så de er uendret.
+- Utover planen: `sjekkAnsattStatus` nekter også at administratoren fjerner sin egen adminavkrysning, så ingen låser seg ute. Brukeren ble spurt i chatten om å si fra hvis det skal bort; ikke besvart.
+- **Beslutning (Claude, aktiv-filter):** deaktivering fjernes i `getAnsatte`, ikke i hver visning. Begrunnelse: ett sted gir samme effekt i plan, velger og adgangssjekk, og en deaktivert admin kan ikke slippe gjennom.
+- Verifisering: bruker kalte `/faseflyt:fase-slutt` etter å ha fått de tre punktene fra planen; hva som ble prøvd i nettleseren ble ikke oppgitt. Ikke sett av meg: deaktivering og aktivering i nettleser, adminavkrysning og Admin-knapp, beskjeden ved selvdeaktivering, og at siden åpner mot en datafil som ennå står på versjon 4.
+- Observert (Node, oppdiktede rader): omgjøringen v4 → v5 ga versjon 5, uendret `revisjon`, `opprettet` `null`, `aktiv` `true`, `entraId` `null`; eksisterende verdier beholdt; v5 gikk gjennom uendret; selvdeaktivering og egen adminfjerning nektet, deaktivering av andre godkjent (10 av 10).
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 18 treff. Ingen filer i `data/` ligger i git.
+- STATUS: 38 linjer.
+- fase-slutt: 11:21–11:24, 3 min.
+- Sjekk: `tsc --noEmit` og `npm run lint` grønne etter siste kodeendring; `next build` ikke kjørt (en kjørende `next dev` kan komme i konflikt).
+
 ## 2026-10-13 — Fase 9 ✅ Full endringslogg
 
 - Levert: `lib/endringslogg.ts` (ny) sammenligner listen før og etter hver lagring, tabell for tabell på `id`, og skriver én linje per rad som er lagt til, endret eller fjernet til `data/endringslogg.jsonl` (ikke i git). Linja har tid, hvem, tabell, rad og felt med gammel → ny verdi; navn på team, lokasjon, rolle, status, type og person er slått opp og lagret med linja, så den tåler sletting. `endreVaktliste` i `lib/lager.ts` tar kopi før `endre` og logger etter vellykket lagring; feiler loggskrivingen, er listen likevel lagret og feilen går til serverloggen. Siden `/admin/logg` (ny) med lenke i `app/admin/page.tsx`.

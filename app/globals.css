@@ -815,6 +815,11 @@ a.uke-btn {
   background: #f1f8f2;
 }
 
+/* Deaktiverte ansatte: grået, nederst i lista. */
+.admin-deaktivert {
+  opacity: 0.55;
+}
+
 .admin-status {
   font-size: 0.85rem;
   font-weight: 600;

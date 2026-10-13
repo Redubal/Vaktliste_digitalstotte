@@ -89,16 +89,7 @@ Fase 8 ✅ 2026-10-13 — detaljer i logg
 
 Fase 9 ✅ 2026-10-13 — detaljer i logg
 
-**Fase 10 — Ansatte: når de kom inn, deaktivering og adminstatus.**
-Skjemaversjon 5: `Bruker` får `opprettet` (ISO-tid, `null` for eksisterende = vises som «før loggen»),
-`aktiv` (standard `true`) og `entraId` (`null`, brukes i Fase 16). Admin → Ansatte viser «Kom inn»,
-avkrysning «Administrator» og knapp «Deaktiver»/«Aktiver»; deaktiverte vises nederst, grået.
-Filer: `lib/domene.ts`, `lib/vaktlista.ts`, `lib/ukeplan.ts`, `app/admin/handlinger.ts`,
-`components/AnsattAdmin.tsx`, `components/IdentitetsVelger.tsx`, importskriptene (tom struktur).
-Omgjøringen v4 → v5 testes med oppdiktede rader i Node.
-**Verifisering:** du deaktiverer en ansatt og ser personen forsvinne fra Ukeplan og fra «Velg deg selv»,
-og dukke opp igjen når du aktiverer; du gjør en annen til administrator og ser Admin-knappen når du
-velger den personen; du prøver å deaktivere deg selv og får beskjed om at det ikke går.
+Fase 10 ✅ 2026-10-13 — detaljer i logg
 
 **Fase 11 — Masseendring av ansatte.**
 Avkrysning per rad i Admin → Ansatte, «Velg alle synlige», og en linje øverst: sett team / rolle /

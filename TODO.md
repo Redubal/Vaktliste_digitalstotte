@@ -44,12 +44,10 @@ Full logg over alle endringer — levert i Fase 9, se logg 2026-10-13 og `/admin
 Mulig å gå fra ansatt på main til ansatt på admin
 
 ## Ansatte og synk mot Entra
-- Se når en ansatt kom inn i systemet
+- Kom inn, deaktivering og adminstatus — levert i Fase 10, se logg 2026-10-13 og `/admin/ansatte`.
 - Mulig å gjøre masse endringer (flere ansatte om gangen)
-- Mulig å deaktivere en ansatt
 - Synk mot Entra: sette når og hvor ofte, og kunne tvinge en synk
 - Det kan hende andre parametere må settes for å få synken til å virke
-- Mangler å sette adminstatus, blant annet
 
 ##
 Sortering i kolonner 

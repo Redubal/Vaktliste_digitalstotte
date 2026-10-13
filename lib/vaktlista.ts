@@ -56,7 +56,11 @@ export function getTeam(): Team[] {
   return lesVaktliste().team;
 }
 
-/** Bruker + oppsett + lokasjon, slått sammen til én rad per ansatt. */
+/**
+ * Bruker + oppsett + lokasjon, slått sammen til én rad per ansatt. Deaktiverte er ikke med: de
+ * forsvinner dermed fra planen, fra «Velg deg selv» og mister admintilgang. Admin → Ansatte
+ * leser tabellene direkte for å vise dem.
+ */
 export function getAnsatte(): Ansatt[] {
   const v = lesVaktliste();
   const brukere = new Map(v.brukere.map((b) => [b.id, b]));
@@ -66,7 +70,7 @@ export function getAnsatte(): Ansatt[] {
   return v.oppsett
     .flatMap((o) => {
       const bruker = brukere.get(o.brukerId);
-      if (!bruker || !bruker.name.trim()) return [];
+      if (!bruker || !bruker.name.trim() || !bruker.aktiv) return [];
       return [
         {
           id: bruker.id,

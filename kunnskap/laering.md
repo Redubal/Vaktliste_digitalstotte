@@ -1,5 +1,13 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 10) — Ansatte: kom inn, deaktivering og adminstatus
+
+**Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere. `git -C` med full sti ble brukt i hele økten (regelen i `app/CLAUDE.md` holdt).
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** Fase 10 fikk plass i én økt uten `/compact`. Resten av planen står uendret.
+
 ## 2026-10-13 (avslutning Fase 9) — Full endringslogg
 
 **Evaluering av forrige økts punkter:**

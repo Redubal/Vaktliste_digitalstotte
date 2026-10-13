@@ -8,6 +8,7 @@ import {
   lokasjonBrukere,
   nektSletting,
   rolleBrukere,
+  sjekkAnsattStatus,
   sjekkEndringstype,
   sjekkLokasjon,
   sjekkOppsett,
@@ -61,24 +62,62 @@ async function utfor(
 
 // --- Ansatte ---
 
+/** Id-en til den som er valgt i «Velg deg selv». `utfor` har allerede sjekket at personen er admin. */
+async function minId(): Promise<string> {
+  return (await cookies()).get(IDENTITET_COOKIE)?.value ?? "";
+}
+
 export async function endreAnsatt(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  const jegId = await minId();
   return utfor(
     data,
     "/admin/ansatte",
     (v) => {
       const oppsett = v.oppsett.find((o) => o.id === tekst(data, "id"));
       if (!oppsett) return "Ansatten finnes ikke lenger. Last siden på nytt.";
+      const bruker = v.brukere.find((b) => b.id === oppsett.brukerId);
+      if (!bruker) return "Ansatten finnes ikke lenger. Last siden på nytt.";
       const sjekket = sjekkOppsett(
         { teamId: tekst(data, "teamId"), rolleId: tekst(data, "rolleId"), lokasjonId: tekst(data, "lokasjonId") },
         v,
       );
       if ("feil" in sjekket) return sjekket.feil;
+      const status = sjekkAnsattStatus(
+        { aktiv: bruker.aktiv, erAdministrator: data.get("erAdministrator") === "on" },
+        bruker.id,
+        jegId,
+      );
+      if ("feil" in status) return status.feil;
       oppsett.teamId = sjekket.teamId;
       oppsett.rolleId = sjekket.rolleId;
       oppsett.lokasjonId = sjekket.lokasjonId;
+      bruker.erAdministrator = status.erAdministrator;
       return null;
     },
     "Endringen er lagret.",
+  );
+}
+
+/** Deaktiverer eller aktiverer en person (`aktiv` = «true» eller «false» fra knappen). */
+export async function settAnsattAktiv(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  const jegId = await minId();
+  const aktiv = tekst(data, "aktiv") === "true";
+  return utfor(
+    data,
+    "/admin/ansatte",
+    (v) => {
+      const bruker = v.brukere.find((b) => b.id === tekst(data, "brukerId"));
+      if (!bruker) return "Ansatten finnes ikke lenger. Last siden på nytt.";
+      const status = sjekkAnsattStatus(
+        { aktiv, erAdministrator: bruker.erAdministrator === true },
+        bruker.id,
+        jegId,
+      );
+      if ("feil" in status) return status.feil;
+      bruker.aktiv = status.aktiv;
+      return null;
+    },
+    aktiv ? "Personen er aktivert." : "Personen er deaktivert.",
   );
 }
 
