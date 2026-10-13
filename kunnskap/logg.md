@@ -1,6 +1,16 @@
 # Logg
 
-## 2026-10-13 — Fase 24 ✅ «Mine endringer» med status
+## 2026-10-13 — Fase 25 ✅ «Rett» fra godkjenningslista
+
+- **Levert:** hver rad i Admin → Godkjenning har «Rett» ved siden av Godkjenn og Avvis. Den åpner samme vindu som i Ukeplan (`Vindu` i `components/EndringVindu.tsx`), utfylt med endringen. Nytt: `useRettVindu` (åpner vinduet direkte på en endring, uten dag i planen), `GodkjenningListe` (`components/GodkjenningListe.tsx`, klientkomponent som setter lista og vinduet sammen), `onRett` på `VenterListe`, og `app/admin/godkjenning/page.tsx` sender `valg` og `teamAvPerson`. `Vindu` tar nå bare `id`, `name` og `teamId` om personen. Lista viser alle som venter, så endringer som skjules bak en godkjent samme dag dekkes. Ingen ny lagring: `lagreEndring` og `rettEndring` er de samme som fra Ukeplan.
+- **Verifisert av bruker:** Ståle skrev «Kan endre .. så ok» etter å ha prøvd «Rett». Ikke oppgitt hver for seg: at den nye datoen står i lista og i Ukeplan, og lokasjonslista for en person med flere oppsett.
+- **Beslutning (Claude, vindustekst):** å rette en endring som venter, godkjenner den ikke (`sjekkEndring` rører ikke status; lest i koden). Teksten i vinduet var «Endringen gjelder med en gang» også da; den sier nå «Endringen venter fortsatt på godkjenning; rettingen godkjenner den ikke». Rettinger av godkjente endringer sier «Rettingen gjelder med en gang».
+- **Beslutning (Claude, team i «Rett»):** en person med flere oppsett får lokasjonslista til det første oppsettet; finnes ingen team, vises alle lokasjoner. Begrunnelse: endringen har bare `personId`, ikke oppsett.
+- **Utover fasen (ført som TODO, ikke bygget):** Ståle ba om en hurtigknapp «Registrer» for administrator foran Ukeplan (kjapt skjema i stedet for å lete etter personen i kalenderen): `TODO.md` punkt 5. Ståle viste også et skjermbilde (Max, Ukeplan) der en endring flyttet til en okkupert dag vises feil: ført under punkt 4 som trolig samme årsak (én endring per celle), ikke bekreftet mot dataene. Scope-vakten fyrte; Ståle svarte «ok» på forslaget om TODO.
+- **Fasesnitt:** 25 fikk plass i én økt uten `/compact`.
+- **Sjekk:** `tsc --noEmit` grønn etter siste kodeendring (vindusteksten), `npm run lint` grønn ved faseslutt; etterpå bare `kunnskap/` og `TODO.md`. `next build` ikke kjørt. STATUS: 44 linjer. Plan: Fase 25 kollapset; TODO: Fase 25-linja flyttet til «Levert» som peker.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 53 treff. Ingen filer under `data/` i git.
+- fase-slutt: 21:14–21:17, ca. 3 min (inkludert ventetid på svar om plan og TODO).
 
 - **Levert:** fanen «Mine endringer» (`components/MineEndringer.tsx`, tabell og kort på smal skjerm), vist bare når noen har valgt seg selv. Viser egne endringer, nyeste først, med status (Venter / Godkjent / Avvist), hva, periode, kommentar og begrunnelse fra «Avvis». Leses fra dataene, ingen ny lagring (`getMineEndringer` i `lib/vaktlista.ts`). Merket «Godkjent» på egne godkjente endringer i Ukeplan (`GodkjentMerke`) og grønn heltrukken ring på prikken i Måned (`prikk--godkjent`, `egenGodkjent` i `lib/ukeplan.ts`), med linje i Månedens forklaring.
 - **Verifisert av bruker:** Ståle skrev «ja, det fungerer» på planens verifisering (velge seg, legge inn, se «venter», godkjent og avvist med begrunnelse, godkjent-merket i Ukeplan). Ikke oppgitt: ringen i Måned (prikk og mobilkalender), «Mine endringer» i smalt vindu, at en ansatt ikke ser andres rader.

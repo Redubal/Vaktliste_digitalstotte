@@ -141,11 +141,7 @@ Fase 23 ✅ 2026-10-13 — detaljer i logg
 
 Fase 24 ✅ 2026-10-13 — detaljer i logg
 
-**Fase 25 — Rette en endring fra godkjenningslista (Sonnet).**
-Hver rad i Admin → Godkjenning får «Rett», som åpner samme vindu (`EndringVindu`) som i Ukeplan.
-Dekker også endringer som skjules bak en godkjent samme dag.
-**Verifisering:** du trykker «Rett» på en rad, endrer datoen, lagrer og ser ny dato i lista og i
-Ukeplan.
+Fase 25 ✅ 2026-10-13 — detaljer i logg
 
 **Fase 26 — Admin → Dager og merknader i Måned (Sonnet).**
 Ny side i Admin for skolekalenderen: se, legge til, rette og slette dager (fra–til, tekst), samme

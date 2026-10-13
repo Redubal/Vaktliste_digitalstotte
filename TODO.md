@@ -42,6 +42,19 @@ finnes på endringen og vises i perioden, men vinduet for endringer setter dem
 ikke (ny endring lagres med `null`). Trenger plan: celle og prikk må vise flere
 endringer, også i kortlisten og i Måned.
 
+Sett av Ståle 2026-10-13 (skjermbilde, Max, Ukeplan): en endring flyttet til en dag
+som allerede er «okkupert» vises ikke riktig i cella. Trolig samme årsak som over
+(én endring per celle); ikke bekreftet mot Max sine data.
+
+## 5. Hurtigknapp «Registrer» for administrator, foran Ukeplan
+
+Ønsket av Ståle 2026-10-13, under Fase 25. En administrator skal få en
+«Registrer»-knapp foran Ukeplan som åpner et kjapt skjema, i stedet for å lete opp
+personen i kalenderen og klikke på dagen. Ikke vurdert i koden. Trenger plan, og
+planmodus med tyngste modell før den får fasenummer. Endringsvinduet
+(`components/EndringVindu.tsx`) har i dag bare inngang via en dag i planen eller,
+fra Fase 25, «Rett» i Admin → Godkjenning.
+
 ## Levert (pekere)
 - Tydelig ulagret (rødt) / lagret (grønt) — Fase 8 gjaldt hele Admin, se logg 2026-10-13. Ønsket sa «over alt»; om endringsvinduet i Ukeplan/Måned trenger det samme, er ikke vurdert.
 - Full logg over alle endringer — Fase 9, se logg 2026-10-13 og `/admin/logg`.
@@ -60,9 +73,10 @@ endringer, også i kortlisten og i Måned.
 - Lista over endringer som venter, også i Ukeplan (sett av bruker i Fase 21) — Fase 23 (alle som venter, uansett uke og team), se logg 2026-10-13.
 - Ansatt ser egne endringer med status, begrunnelse og godkjent-merke — Fase 24, se logg 2026-10-13. **Beslutning (SR, beskjed):** i appen, ikke e-post/Teams nå; varsel utenfor appen står igjen under «Senere».
 
-## I planen (Fase 22, 25–29, godkjent 2026-10-13)
+- Rette en endring fra godkjenningslista i Admin — Fase 25, se logg 2026-10-13, `useRettVindu` i `components/EndringVindu.tsx`.
+
+## I planen (Fase 22, 26–29, godkjent 2026-10-13)
 - Figur som vandrer rundt på siden, som «Sheep» — Fase 22.
-- Rette en endring fra godkjenningslisten i Admin — Fase 25.
 - Dager fra Excel mangler, både skolekalender og fridager — Fase 26 (Admin → Dager, merknader i Måned) og Fase 27 (fridager). Innlastingen leser bare kolonne A–C i arket «Dager», og fridag finnes ikke som begrep.
 - Full mobil- og pad-test — Fase 28.
 - Full sikkerhetsgjennomgang (`/security-review`) — Fase 29.

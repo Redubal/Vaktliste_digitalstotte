@@ -20,7 +20,10 @@ export type EndringValg = {
   lokasjoner: { id: string; name: string; teamId: string }[];
 };
 
-type AapenDag = { person: Ansatt; iso: string; endring: Endring | null };
+/** Det vinduet trenger å vite om personen endringen gjelder. */
+type VinduPerson = Pick<Ansatt, "id" | "name" | "teamId">;
+
+type AapenDag = { person: VinduPerson; iso: string; endring: Endring | null };
 
 type Oppsett = {
   jegId: string | null;
@@ -59,6 +62,48 @@ export function useEndringVindu({ jegId, erAdmin, revisjon, valg }: Oppsett) {
     ) : null;
 
   return { aapneFor, vindu };
+}
+
+/**
+ * «Rett» på en rad i Admin → Godkjenning: åpner samme vindu som i Ukeplan, direkte på endringen
+ * (uten å gå via en dag i planen). Bare for administratorer. `teamId` for personen gir lokasjonslista
+ * til riktig team; finnes den ikke, vises alle lokasjoner.
+ */
+export function useRettVindu({
+  jegId,
+  revisjon,
+  valg,
+  teamAvPerson,
+}: {
+  jegId: string;
+  revisjon: number;
+  valg: EndringValg;
+  teamAvPerson: Record<string, string>;
+}) {
+  const [aapen, setAapen] = useState<AapenDag | null>(null);
+
+  function rett(endring: Endring): () => void {
+    return () =>
+      setAapen({
+        person: { id: endring.personId, name: endring.person, teamId: teamAvPerson[endring.personId] ?? "" },
+        iso: endring.fromDate,
+        endring,
+      });
+  }
+
+  const vindu = aapen ? (
+    <Vindu
+      key={`${aapen.person.id}-${aapen.endring?.id ?? ""}`}
+      dag={aapen}
+      jegId={jegId}
+      erAdmin
+      revisjon={revisjon}
+      valg={valg}
+      onLukk={() => setAapen(null)}
+    />
+  ) : null;
+
+  return { rett, vindu };
 }
 
 /** Viser `svar` til noe i skjemaet endres; da forsvinner den gamle feilmeldingen. */
@@ -181,7 +226,13 @@ function Vindu({
         </label>
 
         <p className="vindu-info">
-          {erAdmin ? "Endringen gjelder med en gang." : "Endringen venter på godkjenning fra en administrator."}
+          {retter
+            ? retter.virkning === "venter"
+              ? "Endringen venter fortsatt på godkjenning; rettingen godkjenner den ikke."
+              : "Rettingen gjelder med en gang."
+            : erAdmin
+              ? "Endringen gjelder med en gang."
+              : "Endringen venter på godkjenning fra en administrator."}
         </p>
 
         <Feil svar={lagreFeil.synlig} />

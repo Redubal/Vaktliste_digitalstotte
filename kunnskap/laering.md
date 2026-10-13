@@ -1,5 +1,13 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 25) — «Rett» fra godkjenningslista
+
+**Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere.
+
+**Nye punkter:** ingen. Scope-vakten fyrte riktig på «Registrer»-ønsket (foreslo `TODO.md`, argumenterte ikke, spurte ikke hvordan det skulle løses); et «start» uten innhold ble møtt med et oppklarende spørsmål i stedet for å gjette.
+
+**Fasesnitt:** 25 fikk plass i én økt uten `/compact`; ingen deling foreslått.
+
 ## 2026-10-13 (avslutning Fase 24) — «Mine endringer» med status
 
 **Evaluering av forrige økts punkter:** `[sjekk-stilen-som-gjelder]` **fulgt:** stilreglene for `logg-tabell`, `visning-kort` (`display: block` på smal skjerm) og `.table-wrapper` ble lest før egne regler; lista fikk `table-layout: auto` og egen boks rundt kortene. Strøket. `[utseende-spør-først]` **fulgt:** merket ble avklart med tre forslag med enkle skisser før noe ble bygd; strøket.

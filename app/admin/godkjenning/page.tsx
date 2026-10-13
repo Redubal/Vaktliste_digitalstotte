@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { VenterListe } from "@/components/Godkjenning";
+import type { EndringValg } from "@/components/EndringVindu";
+import { GodkjenningListe } from "@/components/GodkjenningListe";
 import { avvistStatus, godkjentStatus } from "@/lib/domene";
 import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
 import { lesVaktliste } from "@/lib/lager";
@@ -11,9 +12,22 @@ export const dynamic = "force-dynamic";
 
 export default async function GodkjenningSide() {
   const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
-  if (!erAdministrator(finnAnsatt(getAnsatte(), valgtId))) redirect("/");
+  const ansatte = getAnsatte();
+  const jeg = finnAnsatt(ansatte, valgtId);
+  if (!jeg || !erAdministrator(jeg)) redirect("/");
 
   const v = lesVaktliste();
+  const valg: EndringValg = {
+    endringstyper: v.endringstyper
+      .map(({ id, name, kategori }) => ({ id, name, kategori }))
+      .sort((a, b) => a.name.localeCompare(b.name, "nb")),
+    lokasjoner: v.lokasjoner
+      .map(({ id, name, teamId }) => ({ id, name, teamId }))
+      .sort((a, b) => a.name.localeCompare(b.name, "nb")),
+  };
+  // En person kan ha flere oppsett; det første gir team til lokasjonslista i «Rett»-vinduet.
+  const teamAvPerson: Record<string, string> = {};
+  for (const a of ansatte) teamAvPerson[a.id] ??= a.teamId;
   const tilStatus = godkjentStatus(v.statuser);
   const avvistTil = avvistStatus(v.statuser);
   const venter = getEndringer()
@@ -49,7 +63,13 @@ export default async function GodkjenningSide() {
         {venter.length === 0 ? (
           <p className="empty-row">Ingen endringer venter på godkjenning.</p>
         ) : (
-          <VenterListe endringer={venter} revisjon={v.revisjon} />
+          <GodkjenningListe
+            endringer={venter}
+            revisjon={v.revisjon}
+            jegId={jeg.id}
+            valg={valg}
+            teamAvPerson={teamAvPerson}
+          />
         )}
       </section>
     </main>

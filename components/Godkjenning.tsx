@@ -159,8 +159,19 @@ export function VenterPanel({ endringer, revisjon }: { endringer: Endring[]; rev
   );
 }
 
-/** Tabell over endringer som venter. Uten `revisjon` vises ingen knapper (ikke administrator). */
-export function VenterListe({ endringer, revisjon }: { endringer: Endring[]; revisjon: number | null }) {
+/**
+ * Tabell over endringer som venter. Uten `revisjon` vises ingen knapper (ikke administrator).
+ * Med `onRett` får hver rad en «Rett»-knapp (Admin → Godkjenning).
+ */
+export function VenterListe({
+  endringer,
+  revisjon,
+  onRett,
+}: {
+  endringer: Endring[];
+  revisjon: number | null;
+  onRett?: (e: Endring) => () => void;
+}) {
   return (
     <div className="table-wrapper">
       <table className="logg-tabell venter-tabell">
@@ -184,7 +195,19 @@ export function VenterListe({ endringer, revisjon }: { endringer: Endring[]; rev
               <td>{e.comment}</td>
               {revisjon !== null && (
                 <td>
-                  <BehandleKnapper endringId={e.id} revisjon={revisjon} navn={`${hva(e)} for ${e.person}, ${periode(e)}`} />
+                  <div className="godkjenn-knapper">
+                    <BehandleKnapper endringId={e.id} revisjon={revisjon} navn={`${hva(e)} for ${e.person}, ${periode(e)}`} />
+                    {onRett && (
+                      <button
+                        className="uke-btn"
+                        type="button"
+                        onClick={onRett(e)}
+                        aria-label={`Rett ${hva(e)} for ${e.person}, ${periode(e)}`}
+                      >
+                        Rett
+                      </button>
+                    )}
+                  </div>
                 </td>
               )}
             </tr>
