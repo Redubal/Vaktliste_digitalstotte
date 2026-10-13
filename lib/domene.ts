@@ -2,7 +2,7 @@
 // Node importerer .ts direkte, så filen må holde seg til syntaks som kan strippes (ingen enum).
 
 /** Eldre versjoner gjøres om ved lesing av `oppgraderVaktliste`; øk og legg til et steg der. */
-export const SKJEMA_VERSJON = 9;
+export const SKJEMA_VERSJON = 10;
 
 /** Rekkefølgen i tabellen er rekkefølgen i teamvelgeren. */
 export type Team = {
@@ -35,12 +35,51 @@ export type Rolle = {
   name: string;
 };
 
+// Kodene er uten æøå: norske tegn har blitt ødelagt stille i verktøykjeder her.
+export const VIRKNINGER = [
+  { id: "godkjent", navn: "Godkjent" },
+  { id: "venter", navn: "Venter på godkjenning" },
+  { id: "avvist", navn: "Avvist" },
+] as const;
+export type Virkning = (typeof VIRKNINGER)[number]["id"];
+
 export type Status = {
   id: string;
   name: string;
-  /** Bare endringer med en status som vises i planen, kommer med i ukeplan og månedsoversikt. */
-  visesIPlan: boolean;
+  /**
+   * Hva statusen betyr. Godkjent og venter vises i ukeplan og månedsoversikt (venter med merke);
+   * avvist vises ikke. Godkjenningslisten i Admin viser dem som venter.
+   */
+  virkning: Virkning;
 };
+
+/** Virkningen til en endring. En endring uten status (eller med en status som er borte) venter. */
+export function virkningFor(statusId: string | null, statuser: Status[]): Virkning {
+  return statuser.find((s) => s.id === statusId)?.virkning ?? "venter";
+}
+
+/** Statusen en endring får når den godkjennes: den første godkjente i navnerekkefølge. */
+export function godkjentStatus(statuser: Status[]): Status | null {
+  const godkjente = statuser
+    .filter((s) => s.virkning === "godkjent")
+    .sort((a, b) => a.name.localeCompare(b.name, "nb"));
+  return godkjente[0] ?? null;
+}
+
+/** Godkjenner endringen i `v`. Gir feilmelding, eller `null` når den er godkjent. */
+export function godkjennEndring(v: Vaktliste, endringId: string): string | null {
+  const endring = v.endringer.find((e) => e.id === endringId);
+  if (!endring) return "Endringen finnes ikke lenger. Last siden på nytt.";
+  const virkning = virkningFor(endring.statusId, v.statuser);
+  if (virkning === "godkjent") return "Endringen er allerede godkjent.";
+  if (virkning === "avvist") return "Endringen er avvist og kan ikke godkjennes herfra.";
+  const status = godkjentStatus(v.statuser);
+  if (!status) {
+    return "Ingen status har virkningen «Godkjent». Legg til en i Admin → Endringstyper og statuser.";
+  }
+  endring.statusId = status.id;
+  return null;
+}
 
 export const KATEGORIER = [
   { id: "fravaer", navn: "Fravær (får fri-farge)" },
@@ -229,12 +268,14 @@ export function sjekkRolle(rå: { name: string }, andre: Rolle[]): { feil: strin
 
 /** Renser og sjekker feltene fra skjemaet. `andre` er statusene som ikke er den som redigeres. */
 export function sjekkStatus(
-  rå: { name: string; visesIPlan: boolean },
+  rå: { name: string; virkning: string },
   andre: Status[],
-): { feil: string } | { name: string; visesIPlan: boolean } {
+): { feil: string } | { name: string; virkning: Virkning } {
   const sjekket = sjekkNavn(rå.name, andre, STATUS_MAKSLENGDE, { bestemt: "Statusen", ubestemt: "en status" });
   if ("feil" in sjekket) return sjekket;
-  return { name: sjekket.name, visesIPlan: rå.visesIPlan };
+  const virkning = VIRKNINGER.find((k) => k.id === rå.virkning);
+  if (!virkning) return { feil: "Velg hva statusen betyr." };
+  return { name: sjekket.name, virkning: virkning.id };
 }
 
 /** Renser og sjekker feltene fra skjemaet. `andre` er typene som ikke er den som redigeres. */
@@ -337,11 +378,14 @@ function tilVersjon2(v: RåVaktliste): RåVaktliste {
 // Typene som før fikk fri-farge i ukeplanen på navn alene (`classifyCelle`); de blir kategori fravær.
 const FRAVAER_NAVN = ["ferie", "fri", "avspasering", "fridag / helligdag", "syk"];
 
+/** Statusen slik den var i versjon 3–9, før `virkning` (se `tilVersjon10`). */
+type StatusV3 = { id: string; name: string; visesIPlan: boolean };
+
 // 2 → 3: status og type var fritekst på endringen og blir egne tabeller. Navn som bare skiller seg
 // i store og små bokstaver blir én rad; første skrivemåte vinner. Bare «Godkjent» vises i planen,
 // som før. En tom status eller type blir null.
 function tilVersjon3(v: RåVaktliste): RåVaktliste {
-  const statuser: Status[] = [];
+  const statuser: StatusV3[] = [];
   const endringstyper: Endringstype[] = [];
   const statusPerNavn = new Map<string, string>();
   const typePerNavn = new Map<string, string>();
@@ -486,6 +530,15 @@ const medNullstiltStandardfarge = (versjon: number) =>
 const tilVersjon8 = medNullstiltStandardfarge(8);
 const tilVersjon9 = medNullstiltStandardfarge(9);
 
+// 9 → 10: statusene får `virkning` i stedet for `visesIPlan`. Vises i plan = godkjent, resten venter;
+// avvist settes i Admin. En virkning som allerede står der, beholdes.
+function tilVersjon10(v: RåVaktliste): RåVaktliste {
+  const statuser = (v.statuser as (StatusV3 & { virkning?: Virkning })[]).map(
+    ({ visesIPlan, virkning, ...s }): Status => ({ ...s, virkning: virkning ?? (visesIPlan ? "godkjent" : "venter") }),
+  );
+  return { ...v, skjemaVersjon: 10, statuser };
+}
+
 /** Renser meldingen fra skjemaet. Tom melding blir standardmeldingen. */
 export function sjekkInnstillinger(rå: {
   vedlikehold: boolean;
@@ -526,6 +579,7 @@ export function oppgraderVaktliste(rå: RåVaktliste): Vaktliste {
   if (v.skjemaVersjon === 6) v = tilVersjon7(v);
   if (v.skjemaVersjon === 7) v = tilVersjon8(v);
   if (v.skjemaVersjon === 8) v = tilVersjon9(v);
+  if (v.skjemaVersjon === 9) v = tilVersjon10(v);
   if (v.skjemaVersjon !== SKJEMA_VERSJON) {
     throw new Error(`data/vaktliste.json har skjemaversjon ${fra}, appen forventer ${SKJEMA_VERSJON}.`);
   }

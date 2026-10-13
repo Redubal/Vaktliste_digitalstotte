@@ -552,6 +552,56 @@ tbody tr:nth-child(even) {
   color: var(--primary-dark);
 }
 
+/* Endring som venter på godkjenning: stiplet kant og tekstmerket «Venter» (ikke bare farge). */
+.celle--venter {
+  border-width: 2px;
+  border-style: dashed;
+  border-color: #b45309;
+}
+
+.venter-merke {
+  align-self: flex-start;
+  background: #fff;
+  border: 1px solid #b45309;
+  border-radius: 999px;
+  padding: 1px 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.godkjenn-skjema {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.celle .godkjenn-knapp {
+  align-self: flex-start;
+  height: auto;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+}
+
+.celle .admin-feil {
+  font-size: 0.7rem;
+  margin: 0;
+}
+
+.venter-panel {
+  margin-bottom: 16px;
+}
+
+.venter-panel summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.venter-panel .table-wrapper {
+  margin-top: 12px;
+}
+
 .empty-row {
   text-align: center;
   color: var(--muted);
@@ -675,6 +725,17 @@ tbody tr:nth-child(even) {
 
 .prikk--utenfor {
   background: repeating-linear-gradient(45deg, #f6f6f6, #f6f6f6 3px, #dcdcdc 3px, #dcdcdc 6px);
+}
+
+/* Venter på godkjenning: fargen beholdes, men med stiplet kant og hull i midten. */
+.prikk--venter {
+  outline: 2px dashed #b45309;
+  outline-offset: 1px;
+  box-shadow: inset 0 0 0 4px #fff;
+}
+
+.mkal .prikk--venter {
+  box-shadow: none;
 }
 
 /* --- Identitet og admin --- */

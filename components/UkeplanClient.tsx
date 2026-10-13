@@ -10,9 +10,12 @@ import {
   egenCelleStil,
   forrigeUke,
   nesteUke,
+  venterPaaGodkjenning,
   type CelleType,
   type TeamFilter,
+  type UkeplanCelle,
 } from "@/lib/ukeplan";
+import { GodkjennKnapp, hva, periode, VenterMerke } from "./Godkjenning";
 import { ariaSort, sorterRader } from "@/lib/sortering";
 import { formatDayNumber, formatDayShort, formatWeekRange, isoWeek, todayUtc } from "@/lib/uker";
 import { PERSON_KOLONNER, PERSON_VERDIER } from "./personSortering";
@@ -25,6 +28,8 @@ type Props = {
   endringer: Endring[];
   dager: Dag[];
   erAdmin: boolean;
+  /** Bare for administratorer: gir «Godkjenn»-knapp på endringer som venter. */
+  revisjon: number | null;
   /** Bruker-id som skal utheves (fra «Vis i ukeplan» i Admin). */
   utheves: string | null;
 };
@@ -37,7 +42,27 @@ const CELLE_KLASSE: Record<CelleType, string> = {
   utenfor: "celle celle--utenfor",
 };
 
-export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdmin, utheves }: Props) {
+/** Innholdet i én dag, likt i tabellen og kortlisten. */
+function Celle({ celle, person, revisjon }: { celle: UkeplanCelle; person: string; revisjon: number | null }) {
+  const venter = venterPaaGodkjenning(celle);
+  const klasse = CELLE_KLASSE[classifyCelle(celle)] + (venter ? " celle--venter" : "");
+  return (
+    <div className={klasse} style={egenCelleStil(celle)}>
+      <span className="celle-tekst">{celle.primær}</span>
+      {celle.endring && celle.endring.newLocation && <span className="celle-badge">{celle.endring.type}</span>}
+      {venter && <VenterMerke />}
+      {venter && revisjon !== null && celle.endring && (
+        <GodkjennKnapp
+          endringId={celle.endring.id}
+          revisjon={revisjon}
+          navn={`${hva(celle.endring)} for ${person}, ${periode(celle.endring)}`}
+        />
+      )}
+    </div>
+  );
+}
+
+export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdmin, revisjon, utheves }: Props) {
   const today = useMemo(() => isoWeek(todayUtc()), []);
   // Kommer du fra Admin, starter visningen på teamet til personen, ellers er raden ikke i listen.
   const [team, setTeam] = useState<TeamFilter>(
@@ -179,12 +204,12 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdm
                     </div>
                   </th>
                   {rad.celler.map((celle) => {
-                    const type = classifyCelle(celle);
                     const tooltip = celle.endring
                       ? [
                           celle.endring.type,
                           celle.endring.newLocation ? `→ ${celle.endring.newLocation}` : null,
                           celle.endring.comment || null,
+                          venterPaaGodkjenning(celle) ? "– venter på godkjenning" : null,
                           `(${celle.endring.id})`,
                         ]
                           .filter(Boolean)
@@ -192,12 +217,7 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdm
                       : undefined;
                     return (
                       <td key={celle.iso} title={tooltip}>
-                        <div className={CELLE_KLASSE[type]} style={egenCelleStil(celle)}>
-                          <span className="celle-tekst">{celle.primær}</span>
-                          {celle.endring && celle.endring.newLocation && (
-                            <span className="celle-badge">{celle.endring.type}</span>
-                          )}
-                        </div>
+                        <Celle celle={celle} person={rad.person.name} revisjon={revisjon} />
                       </td>
                     );
                   })}
@@ -246,12 +266,7 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdm
                           {formatDayShort(d)} {formatDayNumber(d)}
                           {noter.length > 0 && <span className="kort-dag-note">{noter.join(", ")}</span>}
                         </span>
-                        <div className={CELLE_KLASSE[classifyCelle(celle)]} style={egenCelleStil(celle)}>
-                          <span className="celle-tekst">{celle.primær}</span>
-                          {celle.endring && celle.endring.newLocation && (
-                            <span className="celle-badge">{celle.endring.type}</span>
-                          )}
-                        </div>
+                        <Celle celle={celle} person={rad.person.name} revisjon={revisjon} />
                       </li>
                     );
                   })}

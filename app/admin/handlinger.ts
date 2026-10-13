@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import {
   endringstypeBrukere,
+  godkjennEndring,
   ledigId,
   lokasjonBrukere,
   MASSE_INGEN,
@@ -453,23 +454,25 @@ export async function slettRolle(_forrige: Svar | null, data: FormData): Promise
   );
 }
 
+// --- Godkjenning (fra Admin → Godkjenning, Ukeplan og Måned) ---
+
+export async function godkjenn(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(data, "/admin/godkjenning", (v) => godkjennEndring(v, tekst(data, "id")), "Endringen er godkjent.");
+}
+
 // --- Statuser og endringstyper (samme side) ---
 
 const ENDRINGSTYPER_STI = "/admin/endringstyper";
-
-function visesIPlan(data: FormData): boolean {
-  return data.get("visesIPlan") === "on";
-}
 
 export async function leggTilStatus(_forrige: Svar | null, data: FormData): Promise<Svar> {
   return utfor(
     data,
     ENDRINGSTYPER_STI,
     (v) => {
-      const sjekket = sjekkStatus({ name: tekst(data, "name"), visesIPlan: visesIPlan(data) }, v.statuser);
+      const sjekket = sjekkStatus({ name: tekst(data, "name"), virkning: tekst(data, "virkning") }, v.statuser);
       if ("feil" in sjekket) return sjekket.feil;
       const id = ledigId(slugify(sjekket.name), new Set(v.statuser.map((s) => s.id)), "status");
-      v.statuser.push({ id, name: sjekket.name, visesIPlan: sjekket.visesIPlan });
+      v.statuser.push({ id, name: sjekket.name, virkning: sjekket.virkning });
       return null;
     },
     "Statusen er lagt til.",
@@ -484,12 +487,12 @@ export async function endreStatus(_forrige: Svar | null, data: FormData): Promis
       const status = v.statuser.find((s) => s.id === tekst(data, "id"));
       if (!status) return "Statusen finnes ikke lenger. Last siden på nytt.";
       const sjekket = sjekkStatus(
-        { name: tekst(data, "name"), visesIPlan: visesIPlan(data) },
+        { name: tekst(data, "name"), virkning: tekst(data, "virkning") },
         v.statuser.filter((s) => s.id !== status.id),
       );
       if ("feil" in sjekket) return sjekket.feil;
       status.name = sjekket.name;
-      status.visesIPlan = sjekket.visesIPlan;
+      status.virkning = sjekket.virkning;
       return null;
     },
     "Endringen er lagret.",

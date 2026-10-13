@@ -1,5 +1,13 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 18) — Godkjenningsliste i Admin
+
+**Evaluering av forrige økts punkter:** `[knapp-har-forutsetning]` ikke utløst («Godkjenn» krever ikke et valg i skjema); Fase 19 (status valgt direkte i planen) kan utløse den, så den videreføres uten ny runde. `[skjemasteg-er-låst-etter-test]` ikke utløst (versjon 10 var en ny endring, ikke en retting av et steg som var lagret); videreføres, siden senere faser kan trenge rettinger.
+
+**Nye punkter:** ingen. Ingenting gikk galt i økten.
+
+**Fasesnitt:** Fase 18 fikk plass i én økt uten `/compact`. Resten av planen står uendret.
+
 ## 2026-10-13 (avslutning Fase 17) — Små rettinger
 
 **Evaluering av forrige økts punkter:** `[knapp-har-forutsetning]` ikke utløst (ingen knapp som krever et valg ble bygget); Fase 18 (godkjenn-knapper) kan utløse den, så den videreføres uten ny runde.

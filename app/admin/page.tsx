@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { VedlikeholdAdmin } from "@/components/VedlikeholdAdmin";
+import { virkningFor } from "@/lib/domene";
 import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
 import { lesVaktliste } from "@/lib/lager";
 import { getAnsatte } from "@/lib/vaktlista";
@@ -15,6 +16,7 @@ export default async function AdminSide() {
   const jeg = finnAnsatt(getAnsatte(), valgtId);
   if (!erAdministrator(jeg)) redirect("/");
   const v = lesVaktliste();
+  const antallVenter = v.endringer.filter((e) => virkningFor(e.statusId, v.statuser) === "venter").length;
 
   return (
     <main className="page-shell">
@@ -38,6 +40,9 @@ export default async function AdminSide() {
           listene appen bygger på kommer én liste om gangen.
         </p>
         <div className="admin-meny">
+          <Link className="uke-btn" href="/admin/godkjenning">
+            Godkjenning ({antallVenter})
+          </Link>
           <Link className="uke-btn" href="/admin/ansatte">
             Ansatte
           </Link>

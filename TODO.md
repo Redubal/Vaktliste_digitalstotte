@@ -37,6 +37,15 @@ Full logg over alle endringer — levert i Fase 9, se logg 2026-10-13 og `/admin
 ##
 Mulig å gå fra ansatt på main til ansatt på admin — levert i Fase 12, se logg 2026-10-13.
 
+## Fra verifiseringen av Fase 18 (godkjenning), 2026-10-13
+- Rette en endring fra godkjenningslisten i Admin, ikke bare godkjenne den.
+- «Avvis»-knapp. I dag avvises en endring bare ved å gi den en status med virkning «Avvist», og ingen får beskjed.
+- Den ansatte får beskjed når en endring godkjennes eller avvises.
+- Som ansatt (prøvd som Frode) ser man ikke hva som er godkjent: en godkjent endring vises uten merke, og bare de som venter er merket.
+- Den som er valgt i «Velg deg selv», bør stå øverst i Ukeplan og Måned.
+- Sortering på navn stigende ser ikke ut til å virke i Ukeplan (sett av bruker, ikke undersøkt; sorteringen ble ikke endret i Fase 18).
+- Ansatte skal kunne legge inn endringer både i et eget skjema og ved å trykke i Ukeplan. Innspill til Fase 19 (status direkte i planen).
+
 ## Ansatte og synk mot Entra
 - Kom inn, deaktivering og adminstatus — levert i Fase 10, se logg 2026-10-13 og `/admin/ansatte`.
 - Mulig å gjøre masse endringer (flere ansatte om gangen)
@@ -71,8 +80,7 @@ Fase 21 (synk, parkert): en synk gir én logglinje per person og oppsett og kan 
 Legge til filtreing på roller på uke/mnd plan
 
 ##
-Alle legges i egen list på admin siden for enkel håndtering av godkjenning..
-skal kunne godkjenne fra uke/mnd visning .. ikke godkjente må være tydelig markert
+Godkjenningsliste i Admin, godkjenning fra Ukeplan og Måned og tydelig merke på de som venter — levert i Fase 18, se logg 2026-10-13 og `/admin/godkjenning`.
 
 ##
 ansatt og admin skal kunne endre staus direkte i ukes/mnd visning

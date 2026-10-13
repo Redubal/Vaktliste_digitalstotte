@@ -56,15 +56,24 @@ function inActivePeriod(person: Ansatt, dagIso: string): boolean {
   return true;
 }
 
-function godkjentePerPerson(endringer: Endring[]): Map<string, Endring[]> {
+// Godkjente først: treffer en godkjent og en ventende endring samme dag, viser cella den godkjente.
+// Den ventende finnes da bare i godkjenningslisten i Admin.
+function synligePerPerson(endringer: Endring[]): Map<string, Endring[]> {
   const map = new Map<string, Endring[]>();
-  for (const e of endringer) {
-    if (!e.visesIPlan) continue;
+  const synlige = endringer
+    .filter((e) => e.virkning !== "avvist")
+    .sort((a, b) => Number(a.virkning !== "godkjent") - Number(b.virkning !== "godkjent"));
+  for (const e of synlige) {
     const arr = map.get(e.personId);
     if (arr) arr.push(e);
     else map.set(e.personId, [e]);
   }
   return map;
+}
+
+/** Cella viser en endring som venter på godkjenning. */
+export function venterPaaGodkjenning(celle: UkeplanCelle): boolean {
+  return !celle.utenforPeriode && celle.endring?.virkning === "venter";
 }
 
 function beregnCelle(person: Ansatt, dagIso: string, personEndringer: Endring[]): UkeplanCelle {
@@ -107,7 +116,7 @@ export function beregnUkeplan(opts: {
     }
   }
 
-  const endringerPerPerson = godkjentePerPerson(opts.endringer);
+  const endringerPerPerson = synligePerPerson(opts.endringer);
 
   const rader: UkeplanRad[] = sorterAnsatte(opts.ansatte, opts.team)
     .filter((p) => opts.team === ALLE_TEAM || p.teamId === opts.team)
@@ -191,7 +200,7 @@ export function beregnMaaned(opts: {
     opts.dager.filter((d) => overlapsDate(d.fromDate, d.toDate, di)).map((d) => d.comment),
   );
 
-  const endringerPerPerson = godkjentePerPerson(opts.endringer);
+  const endringerPerPerson = synligePerPerson(opts.endringer);
   const rader: UkeplanRad[] = sorterAnsatte(opts.ansatte, opts.team)
     .filter((p) => opts.team === ALLE_TEAM || p.teamId === opts.team)
     .filter((p) => dagIso.some((d) => inActivePeriod(p, d)))

@@ -6,6 +6,7 @@ import { Tabs, type TabDefinition } from "@/components/Tabs";
 import { UkeplanClient } from "@/components/UkeplanClient";
 import { VaktlisteClient } from "@/components/VaktlisteClient";
 import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
+import { lesVaktliste } from "@/lib/lager";
 import { getAnsatte, getDager, getEndringer, getTeam } from "@/lib/vaktlista";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +26,8 @@ export default async function Home({
   const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
   const jeg = finnAnsatt(ansatte, valgtId);
   const erAdmin = erAdministrator(jeg);
+  // Revisjonen trengs bare til «Godkjenn»-knappen; uten den viser visningene ingen knapper.
+  const revisjon = erAdmin ? lesVaktliste().revisjon : null;
 
   // Ansatte ser Ukeplan og Måned. Administrator ser i tillegg ansattlista og
   // lenken til admin-sidene. Utvalget gjøres her, på serveren, slik at innhold
@@ -40,6 +43,7 @@ export default async function Home({
           endringer={endringer}
           dager={dager}
           erAdmin={erAdmin}
+          revisjon={revisjon}
           utheves={utheves}
         />
       ),
@@ -48,7 +52,14 @@ export default async function Home({
       id: "maaned",
       label: "Måned",
       content: (
-        <MaanedClient team={team} ansatte={ansatte} endringer={endringer} dager={dager} erAdmin={erAdmin} />
+        <MaanedClient
+          team={team}
+          ansatte={ansatte}
+          endringer={endringer}
+          dager={dager}
+          erAdmin={erAdmin}
+          revisjon={revisjon}
+        />
       ),
     },
   ];

@@ -1,4 +1,4 @@
-import type { DagRad, Kategori, Team } from "./domene";
+import { virkningFor, type DagRad, type Kategori, type Team, type Virkning } from "./domene";
 import { lesVaktliste } from "./lager";
 
 export type { Team };
@@ -24,8 +24,8 @@ export type Ansatt = {
 export type Endring = {
   id: string;
   status: string;
-  /** Fra statusen: bare endringer som vises i planen, regnes med i ukeplanen. */
-  visesIPlan: boolean;
+  /** Fra statusen: godkjent og venter vises i ukeplanen (venter med merke), avvist vises ikke. */
+  virkning: Virkning;
   person: string;
   personId: string;
   fromDate: string;
@@ -107,7 +107,7 @@ export function getEndringer(): Endring[] {
   return v.endringer.map((e) => ({
     id: e.id,
     status: (e.statusId && statuser.get(e.statusId)?.name) || "",
-    visesIPlan: (e.statusId && statuser.get(e.statusId)?.visesIPlan) === true,
+    virkning: virkningFor(e.statusId, v.statuser),
     person: brukere.get(e.brukerId)?.name ?? "",
     personId: e.brukerId,
     fromDate: e.fromDate ?? "",

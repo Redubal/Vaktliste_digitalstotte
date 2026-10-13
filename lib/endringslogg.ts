@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { KATEGORIER, type Vaktliste } from "./domene";
+import { KATEGORIER, VIRKNINGER, type Vaktliste } from "./domene";
 
 const LOGG_FIL = path.join(path.resolve(process.cwd(), "data"), "endringslogg.jsonl");
 
@@ -113,6 +113,7 @@ const FELTNAVN: Record<string, string> = {
   typeId: "Type",
   brukerId: "Person",
   visesIPlan: "Vises i plan",
+  virkning: "Betyr",
   kategori: "Kategori",
   farge: "Farge",
   upn: "E-post",
@@ -144,6 +145,7 @@ function vis(v: Vaktliste, info: Tabellinfo, felt: string, verdi: unknown): stri
   const ref = info.refs[felt];
   if (ref) return navnFra(v, ref, String(verdi));
   if (felt === "kategori") return KATEGORIER.find((k) => k.id === verdi)?.navn ?? String(verdi);
+  if (felt === "virkning") return VIRKNINGER.find((k) => k.id === verdi)?.navn ?? String(verdi);
   return String(verdi);
 }
 

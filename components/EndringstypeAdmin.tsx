@@ -14,16 +14,30 @@ import {
   KATEGORIER,
   STANDARDFARGER,
   STATUS_MAKSLENGDE,
+  VIRKNINGER,
   type Kategori,
+  type Virkning,
 } from "@/lib/domene";
 import { Feil, Lagringsstatus, useSkjemaStatus } from "./AdminFelles";
 
 export type StatusVisning = {
   id: string;
   name: string;
-  visesIPlan: boolean;
+  virkning: Virkning;
   antallBrukere: number;
 };
+
+function VirkningVelger({ virkning, navn }: { virkning: Virkning; navn: string }) {
+  return (
+    <select name="virkning" defaultValue={virkning} aria-label={navn}>
+      {VIRKNINGER.map((k) => (
+        <option key={k.id} value={k.id}>
+          {k.navn}
+        </option>
+      ))}
+    </select>
+  );
+}
 
 export type TypeVisning = {
   id: string;
@@ -43,7 +57,7 @@ function BrukEndringer({ antall }: { antall: number }) {
 
 function NyStatus({ revisjon }: { revisjon: number }) {
   const [svar, handling, venter] = useActionState(leggTilStatus, null);
-  const status = useSkjemaStatus({ name: "", visesIPlan: "on" }, svar);
+  const status = useSkjemaStatus({ name: "", virkning: "venter" }, svar);
   return (
     <form action={handling} className={status.skjemaKlasse} onInput={status.onInput}>
       <input type="hidden" name="revisjon" value={revisjon} />
@@ -54,9 +68,7 @@ function NyStatus({ revisjon }: { revisjon: number }) {
         maxLength={STATUS_MAKSLENGDE}
         required
       />
-      <label className="admin-avkryssing">
-        <input type="checkbox" name="visesIPlan" defaultChecked /> Vises i plan
-      </label>
+      <VirkningVelger virkning="venter" navn="Hva ny status betyr" />
       <button className="uke-btn" type="submit" disabled={venter}>
         Legg til
       </button>
@@ -71,7 +83,7 @@ function StatusRad({ status, revisjon }: { status: StatusVisning; revisjon: numb
   const [slettSvar, slettHandling, sletter] = useActionState(slettStatus, null);
   const opptatt = lagrer || sletter;
   const skjema = useSkjemaStatus(
-    { name: status.name, visesIPlan: status.visesIPlan ? "on" : "" },
+    { name: status.name, virkning: status.virkning },
     endreSvar,
   );
 
@@ -87,9 +99,7 @@ function StatusRad({ status, revisjon }: { status: StatusVisning; revisjon: numb
           maxLength={STATUS_MAKSLENGDE}
           required
         />
-        <label className="admin-avkryssing">
-          <input type="checkbox" name="visesIPlan" defaultChecked={status.visesIPlan} /> Vises i plan
-        </label>
+        <VirkningVelger virkning={status.virkning} navn={`Hva ${status.name} betyr`} />
         <BrukEndringer antall={status.antallBrukere} />
         <button className="uke-btn" type="submit" disabled={opptatt}>
           Lagre

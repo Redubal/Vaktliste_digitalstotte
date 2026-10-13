@@ -39,8 +39,8 @@ export default async function EndringstyperSide() {
           <span className="counter">{statuser.length} statuser</span>
         </div>
         <p className="admin-ingress">
-          Bare endringer med en status som er merket «Vises i plan» kommer med i ukeplan og
-          månedsoversikt.
+          Endringer med en godkjent status vises i ukeplan og månedsoversikt. De som venter på
+          godkjenning vises med merke og står i Admin → Godkjenning. Avviste vises ikke.
         </p>
         <StatusAdmin statuser={statuser} revisjon={v.revisjon} />
       </section>

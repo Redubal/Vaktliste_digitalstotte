@@ -116,10 +116,7 @@ Fase 16 ✅ 2026-10-13 — detaljer i logg
 
 Fase 17 ✅ 2026-10-13 — detaljer i logg
 
-**Fase 18 — Godkjenningsliste i Admin (tyngste modell: rettighetsregler).**
-Liste over ikke godkjente endringer; godkjenn derfra og fra uke-/månedsvisning; ikke godkjente er
-tydelig merket.
-**Verifisering:** du ser en ikke godkjent endring merket i Ukeplan, godkjenner den, og merket er borte.
+Fase 18 ✅ 2026-10-13 — detaljer i logg
 
 **Fase 19 — Status direkte i uke-/månedsvisning (tyngste modell: hvem får endre hva).**
 Ansatt og admin legger inn/endrer status i planen; endringen venter på godkjenning av admin.
