@@ -234,7 +234,8 @@ body {
 @media (max-width: 640px) {
   .figur-bryter {
     position: static;
-    margin-top: 8px;
+    display: block;
+    margin: 8px 0 0 auto;
   }
 }
 
@@ -1371,6 +1372,20 @@ a.uke-btn {
 .logg-tabell td {
   overflow-wrap: anywhere;
   vertical-align: top;
+}
+
+/* Den faste tabellbredden (760 px) gir sidelengs rulling på mobil; loggen har faste
+   prosentbredder og bryter ord, så den kan krympe. */
+@media (max-width: 768px) {
+  .logg-tabell:not(.venter-tabell):not(.mine-tabell) {
+    min-width: 0;
+  }
+
+  .logg-tabell:not(.venter-tabell):not(.mine-tabell) th,
+  .logg-tabell:not(.venter-tabell):not(.mine-tabell) td {
+    padding: 8px 6px;
+    font-size: 0.82rem;
+  }
 }
 
 .admin-bruk {

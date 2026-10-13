@@ -1,5 +1,13 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 28) — Mobil/pad-testen
+
+**Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere.
+
+**Nye punkter:** ingen. Claude gjettet ikke på CSS uten skjermbilde, men ba om test per punkt; to funn kom fra brukeren og ble rettet. Fase-slutt-vakten fyrte riktig: «ferdig med denne» ble møtt med forslag og venting, ikke med avslutning.
+
+**Fasesnitt:** 28 fikk plass i én økt uten `/compact`; ingen deling foreslått.
+
 ## 2026-10-13 (avslutning Fase 27) — Fridager
 
 **Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere.

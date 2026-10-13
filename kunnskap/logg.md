@@ -1,5 +1,15 @@
 # Logg
 
+## 2026-10-13 — Fase 28 ✅ Mobil/pad-testen (delvis oppgitt)
+
+- **Levert (to rettinger i `app/globals.css`):** endringsloggen (`/admin/logg`) rullet sidelengs på mobil fordi alle tabeller har `min-width: 760px`; `.logg-tabell` (ikke `venter-` og `mine-tabell`) har nå `min-width: 0` og mindre cellemarg under 768 px. Knappen «Figur: av/på» sto under 640 px på linje med logoen og så ut som en del av den; den er nå `display: block` med `margin: 8px 0 0 auto` (egen linje, til høyre).
+- **Verifisert av bruker:** endringsloggen på mobil («mye bedre»), plasseringen av «Figur: av/på» («mye bedre», etter å ha bedt om høyre side i stedet for venstre). Deretter «ferdig med denne».
+- **Ikke oppgitt (ikke bekreftet, ikke prøvd av Claude):** Admin → Ansatte på nettbrettbredde (800/1024/1200 px; CSS under 1280 px ser ved gjennomlesing ikke feil ut), Admin-sidene og endringsvinduet på 390 px, Måned på 390 px, ekte telefon eller pad. Hypotese om Admin → Ansatte: ujevnheten ligger i radbrytingen under 1280 px; avgjøres av et skjermbilde på 900 px.
+- **Fasesnitt:** 28 fikk plass i én økt uten `/compact`.
+- **Sjekk:** bare CSS endret; `tsc --noEmit` og `npm run lint` kjørt grønt ved faseslutt, ingen meldinger. `next build` ikke kjørt. STATUS: 45 linjer.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 53 treff. Ingen filer under `data/` i git.
+- fase-slutt: 21:57–22:00, ca. 3 min (klokka på maskinen; inkluderer ikke ventetid på svar).
+
 ## 2026-10-13 — Fase 27 ✅ Fridager
 
 - **Levert:** dagen har feltet `fri` (`DagRad`, skjemaversjon 12, `tilVersjon12` i `lib/domene.ts`; gamle dager blir «ikke fri»). Avkrysningen «Fri for alle» i Admin → Dager (`DagAdmin.tsx`, `dagFra` i `app/admin/handlinger.ts`, `sjekkDag` tar `fri`). `beregnCelle` i `lib/ukeplan.ts` gir «Fri» (`fridag` på cella, `classifyCelle` → «fri») når dagen er fri og personen ikke har egen endring; egen endring vinner. Gjelder Ukeplan og Måned (samme celleregler). Endringsloggen viser feltet som «Fri».
