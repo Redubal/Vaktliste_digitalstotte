@@ -1,5 +1,19 @@
 # Logg
 
+## 2026-10-13 — Fase 6 ✅ Team er data og kan redigeres i Admin
+
+- Levert: tabellen `team` (`id, name`) og `teamId` på oppsett og lokasjoner (skjemaversjon 4, `tilVersjon4` i `lib/domene.ts`), `endringer.team` fjernet. `lib/vaktlista.ts` har `getTeam()` og gir `Ansatt` både `teamId` og `team` (navnet). `lib/ukeplan.ts`: `TeamFilter` er en team-id eller `ALLE_TEAM = "*"`. Ukeplan, Måned og Ansatte får teamlisten fra `app/page.tsx`. Ansatte har ett kort per team i stedet for to faste. Admin: tre handlinger i `app/admin/handlinger.ts`, `app/admin/team/page.tsx`, `components/TeamAdmin.tsx`; `LokasjonAdmin` får team som prop.
+- Verifisert av bruker: sa «ferdig» etter planens fire punkter (samme visning i Ukeplan og Måned, kortene i Ansatte, «Test» i teamvelgeren, Øst kan ikke slettes). Punktene er ikke bekreftet enkeltvis.
+- **Beslutning (SR, «Begge»):** valget heter «Alle team». Begrunnelse: «Begge» blir feil med et tredje team; Ansatte-fanen brukte allerede «Alle». Eneste synlige endring for vanlige brukere.
+- **Beslutning (Claude, felt og rekkefølge):** `name` som i de andre tabellene, og tabellens rekkefølge er rekkefølgen i velgeren, med Øst og Vest først. Begrunnelse: alfabetisk ville satt Vest før Øst.
+- **Beslutning (Claude, `endringer.team`):** fjernes ved omgjøringen. Begrunnelse: ingenting leser det, og `arkitektur.md` sier at team utledes fra personen.
+- **Beslutning (Claude, sletting):** et team kan ikke slettes mens en person eller lokasjon bruker det, og det siste teamet kan aldri slettes.
+- Funn (observert): første kjøring av omgjøringstesten feilet på én sjekk. Et team skrevet «øst» på første rad ble `«øst»` i tabellen. Rettet: Øst og Vest skrives alltid slik, og testen ble grønn.
+- Sjekk: omgjøringen v3 → v4 testet i Node med oppdiktede rader (11 sjekker grønne): Vest først i dataene gir likevel `ost`, `vest`; ukjent team kommer etter; rad uten team stopper omgjøringen med feil; `team` er borte fra oppsett, lokasjoner og endringer. `tsc --noEmit`, `npm run lint` og `next build` kjørt grønt etter siste kodeendring, etterpå bare `kunnskap/`-filer. Ikke testet mot ekte data.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 4 treff. `data/` og `*.xlsx` er ikke tracket.
+- Plan: Fase 6 kollapset til én linje (godkjent av bruker). `.claude/settings.json` (brukerens godkjenning av `git push`) er ikke tatt med i commiten.
+- STATUS: 35 linjer. fase-slutt: 09:41–09:44, 3 min.
+
 ## 2026-10-13 — Fase 5 ✅ Endringstyper og statuser kan redigeres i Admin (forbehold: omdøping av «Godkjent» ikke testet)
 
 - Levert: tabellene `statuser` (`id, name, visesIPlan`) og `endringstyper` (`id, name, kategori`), `statusId`/`typeId` på endringene (skjemaversjon 3, `tilVersjon3` i `lib/domene.ts`), seks handlinger i `app/admin/handlinger.ts`, siden `app/admin/endringstyper/page.tsx` og `components/EndringstypeAdmin.tsx`. `lib/ukeplan.ts` leser `Endring.visesIPlan` og `Endring.kategori` i stedet for navnet «Godkjent» og navnelisten.

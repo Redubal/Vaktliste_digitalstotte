@@ -2,10 +2,13 @@
 // Node importerer .ts direkte, så filen må holde seg til syntaks som kan strippes (ingen enum).
 
 /** Eldre versjoner gjøres om ved lesing av `oppgraderVaktliste`; øk og legg til et steg der. */
-export const SKJEMA_VERSJON = 3;
+export const SKJEMA_VERSJON = 4;
 
-export const TEAM = ["Øst", "Vest"] as const;
-export type Team = (typeof TEAM)[number];
+/** Rekkefølgen i tabellen er rekkefølgen i teamvelgeren. */
+export type Team = {
+  id: string;
+  name: string;
+};
 
 export type Bruker = {
   id: string;
@@ -18,7 +21,7 @@ export type Bruker = {
 export type Lokasjon = {
   id: string;
   name: string;
-  team: Team;
+  teamId: string;
 };
 
 export type Rolle = {
@@ -49,7 +52,7 @@ export type Endringstype = {
 export type Oppsett = {
   id: string;
   brukerId: string;
-  team: Team;
+  teamId: string;
   rolleId: string | null;
   lokasjonId: string | null;
   activeFrom: string | null;
@@ -63,7 +66,6 @@ export type EndringRad = {
   brukerId: string;
   lokasjonId: string | null;
   statusId: string | null;
-  team: Team;
   fromDate: string | null;
   toDate: string | null;
   fromTime: string | null;
@@ -85,6 +87,7 @@ export type Vaktliste = {
   /** Teller opp ved hver lagring; brukes til å oppdage at to faner har endret samtidig. */
   revisjon: number;
   sistEndretAv: string | null;
+  team: Team[];
   lokasjoner: Lokasjon[];
   roller: Rolle[];
   statuser: Status[];
@@ -100,6 +103,7 @@ export function tomVaktliste(): Vaktliste {
     skjemaVersjon: SKJEMA_VERSJON,
     revisjon: 0,
     sistEndretAv: null,
+    team: [],
     lokasjoner: [],
     roller: [],
     statuser: [],
@@ -114,6 +118,7 @@ export function tomVaktliste(): Vaktliste {
 /** Svar fra en handling i Admin: `ok` og en beskjed til skjermen. */
 export type Svar = { ok: boolean; melding: string };
 
+export const TEAM_MAKSLENGDE = 60;
 export const LOKASJON_MAKSLENGDE = 60;
 export const ROLLE_MAKSLENGDE = 60;
 export const STATUS_MAKSLENGDE = 60;
@@ -164,17 +169,22 @@ function sjekkNavn(
 
 /** Renser og sjekker feltene fra skjemaet. `andre` er lokasjonene som ikke er den som redigeres. */
 export function sjekkLokasjon(
-  rå: { name: string; team: string },
+  rå: { name: string; teamId: string },
   andre: Lokasjon[],
-): { feil: string } | { name: string; team: Team } {
+  team: Team[],
+): { feil: string } | { name: string; teamId: string } {
   const sjekket = sjekkNavn(rå.name, andre, LOKASJON_MAKSLENGDE, {
     bestemt: "Lokasjonen",
     ubestemt: "en lokasjon",
   });
   if ("feil" in sjekket) return sjekket;
-  const team = TEAM.find((t) => t === rå.team);
-  if (!team) return { feil: "Velg team Øst eller Vest." };
-  return { name: sjekket.name, team };
+  if (!team.some((t) => t.id === rå.teamId)) return { feil: "Velg et team." };
+  return { name: sjekket.name, teamId: rå.teamId };
+}
+
+/** Renser og sjekker navnet fra skjemaet. `andre` er teamene som ikke er det som redigeres. */
+export function sjekkTeam(rå: { name: string }, andre: Team[]): { feil: string } | { name: string } {
+  return sjekkNavn(rå.name, andre, TEAM_MAKSLENGDE, { bestemt: "Teamet", ubestemt: "et team" });
 }
 
 /** Renser og sjekker navnet fra skjemaet. `andre` er rollene som ikke er den som redigeres. */
@@ -220,6 +230,21 @@ export function lokasjonBrukere(v: Vaktliste, lokasjonId: string): string[] {
   for (const o of v.oppsett) if (o.lokasjonId === lokasjonId) ider.add(o.brukerId);
   for (const e of v.endringer) if (e.lokasjonId === lokasjonId) ider.add(e.brukerId);
   return navnPå(v, ider);
+}
+
+/** Navnene på personene som har teamet i et oppsett. Sortert, uten dubletter. */
+export function teamPersoner(v: Vaktliste, teamId: string): string[] {
+  return navnPå(v, new Set(v.oppsett.filter((o) => o.teamId === teamId).map((o) => o.brukerId)));
+}
+
+/** Alt som hindrer sletting: personene i teamet, fulgt av lokasjonene som hører til det. */
+export function teamBrukere(v: Vaktliste, teamId: string): string[] {
+  const personer = teamPersoner(v, teamId);
+  const lokasjoner = v.lokasjoner
+    .filter((l) => l.teamId === teamId)
+    .map((l) => `lokasjonen ${l.name}`)
+    .sort((a, b) => a.localeCompare(b, "nb"));
+  return [...personer, ...lokasjoner];
 }
 
 /** Navnene på personene som har rollen i et oppsett. Sortert, uten dubletter. */
@@ -322,6 +347,62 @@ function tilVersjon3(v: RåVaktliste): RåVaktliste {
   return { ...v, skjemaVersjon: 3, statuser, endringstyper, endringer };
 }
 
+// Teamene fra Excel; de beholder denne rekkefølgen i teamvelgeren (alfabetisk ville gitt Vest først).
+const FASTE_TEAM = ["Øst", "Vest"];
+
+// 3 → 4: team var tekst på oppsett, lokasjoner og endringer og blir en egen tabell. Oppsett og
+// lokasjoner får `teamId`. På endringer fjernes feltet: team utledes fra personen. Navn som bare
+// skiller seg i store og små bokstaver blir ett team; første skrivemåte vinner, men Øst og Vest
+// skrives alltid slik. En rad uten team
+// stopper omgjøringen, så ingen mister teamet sitt i stillhet.
+function tilVersjon4(v: RåVaktliste): RåVaktliste {
+  type MedTeam = { id: string; team?: string | null };
+  const gamleOppsett = v.oppsett as (Omit<Oppsett, "teamId"> & MedTeam)[];
+  const gamleLokasjoner = v.lokasjoner as (Omit<Lokasjon, "teamId"> & MedTeam)[];
+  const navnFra = (rad: MedTeam, hva: string): string => {
+    const name = rensNavn(rad.team ?? "");
+    if (!name) throw new Error(`Kan ikke gjøre om data: ${hva} ${rad.id} mangler team.`);
+    return name;
+  };
+  const navnene = [
+    ...gamleOppsett.map((o) => navnFra(o, "oppsettet")),
+    ...gamleLokasjoner.map((l) => navnFra(l, "lokasjonen")),
+  ];
+  const fastePlass = (navn: string) => {
+    const i = FASTE_TEAM.findIndex((f) => nøkkel(f) === nøkkel(navn));
+    return i === -1 ? FASTE_TEAM.length : i;
+  };
+  const iRekkefølge = navnene
+    .map((navn, i) => ({ navn, i }))
+    .sort((a, b) => fastePlass(a.navn) - fastePlass(b.navn) || a.i - b.i);
+
+  const team: Team[] = [];
+  const idPerNavn = new Map<string, string>();
+  const brukte = new Set<string>();
+  for (const { navn } of iRekkefølge) {
+    if (idPerNavn.has(nøkkel(navn))) continue;
+    const name = FASTE_TEAM.find((f) => nøkkel(f) === nøkkel(navn)) ?? navn;
+    const id = ledigId(slugify(name), brukte, "team");
+    brukte.add(id);
+    idPerNavn.set(nøkkel(navn), id);
+    team.push({ id, name });
+  }
+  const medTeamId = <R extends MedTeam>(rad: R, hva: string) => {
+    const teamId = idPerNavn.get(nøkkel(navnFra(rad, hva)))!;
+    const kopi: Omit<R, "team"> & { team?: unknown } = { ...rad };
+    delete kopi.team;
+    return { ...kopi, teamId };
+  };
+  const oppsett = gamleOppsett.map((o) => medTeamId(o, "oppsettet"));
+  const lokasjoner = gamleLokasjoner.map((l) => medTeamId(l, "lokasjonen"));
+  const endringer = (v.endringer as (EndringRad & { team?: unknown })[]).map((e) => {
+    const kopi = { ...e };
+    delete kopi.team;
+    return kopi;
+  });
+  return { ...v, skjemaVersjon: 4, team, oppsett, lokasjoner, endringer };
+}
+
 /**
  * Gjør om innholdet i en eldre skjemaversjon til gjeldende, ett steg om gangen. Endrer ikke
  * `revisjon`. Lagres først når noen lagrer; sikkerhetskopien tas da av den gamle fila.
@@ -331,6 +412,7 @@ export function oppgraderVaktliste(rå: RåVaktliste): Vaktliste {
   let v = rå;
   if (v.skjemaVersjon === 1) v = tilVersjon2(v);
   if (v.skjemaVersjon === 2) v = tilVersjon3(v);
+  if (v.skjemaVersjon === 3) v = tilVersjon4(v);
   if (v.skjemaVersjon !== SKJEMA_VERSJON) {
     throw new Error(`data/vaktliste.json har skjemaversjon ${fra}, appen forventer ${SKJEMA_VERSJON}.`);
   }

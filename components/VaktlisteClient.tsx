@@ -1,10 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Employee } from "@/lib/vaktlista";
+import type { Employee, Team } from "@/lib/vaktlista";
 
-export function VaktlisteClient({ employees }: { employees: Employee[] }) {
-  const teamOptions = ["Alle", ...new Set(employees.map((person) => person.team))];
+export function VaktlisteClient({ employees, team }: { employees: Employee[]; team: Team[] }) {
   const [teamFilter, setTeamFilter] = useState("Alle");
   const [search, setSearch] = useState("");
 
@@ -12,7 +11,7 @@ export function VaktlisteClient({ employees }: { employees: Employee[] }) {
     const normalizedSearch = search.trim().toLowerCase();
 
     return employees.filter((person) => {
-      const matchTeam = teamFilter === "Alle" || person.team === teamFilter;
+      const matchTeam = teamFilter === "Alle" || person.teamId === teamFilter;
       const matchSearch =
         normalizedSearch.length === 0 ||
         person.name.toLowerCase().includes(normalizedSearch) ||
@@ -25,15 +24,13 @@ export function VaktlisteClient({ employees }: { employees: Employee[] }) {
 
   const teamSummary = filteredEmployees.reduce(
     (acc, person) => {
-      acc[person.team] = (acc[person.team] ?? 0) + 1;
+      acc[person.teamId] = (acc[person.teamId] ?? 0) + 1;
       return acc;
     },
     {} as Record<string, number>,
   );
 
   const totalEmployees = filteredEmployees.length;
-  const eastEmployees = teamSummary["Øst"] ?? 0;
-  const westEmployees = teamSummary["Vest"] ?? 0;
   const locations = new Set(filteredEmployees.map((person) => person.location)).size;
 
   return (
@@ -52,9 +49,10 @@ export function VaktlisteClient({ employees }: { employees: Employee[] }) {
         <label className="select-field">
           <span>Team</span>
           <select value={teamFilter} onChange={(event) => setTeamFilter(event.target.value)}>
-            {teamOptions.map((team) => (
-              <option key={team} value={team}>
-                {team}
+            <option value="Alle">Alle</option>
+            {team.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
               </option>
             ))}
           </select>
@@ -66,14 +64,12 @@ export function VaktlisteClient({ employees }: { employees: Employee[] }) {
           <span className="label">Viste ansatte</span>
           <strong>{totalEmployees}</strong>
         </article>
-        <article className="stat-card">
-          <span className="label">Øst</span>
-          <strong>{eastEmployees}</strong>
-        </article>
-        <article className="stat-card">
-          <span className="label">Vest</span>
-          <strong>{westEmployees}</strong>
-        </article>
+        {team.map((t) => (
+          <article key={t.id} className="stat-card">
+            <span className="label">{t.name}</span>
+            <strong>{teamSummary[t.id] ?? 0}</strong>
+          </article>
+        ))}
         <article className="stat-card">
           <span className="label">Lokasjoner</span>
           <strong>{locations}</strong>
@@ -86,13 +82,15 @@ export function VaktlisteClient({ employees }: { employees: Employee[] }) {
         </div>
 
         <div className="team-grid">
-          {Object.entries(teamSummary).map(([team, count]) => (
-            <article key={team} className="team-card">
-              <span className="team-name">{team}</span>
-              <strong>{count}</strong>
-              <small>ansatte</small>
-            </article>
-          ))}
+          {team
+            .filter((t) => teamSummary[t.id])
+            .map((t) => (
+              <article key={t.id} className="team-card">
+                <span className="team-name">{t.name}</span>
+                <strong>{teamSummary[t.id]}</strong>
+                <small>ansatte</small>
+              </article>
+            ))}
         </div>
       </section>
 
@@ -116,7 +114,7 @@ export function VaktlisteClient({ employees }: { employees: Employee[] }) {
             </thead>
             <tbody>
               {filteredEmployees.map((person) => (
-                <tr key={`${person.team}-${person.name}`}>
+                <tr key={`${person.teamId}-${person.id}`}>
                   <td>
                     <span className="person-name">{person.name}</span>
                   </td>

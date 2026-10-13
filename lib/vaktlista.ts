@@ -8,7 +8,9 @@ export type { Team };
 export type Ansatt = {
   id: string;
   name: string;
-  team: Team;
+  teamId: string;
+  /** Navnet på teamet, til visning. Filtrering og telling går på `teamId`. */
+  team: string;
   location: string;
   role: string;
   activeFrom: string;
@@ -26,7 +28,6 @@ export type Endring = {
   visesIPlan: boolean;
   person: string;
   personId: string;
-  team: Team;
   fromDate: string;
   toDate: string;
   fromTime: string;
@@ -50,12 +51,18 @@ export function getDager(): Dag[] {
   return lesVaktliste().dager;
 }
 
+/** Teamene i tabellens rekkefølge, som er rekkefølgen i teamvelgeren. */
+export function getTeam(): Team[] {
+  return lesVaktliste().team;
+}
+
 /** Bruker + oppsett + lokasjon, slått sammen til én rad per ansatt. */
 export function getAnsatte(): Ansatt[] {
   const v = lesVaktliste();
   const brukere = new Map(v.brukere.map((b) => [b.id, b]));
   const lokasjoner = new Map(v.lokasjoner.map((l) => [l.id, l]));
   const roller = new Map(v.roller.map((r) => [r.id, r]));
+  const team = new Map(v.team.map((t) => [t.id, t]));
   return v.oppsett
     .flatMap((o) => {
       const bruker = brukere.get(o.brukerId);
@@ -64,7 +71,8 @@ export function getAnsatte(): Ansatt[] {
         {
           id: bruker.id,
           name: bruker.name,
-          team: o.team,
+          teamId: o.teamId,
+          team: team.get(o.teamId)?.name ?? o.teamId,
           location: (o.lokasjonId && lokasjoner.get(o.lokasjonId)?.name) || "-",
           role: (o.rolleId && roller.get(o.rolleId)?.name) || "-",
           activeFrom: o.activeFrom ?? "",
@@ -96,7 +104,6 @@ export function getEndringer(): Endring[] {
     visesIPlan: (e.statusId && statuser.get(e.statusId)?.visesIPlan) === true,
     person: brukere.get(e.brukerId)?.name ?? "",
     personId: e.brukerId,
-    team: e.team,
     fromDate: e.fromDate ?? "",
     toDate: e.toDate ?? "",
     fromTime: e.fromTime ?? "",

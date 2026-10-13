@@ -31,7 +31,7 @@ som går ett steg om gangen (`tilVersjon2` …). Fila på disk skrives først ve
 og `endreVaktliste` tar sikkerhetskopi av den gamle versjonen før det. Ukjent eller nyere
 versjon gir feil. Skriptene (`import`, `migrer`) bygger det gamle formatet og kaller samme
 funksjon, så omgjøringen finnes bare ett sted. Ny tabell i Fase 5–7: øk `SKJEMA_VERSJON` og
-legg til et `tilVersjonN`-steg. Id-ene som lages er deterministiske, så gjentatt lesing av
+legg til et `tilVersjonN`-steg (Fase 6 er `tilVersjon4`). Id-ene som lages er deterministiske, så gjentatt lesing av
 en ulagret v1-fil gir de samme id-ene hver gang.
 
 Fase 5 la til `statuser` (`id, name, visesIPlan`) og `endringstyper` (`id, name, kategori`) og
@@ -44,6 +44,17 @@ gir lokasjonsfarge, «fravær» fri-farge. Omgjøringen 2 → 3 gir kategori fra
 som før fikk fri-farge på navn (ferie, fri, avspasering, fridag / helligdag, syk) og
 `visesIPlan` bare til «Godkjent»; et nytt navn som bare skiller seg i store/små bokstaver slås
 sammen med det første. Side: `/admin/endringstyper` (begge listene).
+
+Fase 6 la til `team` (`id, name`) og byttet `oppsett.team`/`lokasjoner.team` (navnet «Øst»/«Vest»)
+mot `teamId`. `endringer.team` er fjernet, som tabelllisten under sier. Skjemaversjonen er 4.
+Rekkefølgen i `team`-tabellen er rekkefølgen i teamvelgeren (ikke alfabetisk, som ville satt Vest
+før Øst); omgjøringen 3 → 4 legger Øst og Vest først og skriver dem alltid slik, og stopper med
+feil hvis en oppsett-rad eller lokasjon mangler team. Id-ene blir `ost` og `vest`. Filteret i
+Ukeplan og Måned er en team-id eller `ALLE_TEAM = "*"` («Alle team», tidligere «Begge»);
+`Ansatt` har både `teamId` (filter og telling) og `team` (navnet, til visning). Sorteringen ved
+«Alle team» går fortsatt på teamnavn. Et team kan ikke slettes mens en person eller en lokasjon
+bruker det, og det siste teamet kan aldri slettes. Side: `/admin/team`. `import-excel.mjs` har
+fortsatt sin egen Øst/Vest-liste: den lager v1, og omgjøringen gjør resten.
 
 Appen skal eie dataene og bygges ikke som en avbildning av Excel-arket. Excel blir
 en engangsinnlasting. Modellen er ekte tabeller med primær- og fremmednøkler, så den

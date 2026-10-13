@@ -1,4 +1,4 @@
-import type { Ansatt, Dag, Endring, Team } from "./vaktlista";
+import type { Ansatt, Dag, Endring } from "./vaktlista";
 import {
   addDays,
   formatIsoDate,
@@ -7,7 +7,11 @@ import {
   weekdaysMonToFri,
 } from "./uker";
 
-export type TeamFilter = Team | "Begge";
+/** Valget som viser alle team. Ingen team-id kan bli `*`, fordi `slugify` bare gir a–z, 0–9 og `-`. */
+export const ALLE_TEAM = "*";
+
+/** En team-id, eller `ALLE_TEAM`. */
+export type TeamFilter = string;
 
 export type UkeplanCelle = {
   iso: string;
@@ -74,7 +78,7 @@ function beregnCelle(person: Ansatt, dagIso: string, personEndringer: Endring[])
 
 function sorterAnsatte(ansatte: Ansatt[], team: TeamFilter): Ansatt[] {
   return [...ansatte].sort((a, b) => {
-    if (team === "Begge" && a.team !== b.team) return a.team.localeCompare(b.team, "nb");
+    if (team === ALLE_TEAM && a.team !== b.team) return a.team.localeCompare(b.team, "nb");
     const ao = a.sortOrder ?? Number.POSITIVE_INFINITY;
     const bo = b.sortOrder ?? Number.POSITIVE_INFINITY;
     if (ao !== bo) return ao - bo;
@@ -106,7 +110,7 @@ export function beregnUkeplan(opts: {
   const endringerPerPerson = godkjentePerPerson(opts.endringer);
 
   const rader: UkeplanRad[] = sorterAnsatte(opts.ansatte, opts.team)
-    .filter((p) => opts.team === "Begge" || p.team === opts.team)
+    .filter((p) => opts.team === ALLE_TEAM || p.teamId === opts.team)
     .filter((p) => dagIso.some((d) => inActivePeriod(p, d)))
     .map((person) => {
       const personEndringer = endringerPerPerson.get(person.id) ?? [];
@@ -134,8 +138,6 @@ export function classifyCelle(celle: UkeplanCelle): CelleType {
   if (celle.endring.kategori === "lokasjon") return "endring-lokasjon";
   return "endring-status";
 }
-
-export const TEAMS: TeamFilter[] = ["Øst", "Vest", "Begge"];
 
 export function forrigeUke(aar: number, uke: number): { aar: number; uke: number } {
   const prev = addDays(isoWeekToMonday(aar, uke), -7);
@@ -179,7 +181,7 @@ export function beregnMaaned(opts: {
 
   const endringerPerPerson = godkjentePerPerson(opts.endringer);
   const rader: UkeplanRad[] = sorterAnsatte(opts.ansatte, opts.team)
-    .filter((p) => opts.team === "Begge" || p.team === opts.team)
+    .filter((p) => opts.team === ALLE_TEAM || p.teamId === opts.team)
     .filter((p) => dagIso.some((d) => inActivePeriod(p, d)))
     .map((person) => {
       const personEndringer = endringerPerPerson.get(person.id) ?? [];

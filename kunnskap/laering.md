@@ -1,5 +1,14 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 6) — Team som data
+
+**Evaluering av forrige økts punkter:**
+- `[les-skjermbildet-først]` ikke utløst: bruker meldte ikke at noe manglet på skjermen. Fase 7 kan utløse den. Videreført, rundetallet står.
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** Fase 6 fikk plass i én økt uten `/compact`, selv om den var den tyngste. Fase 7 kan stå som den er.
+
 ## 2026-10-13 (avslutning Fase 5) — Endringstyper og statuser i Admin
 
 **Evaluering av forrige økts punkter:**

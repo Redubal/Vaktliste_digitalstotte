@@ -2,29 +2,29 @@
 
 import { useActionState } from "react";
 import { endreLokasjon, leggTilLokasjon, slettLokasjon } from "@/app/admin/handlinger";
-import { LOKASJON_MAKSLENGDE, TEAM } from "@/lib/domene";
+import { LOKASJON_MAKSLENGDE, type Team } from "@/lib/domene";
 import { Bruk, Feil } from "./AdminFelles";
 
 export type LokasjonVisning = {
   id: string;
   name: string;
-  team: string;
+  teamId: string;
   antallBrukere: number;
 };
 
-function TeamValg({ verdi }: { verdi: string }) {
+function TeamValg({ team, verdi }: { team: Team[]; verdi: string }) {
   return (
-    <select name="team" defaultValue={verdi} aria-label="Team">
-      {TEAM.map((t) => (
-        <option key={t} value={t}>
-          {t}
+    <select name="teamId" defaultValue={verdi} aria-label="Team">
+      {team.map((t) => (
+        <option key={t.id} value={t.id}>
+          {t.name}
         </option>
       ))}
     </select>
   );
 }
 
-function NyLokasjon({ revisjon }: { revisjon: number }) {
+function NyLokasjon({ team, revisjon }: { team: Team[]; revisjon: number }) {
   const [svar, handling, venter] = useActionState(leggTilLokasjon, null);
   return (
     <form action={handling} className="admin-skjema">
@@ -36,7 +36,7 @@ function NyLokasjon({ revisjon }: { revisjon: number }) {
         maxLength={LOKASJON_MAKSLENGDE}
         required
       />
-      <TeamValg verdi={TEAM[0]} />
+      <TeamValg team={team} verdi={team[0]?.id ?? ""} />
       <button className="uke-btn" type="submit" disabled={venter}>
         Legg til
       </button>
@@ -45,7 +45,15 @@ function NyLokasjon({ revisjon }: { revisjon: number }) {
   );
 }
 
-function LokasjonRad({ lokasjon, revisjon }: { lokasjon: LokasjonVisning; revisjon: number }) {
+function LokasjonRad({
+  lokasjon,
+  team,
+  revisjon,
+}: {
+  lokasjon: LokasjonVisning;
+  team: Team[];
+  revisjon: number;
+}) {
   const [endreSvar, endreHandling, lagrer] = useActionState(endreLokasjon, null);
   const [slettSvar, slettHandling, sletter] = useActionState(slettLokasjon, null);
   const opptatt = lagrer || sletter;
@@ -62,7 +70,7 @@ function LokasjonRad({ lokasjon, revisjon }: { lokasjon: LokasjonVisning; revisj
           maxLength={LOKASJON_MAKSLENGDE}
           required
         />
-        <TeamValg verdi={lokasjon.team} />
+        <TeamValg team={team} verdi={lokasjon.teamId} />
         <Bruk antall={lokasjon.antallBrukere} />
         <button className="uke-btn" type="submit" disabled={opptatt}>
           Lagre
@@ -79,18 +87,20 @@ function LokasjonRad({ lokasjon, revisjon }: { lokasjon: LokasjonVisning; revisj
 
 export function LokasjonAdmin({
   lokasjoner,
+  team,
   revisjon,
 }: {
   lokasjoner: LokasjonVisning[];
+  team: Team[];
   revisjon: number;
 }) {
   // Nøkkelen byttes ved hver lagring, slik at skjemaene får friske verdier og tømmes.
   return (
     <div key={revisjon}>
-      <NyLokasjon revisjon={revisjon} />
+      <NyLokasjon team={team} revisjon={revisjon} />
       <ul className="admin-lokasjoner">
         {lokasjoner.map((l) => (
-          <LokasjonRad key={l.id} lokasjon={l} revisjon={revisjon} />
+          <LokasjonRad key={l.id} lokasjon={l} team={team} revisjon={revisjon} />
         ))}
       </ul>
     </div>

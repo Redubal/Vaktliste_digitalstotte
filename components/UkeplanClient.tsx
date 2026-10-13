@@ -1,19 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Ansatt, Dag, Endring } from "@/lib/vaktlista";
+import type { Ansatt, Dag, Endring, Team } from "@/lib/vaktlista";
 import {
+  ALLE_TEAM,
   beregnUkeplan,
   classifyCelle,
   forrigeUke,
   nesteUke,
-  TEAMS,
   type CelleType,
   type TeamFilter,
 } from "@/lib/ukeplan";
 import { formatDayNumber, formatDayShort, formatWeekRange, isoWeek, todayUtc } from "@/lib/uker";
 
 type Props = {
+  team: Team[];
   ansatte: Ansatt[];
   endringer: Endring[];
   dager: Dag[];
@@ -27,9 +28,9 @@ const CELLE_KLASSE: Record<CelleType, string> = {
   utenfor: "celle celle--utenfor",
 };
 
-export function UkeplanClient({ ansatte, endringer, dager }: Props) {
+export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager }: Props) {
   const today = useMemo(() => isoWeek(todayUtc()), []);
-  const [team, setTeam] = useState<TeamFilter>("Øst");
+  const [team, setTeam] = useState<TeamFilter>(alleTeam[0]?.id ?? ALLE_TEAM);
   const [{ aar, uke }, setUke] = useState<{ aar: number; uke: number }>({
     aar: today.year,
     uke: today.week,
@@ -55,10 +56,11 @@ export function UkeplanClient({ ansatte, endringer, dager }: Props) {
       <div className="ukeplan-toolbar">
         <label className="select-field">
           <span>Team</span>
-          <select value={team} onChange={(e) => setTeam(e.target.value as TeamFilter)}>
-            {TEAMS.map((t) => (
-              <option key={t} value={t}>{t}</option>
+          <select value={team} onChange={(e) => setTeam(e.target.value)}>
+            {alleTeam.map((t) => (
+              <option key={t.id} value={t.id}>{t.name}</option>
             ))}
+            <option value={ALLE_TEAM}>Alle team</option>
           </select>
         </label>
 

@@ -1,19 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Ansatt, Dag, Endring } from "@/lib/vaktlista";
+import type { Ansatt, Dag, Endring, Team } from "@/lib/vaktlista";
 import {
+  ALLE_TEAM,
   beregnMaaned,
   classifyCelle,
   forrigeMaaned,
   nesteMaaned,
-  TEAMS,
   type CelleType,
   type TeamFilter,
 } from "@/lib/ukeplan";
 import { formatDayShort, formatMonthName, todayUtc } from "@/lib/uker";
 
 type Props = {
+  team: Team[];
   ansatte: Ansatt[];
   endringer: Endring[];
   dager: Dag[];
@@ -35,12 +36,12 @@ const FORKLARING: { type: CelleType; tekst: string }[] = [
   { type: "utenfor", tekst: "Ikke aktiv" },
 ];
 
-export function MaanedClient({ ansatte, endringer, dager }: Props) {
+export function MaanedClient({ team: alleTeam, ansatte, endringer, dager }: Props) {
   const today = useMemo(() => {
     const t = todayUtc();
     return { aar: t.getUTCFullYear(), maaned: t.getUTCMonth() + 1 };
   }, []);
-  const [team, setTeam] = useState<TeamFilter>("Øst");
+  const [team, setTeam] = useState<TeamFilter>(alleTeam[0]?.id ?? ALLE_TEAM);
   const [{ aar, maaned }, setMaaned] = useState(today);
 
   const plan = useMemo(
@@ -53,10 +54,11 @@ export function MaanedClient({ ansatte, endringer, dager }: Props) {
       <div className="ukeplan-toolbar">
         <label className="select-field">
           <span>Team</span>
-          <select value={team} onChange={(e) => setTeam(e.target.value as TeamFilter)}>
-            {TEAMS.map((t) => (
-              <option key={t} value={t}>{t}</option>
+          <select value={team} onChange={(e) => setTeam(e.target.value)}>
+            {alleTeam.map((t) => (
+              <option key={t.id} value={t.id}>{t.name}</option>
             ))}
+            <option value={ALLE_TEAM}>Alle team</option>
           </select>
         </label>
 

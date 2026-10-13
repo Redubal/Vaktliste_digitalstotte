@@ -35,7 +35,7 @@ export default async function LokasjonerSide() {
           <h2>Legg til, endre og slett</h2>
           <span className="counter">{lokasjoner.length} lokasjoner</span>
         </div>
-        <LokasjonAdmin lokasjoner={lokasjoner} revisjon={v.revisjon} />
+        <LokasjonAdmin lokasjoner={lokasjoner} team={v.team} revisjon={v.revisjon} />
       </section>
     </main>
   );

@@ -12,8 +12,10 @@ import {
   sjekkLokasjon,
   sjekkRolle,
   sjekkStatus,
+  sjekkTeam,
   slugify,
   statusBrukere,
+  teamBrukere,
   type Svar,
   type Vaktliste,
 } from "@/lib/domene";
@@ -63,10 +65,14 @@ export async function leggTilLokasjon(_forrige: Svar | null, data: FormData): Pr
     data,
     "/admin/lokasjoner",
     (v) => {
-      const sjekket = sjekkLokasjon({ name: tekst(data, "name"), team: tekst(data, "team") }, v.lokasjoner);
+      const sjekket = sjekkLokasjon(
+        { name: tekst(data, "name"), teamId: tekst(data, "teamId") },
+        v.lokasjoner,
+        v.team,
+      );
       if ("feil" in sjekket) return sjekket.feil;
       const id = ledigId(slugify(sjekket.name), new Set(v.lokasjoner.map((l) => l.id)), "lokasjon");
-      v.lokasjoner.push({ id, name: sjekket.name, team: sjekket.team });
+      v.lokasjoner.push({ id, name: sjekket.name, teamId: sjekket.teamId });
       return null;
     },
     "Lokasjonen er lagt til.",
@@ -81,12 +87,13 @@ export async function endreLokasjon(_forrige: Svar | null, data: FormData): Prom
       const lokasjon = v.lokasjoner.find((l) => l.id === tekst(data, "id"));
       if (!lokasjon) return "Lokasjonen finnes ikke lenger. Last siden på nytt.";
       const sjekket = sjekkLokasjon(
-        { name: tekst(data, "name"), team: tekst(data, "team") },
+        { name: tekst(data, "name"), teamId: tekst(data, "teamId") },
         v.lokasjoner.filter((l) => l.id !== lokasjon.id),
+        v.team,
       );
       if ("feil" in sjekket) return sjekket.feil;
       lokasjon.name = sjekket.name;
-      lokasjon.team = sjekket.team;
+      lokasjon.teamId = sjekket.teamId;
       return null;
     },
     "Endringen er lagret.",
@@ -110,6 +117,63 @@ export async function slettLokasjon(_forrige: Svar | null, data: FormData): Prom
       return null;
     },
     "Lokasjonen er slettet.",
+  );
+}
+
+// --- Team ---
+
+export async function leggTilTeam(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(
+    data,
+    "/admin/team",
+    (v) => {
+      const sjekket = sjekkTeam({ name: tekst(data, "name") }, v.team);
+      if ("feil" in sjekket) return sjekket.feil;
+      const id = ledigId(slugify(sjekket.name), new Set(v.team.map((t) => t.id)), "team");
+      v.team.push({ id, name: sjekket.name });
+      return null;
+    },
+    "Teamet er lagt til.",
+  );
+}
+
+export async function endreTeam(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(
+    data,
+    "/admin/team",
+    (v) => {
+      const team = v.team.find((t) => t.id === tekst(data, "id"));
+      if (!team) return "Teamet finnes ikke lenger. Last siden på nytt.";
+      const sjekket = sjekkTeam(
+        { name: tekst(data, "name") },
+        v.team.filter((t) => t.id !== team.id),
+      );
+      if ("feil" in sjekket) return sjekket.feil;
+      team.name = sjekket.name;
+      return null;
+    },
+    "Endringen er lagret.",
+  );
+}
+
+export async function slettTeam(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(
+    data,
+    "/admin/team",
+    (v) => {
+      const team = v.team.find((t) => t.id === tekst(data, "id"));
+      if (!team) return "Teamet finnes ikke lenger. Last siden på nytt.";
+      if (v.team.length === 1) return `«${team.name}» er det eneste teamet og kan ikke slettes.`;
+      const nektet = nektSletting(
+        team,
+        teamBrukere(v, team.id),
+        "Gi det heller et nytt navn, eller flytt dem til et annet team først.",
+      );
+      if (nektet) return nektet;
+      v.team = v.team.filter((t) => t.id !== team.id);
+      return null;
+    },
+    "Teamet er slettet.",
   );
 }
 

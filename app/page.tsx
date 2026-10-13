@@ -6,7 +6,7 @@ import { Tabs, type TabDefinition } from "@/components/Tabs";
 import { UkeplanClient } from "@/components/UkeplanClient";
 import { VaktlisteClient } from "@/components/VaktlisteClient";
 import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
-import { getAnsatte, getDager, getEndringer } from "@/lib/vaktlista";
+import { getAnsatte, getDager, getEndringer, getTeam } from "@/lib/vaktlista";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +14,7 @@ export default async function Home() {
   const ansatte = getAnsatte();
   const endringer = getEndringer();
   const dager = getDager();
+  const team = getTeam();
 
   const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
   const jeg = finnAnsatt(ansatte, valgtId);
@@ -26,12 +27,12 @@ export default async function Home() {
     {
       id: "ukeplan",
       label: "Ukeplan",
-      content: <UkeplanClient ansatte={ansatte} endringer={endringer} dager={dager} />,
+      content: <UkeplanClient team={team} ansatte={ansatte} endringer={endringer} dager={dager} />,
     },
     {
       id: "maaned",
       label: "Måned",
-      content: <MaanedClient ansatte={ansatte} endringer={endringer} dager={dager} />,
+      content: <MaanedClient team={team} ansatte={ansatte} endringer={endringer} dager={dager} />,
     },
   ];
 
@@ -39,7 +40,7 @@ export default async function Home() {
     tabs.push({
       id: "ansatte",
       label: "Ansatte",
-      content: <VaktlisteClient employees={ansatte} />,
+      content: <VaktlisteClient employees={ansatte} team={team} />,
     });
   }
 

@@ -35,6 +35,9 @@ export default async function AdminSide() {
           listene appen bygger på kommer én liste om gangen.
         </p>
         <div className="admin-meny">
+          <Link className="uke-btn" href="/admin/team">
+            Team
+          </Link>
           <Link className="uke-btn" href="/admin/lokasjoner">
             Lokasjoner
           </Link>
@@ -47,7 +50,6 @@ export default async function AdminSide() {
         </div>
         <p className="admin-ingress">Kommer:</p>
         <ul className="admin-liste">
-          <li>Team</li>
           <li>Ansatte — endre rolle, team og lokasjon</li>
         </ul>
         <p className="admin-advarsel">
