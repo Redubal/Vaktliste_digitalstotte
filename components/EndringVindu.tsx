@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { lagreEndring, slettEndring } from "@/app/handlinger";
 import {
   ENDRING_KOMMENTAR_MAKSLENGDE,
@@ -9,7 +9,7 @@ import {
   type Kategori,
   type Svar,
 } from "@/lib/domene";
-import type { UkeplanCelle } from "@/lib/ukeplan";
+import { tidTekst, type UkeplanCelle } from "@/lib/ukeplan";
 import type { Ansatt, Endring } from "@/lib/vaktlista";
 import { Feil } from "./AdminFelles";
 import { hva, periode } from "./Godkjenning";
@@ -23,7 +23,27 @@ export type EndringValg = {
 /** Det vinduet trenger å vite om personen endringen gjelder. */
 type VinduPerson = Pick<Ansatt, "id" | "name" | "teamId">;
 
-type AapenDag = { person: VinduPerson; iso: string; endring: Endring | null };
+/** Klokkeslett i vinduet: 15 minutters steg (i sekunder), og forslaget når «Bestemt klokkeslett» skrus på. */
+const TID_STEG = 900;
+const STANDARD_FRA = "08:00";
+const STANDARD_TIL = "16:00";
+
+/** Hva vinduet viser: skjema for en endring, skjema for en ny (`null`), eller lista over dagens endringer. */
+type Valgt = Endring | "liste" | null;
+
+/** `endringer` er dagens endringer (tom når vinduet åpnes direkte på én endring, fra Godkjenning). */
+type AapenDag = { person: VinduPerson; iso: string; endringer: Endring[]; valgt: Valgt };
+
+/**
+ * Hva som vises når en dag klikkes: ingen endringer gir et tomt skjema; én endring du kan rette åpnes
+ * direkte; ellers lista, der du velger «Rett» eller «Ny endring samme dag».
+ */
+function startValg(endringer: Endring[], aktør: { id: string; erAdmin: boolean }): Valgt {
+  if (endringer.length === 0) return null;
+  const [en] = endringer;
+  if (endringer.length === 1 && kanEndreEndring({ brukerId: en.personId, virkning: en.virkning }, aktør)) return en;
+  return "liste";
+}
 
 type Oppsett = {
   jegId: string | null;
@@ -44,19 +64,26 @@ export function useEndringVindu({ jegId, erAdmin, revisjon, valg }: Oppsett) {
     // `!`/`typeof` og ikke `=== null`: etter en kodeendring kan siden ha gamle data uten feltene.
     if (!jegId || typeof revisjon !== "number" || !valg || celle.utenforPeriode) return undefined;
     if (!erAdmin && person.id !== jegId) return undefined;
-    return () => setAapen({ person, iso: celle.iso, endring: celle.endring ?? null });
+    return () =>
+      setAapen({
+        person,
+        iso: celle.iso,
+        endringer: celle.endringer,
+        valgt: startValg(celle.endringer, { id: jegId, erAdmin }),
+      });
   }
 
   const vindu =
     aapen && jegId && typeof revisjon === "number" && valg ? (
       <Vindu
-        // Ny nøkkel per dag: feltene starter på nytt hver gang vinduet åpnes.
-        key={`${aapen.person.id}-${aapen.iso}-${aapen.endring?.id ?? ""}`}
+        // Ny nøkkel per dag og visning: feltene starter på nytt hver gang vinduet åpnes eller bytter visning.
+        key={`${aapen.person.id}-${aapen.iso}-${valgtNøkkel(aapen.valgt)}`}
         dag={aapen}
         jegId={jegId}
         erAdmin={erAdmin}
         revisjon={revisjon}
         valg={valg}
+        onVelg={(v) => setAapen({ ...aapen, valgt: v })}
         onLukk={() => setAapen(null)}
       />
     ) : null;
@@ -87,23 +114,29 @@ export function useRettVindu({
       setAapen({
         person: { id: endring.personId, name: endring.person, teamId: teamAvPerson[endring.personId] ?? "" },
         iso: endring.fromDate,
-        endring,
+        endringer: [],
+        valgt: endring,
       });
   }
 
   const vindu = aapen ? (
     <Vindu
-      key={`${aapen.person.id}-${aapen.endring?.id ?? ""}`}
+      key={`${aapen.person.id}-${valgtNøkkel(aapen.valgt)}`}
       dag={aapen}
       jegId={jegId}
       erAdmin
       revisjon={revisjon}
       valg={valg}
+      onVelg={() => {}}
       onLukk={() => setAapen(null)}
     />
   ) : null;
 
   return { rett, vindu };
+}
+
+function valgtNøkkel(valgt: Valgt): string {
+  return valgt === "liste" ? "liste" : (valgt?.id ?? "ny");
 }
 
 /** Viser `svar` til noe i skjemaet endres; da forsvinner den gamle feilmeldingen. */
@@ -118,6 +151,7 @@ function Vindu({
   erAdmin,
   revisjon,
   valg,
+  onVelg,
   onLukk,
 }: {
   dag: AapenDag;
@@ -125,6 +159,7 @@ function Vindu({
   erAdmin: boolean;
   revisjon: number;
   valg: EndringValg;
+  onVelg: (valgt: Valgt) => void;
   onLukk: () => void;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -133,11 +168,13 @@ function Vindu({
     if (ref.current && !ref.current.open) ref.current.showModal();
   }, []);
 
-  const { person, endring } = dag;
+  const { person, valgt } = dag;
   const aktør = { id: jegId, erAdmin };
-  // Endringen i cella rettes bare når du får lov; ellers legger vinduet inn en ny.
+  // Endringen rettes bare når du får lov; ellers legger vinduet inn en ny.
   const retter =
-    endring && kanEndreEndring({ brukerId: endring.personId, virkning: endring.virkning }, aktør) ? endring : null;
+    valgt && valgt !== "liste" && kanEndreEndring({ brukerId: valgt.personId, virkning: valgt.virkning }, aktør)
+      ? valgt
+      : null;
 
   const [lagreSvar, lagre, lagrer] = useActionState(lagreEndring, null);
   const [slettSvar, slett, sletter] = useActionState(slettEndring, null);
@@ -152,6 +189,7 @@ function Vindu({
   const [typeId, setTypeId] = useState(retter?.typeId ?? "");
   const [lokasjonId, setLokasjonId] = useState(retter?.lokasjonId ?? "");
   const [fra, setFra] = useState(retter?.fromDate || dag.iso);
+  const [medTid, setMedTid] = useState(Boolean(retter?.fromTime));
   const type = valg.endringstyper.find((t) => t.id === typeId);
   // Lokasjon spørres alltid om: typer som «Flyttet» kan ligge i «Annet». Påkrevd for lokasjonstyper.
   const lokasjonPaakrevd = type?.kategori === "lokasjon";
@@ -164,20 +202,50 @@ function Vindu({
     ? `Rett endring${egen ? "" : ` for ${person.name}`}`
     : `Ny endring${egen ? "" : ` for ${person.name}`}`;
 
-  let merknad: ReactNode = null;
-  if (endring && !retter) {
-    merknad = (
-      <p className="vindu-merknad">
-        Dagen har en godkjent endring ({hva(endring)}, {periode(endring)}). Bare en administrator kan endre den. En ny
-        endring venter på godkjenning og vises i planen når den godkjente er fjernet.
-      </p>
+  if (valgt === "liste") {
+    return (
+      <dialog ref={ref} className="endring-vindu" aria-labelledby="endring-vindu-tittel" onClose={onLukk}>
+        <h2 id="endring-vindu-tittel">Endringer samme dag{egen ? "" : ` for ${person.name}`}</h2>
+        <ul className="vindu-liste">
+          {dag.endringer.map((e) => (
+            <li key={e.id}>
+              <span className="vindu-liste-tekst">
+                {tidTekst(e) && <strong>{tidTekst(e)} </strong>}
+                {hva(e)}
+                <small>
+                  {periode(e)} · {e.virkning === "venter" ? "venter på godkjenning" : "godkjent"}
+                </small>
+              </span>
+              {kanEndreEndring({ brukerId: e.personId, virkning: e.virkning }, aktør) ? (
+                <button className="uke-btn" type="button" onClick={() => onVelg(e)}>
+                  Rett
+                </button>
+              ) : (
+                <small>Bare en administrator kan endre den</small>
+              )}
+            </li>
+          ))}
+        </ul>
+        <p className="vindu-info">
+          {erAdmin
+            ? "En ny endring gjelder med en gang."
+            : "En ny endring venter på godkjenning fra en administrator."}
+        </p>
+        <div className="vindu-knapper">
+          <button className="uke-btn uke-btn--today" type="button" onClick={() => onVelg(null)}>
+            Ny endring samme dag
+          </button>
+          <button className="uke-btn" type="button" onClick={() => ref.current?.close()}>
+            Lukk
+          </button>
+        </div>
+      </dialog>
     );
   }
 
   return (
     <dialog ref={ref} className="endring-vindu" aria-labelledby="endring-vindu-tittel" onClose={onLukk}>
       <h2 id="endring-vindu-tittel">{tittel}</h2>
-      {merknad}
       <form action={lagre} onChange={lagreFeil.skjul} className="vindu-skjema">
         <input type="hidden" name="revisjon" value={revisjon} />
         <input type="hidden" name="id" value={retter?.id ?? ""} />
@@ -220,6 +288,27 @@ function Vindu({
           </label>
         </div>
 
+        <label className="admin-avkryssing">
+          <input type="checkbox" checked={medTid} onChange={(e) => setMedTid(e.target.checked)} /> Bestemt klokkeslett
+        </label>
+        {medTid ? (
+          <>
+            <div className="vindu-datoer">
+              <label className="vindu-felt">
+                <span>Fra kl.</span>
+                <input type="time" name="fromTime" step={TID_STEG} defaultValue={retter?.fromTime || STANDARD_FRA} required />
+              </label>
+              <label className="vindu-felt">
+                <span>Til kl.</span>
+                <input type="time" name="toTime" step={TID_STEG} defaultValue={retter?.toTime || STANDARD_TIL} required />
+              </label>
+            </div>
+            <p className="vindu-info">Gjelder endringen flere dager, er klokkeslettet det samme hver dag.</p>
+          </>
+        ) : (
+          <p className="vindu-info">Uten klokkeslett gjelder endringen hele dagen.</p>
+        )}
+
         <label className="vindu-felt">
           <span>Kommentar (valgfritt)</span>
           <input type="text" name="comment" defaultValue={retter?.comment ?? ""} maxLength={ENDRING_KOMMENTAR_MAKSLENGDE} />
@@ -244,6 +333,16 @@ function Vindu({
           <button className="uke-btn" type="button" onClick={() => ref.current?.close()}>
             Avbryt
           </button>
+          {retter && dag.endringer.length > 0 && (
+            <button className="uke-btn" type="button" onClick={() => onVelg(null)}>
+              Ny endring samme dag
+            </button>
+          )}
+          {dag.endringer.length > 1 && (
+            <button className="uke-btn" type="button" onClick={() => onVelg("liste")}>
+              Tilbake til lista
+            </button>
+          )}
         </div>
       </form>
 

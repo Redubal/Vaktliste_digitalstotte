@@ -30,21 +30,10 @@ verifiseringen av Fase 1, punkt 9.
 
 ## 4. Flere endringer på samme dag, med klokkeslett
 
-Ønsket av Ståle 2026-10-13, under Fase 24. En dag skal kunne ha flere endringer
-med klokkeslett, f.eks. annen lokasjon 08–12 og avspasering resten av dagen.
-- Overlappende klokkeslett for samme person skal gi et **varsel, men ikke stoppes**.
-- Administrator må kunne endre (rette tidene, eller la overlappen stå).
-
-Slik er det i dag (lest i koden, ikke prøvd): en dagcelle viser bare én endring
-(`beregnCelle` i `lib/ukeplan.ts` tar den første som treffer, godkjente først),
-så en endring nummer to samme dag er bare synlig i lister. `fromTime`/`toTime`
-finnes på endringen og vises i perioden, men vinduet for endringer setter dem
-ikke (ny endring lagres med `null`). Trenger plan: celle og prikk må vise flere
-endringer, også i kortlisten og i Måned.
-
-Sett av Ståle 2026-10-13 (skjermbilde, Max, Ukeplan): en endring flyttet til en dag
-som allerede er «okkupert» vises ikke riktig i cella. Trolig samme årsak som over
-(én endring per celle); ikke bekreftet mot Max sine data.
+Fase 35 levert 2026-10-13 (klokkeslett og flere linjer i Ukeplan, se logg). Fase 36
+(Måned) og 37 (varsel ved overlapp) gjenstår i `plan.md`. Ønsket av Ståle under Fase 24.
+Max-tilfellet (endring flyttet til en «okkupert» dag vises ikke riktig) er ikke
+bekreftet mot hans data.
 
 ## 5. Hurtigknapp «Registrer» for administrator, foran Ukeplan
 
@@ -73,6 +62,14 @@ Levert i Fase 31, se logg 2026-10-13. Årsak: faste kolonner låste navnene på 
 Ståle 2026-10-13 under Fase 30: deaktiverte ligger nederst i Admin → Ansatte,
 alle sammen. Med synk fra Entra vokser lista for hver som slutter, og den kan
 ikke listes uendelig. Ikke vurdert hvordan det skal løses. Trenger plan.
+
+## 9. Måned på mobil: mandager kan havne i lørdagskolonnen (hypotese)
+
+Funnet 2026-10-13 ved lesing av koden under planleggingen av punkt 4, ikke sett i
+nettleseren. Kalenderen `.mkal` i `MaanedClient.tsx` har 7 kolonner (M–S), men
+`plan.dager` fra `beregnMaaned` (`lib/ukeplan.ts`) har bare hverdager. Da vil
+mandagen i uke to havne under «L». Avgjøres ved å åpne Måned i et smalt vindu og se
+om datoene står under riktig ukedag.
 
 ## Levert (pekere)
 - Tydelig ulagret (rødt) / lagret (grønt) — Fase 8 gjaldt hele Admin, se logg 2026-10-13. Ønsket sa «over alt»; om endringsvinduet i Ukeplan/Måned trenger det samme, er ikke vurdert.

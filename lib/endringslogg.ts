@@ -81,7 +81,11 @@ export const TABELLER: Tabellinfo[] = [
     entall: "endring i vaktlista",
     overskrift: "Endringer i vaktlista",
     refs: { brukerId: "brukere", lokasjonId: "lokasjoner", statusId: "statuser", typeId: "endringstyper" },
-    etikett: (v, r) => `${navnFra(v, "brukere", String(r.brukerId))}, ${r.fromDate ?? "uten dato"}`,
+    // Med klokkeslett når det finnes: en person kan ha flere endringer samme dag.
+    etikett: (v, r) =>
+      `${navnFra(v, "brukere", String(r.brukerId))}, ${r.fromDate ?? "uten dato"}${
+        r.fromTime && r.toTime ? ` ${r.fromTime}–${r.toTime}` : ""
+      }`,
   },
   {
     nøkkel: "dager",

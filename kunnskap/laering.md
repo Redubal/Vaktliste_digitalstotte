@@ -1,5 +1,18 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 35) — Klokkeslett og flere endringer samme dag
+
+**Evaluering av forrige økts punkter:**
+- `[css-gjenbruk]` — fulgt: før cella fikk flere linjer leste jeg alle reglene for `.celle`, `.celle-aapne`, `.admin-avkryssing` og `.kort-dag`, også i `@media`, og `.celle.celle--flere` er skrevet for å slå `.celle { padding }` i media-blokken. Strykes.
+
+**Brutt, men har allerede en regel (ingen nye STATUS-punkt):** `cd` i Bash (CLAUDE.md, «Bruk aldri `cd` i Bash») ble brukt én gang under kontrollen; `node_modules/next/dist/docs/` ble ikke lest før koden (`AGENTS.md`).
+
+**Nye punkter:**
+- `[nåtid-om-planlagt]` Jeg skrev «slik legger brukeren inn mer enn ett valg» og «klikk på dagen» i nåtid om noe som ikke var bygget, og Ståle svarte to ganger at han ikke fant det («får ikke opp muligheten», «har ikke klokkeslett», «tror ikke jeg har siste versjon»).
+- `[forelder-layout]` Da cella ble høy (fire linjer), endret jeg ikke regelen til beholderen `.kort-dag` (`align-items: center`), og dagnavnet havnet midt på cella. Ståle så det på skjermbildet.
+
+**Fasesnitt:** 35 fikk plass i én økt uten `/compact` (planlegging og bygging i samme økt). Ingen deling foreslått.
+
 ## 2026-10-13 (avslutning Fase 31) — Kolonnene i Admin → Ansatte
 
 **Evaluering av forrige økts punkter:**

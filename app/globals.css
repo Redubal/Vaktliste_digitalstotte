@@ -915,6 +915,59 @@ tbody tr:nth-child(even) {
   z-index: 1;
 }
 
+/* Flere endringer samme dag (Fase 35): cella har ingen egen farge, hver linje har sin egen. `.celle.`
+   slår `.celle { padding }` i @media-blokkene. Knappen uten innhold tas ut av flyten og dekker cella. */
+.celle.celle--flere {
+  padding: 3px;
+  gap: 3px;
+}
+
+.celle--flere > .celle-aapne {
+  position: absolute;
+  inset: 0;
+}
+
+.celle-linje {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+/* Listen over dagens endringer i vinduet. */
+.vindu-liste {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vindu-liste li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+.vindu-liste-tekst {
+  flex: 1 1 160px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.vindu-liste-tekst small {
+  display: block;
+  color: var(--muted);
+}
+
 .celle-aapne:focus-visible::after,
 .prikk-knapp:focus-visible::after {
   outline: 2px solid var(--primary);
@@ -1596,6 +1649,15 @@ a.uke-btn {
   font-size: 0.82rem;
   font-weight: 700;
   color: var(--heading);
+}
+
+/* Dag med flere endringer: høy celle, så dagnavnet står øverst ved første linje i stedet for midt på. */
+.kort-dag:has(.celle--flere) {
+  align-items: start;
+}
+
+.kort-dag:has(.celle--flere) .kort-dag-navn {
+  padding-top: 10px;
 }
 
 .kort-dag-note {

@@ -153,6 +153,60 @@ Fase 29 ✅ 2026-10-13 — detaljer i logg
 
 Fase 31 ✅ 2026-10-13 — detaljer i logg
 
+### TODO punkt 4: flere endringer samme dag (godkjent 2026-10-13)
+
+Dataene tåler allerede flere endringer per dag (`EndringRad.fromTime/toTime`, `ledigId`), så det
+trengs ingen ny skjemaversjon. Det som stopper i dag: `beregnCelle` tar bare én endring, vinduet har
+ikke klokkeslett, og klikk på en dag åpner bare den ene endringen.
+
+- **Beslutning (Ståle, hele dagen):** en endring uten klokkeslett gjelder hele dagen og overlapper
+  alt samme dag, så den gir varsel. Vil man unngå varselet, fyller man inn tider på begge.
+- **Beslutning (Ståle, flere dager):** klokkeslettet gjelder hver dag i perioden, fordi det er
+  enklest å vise i hver celle.
+- **Beslutning (Ståle, varselet):** varselet står så lenge overlappen finnes. Det er en merknad,
+  ikke en feil, og trenger derfor verken kvittering eller nytt felt.
+- **Beslutning (Ståle, Måned):** delt firkant, én farge per endring. Ved flere enn to: de to første
+  pluss et lite tall.
+- **Beslutning (Ståle, farger i Ukeplan):** fargene skal følges også i Ukeplan, med hver linje i
+  cella i sin endringstypes farge, slik at de to visningene ser like ut.
+
+**Regler** (rene funksjoner i `lib/domene.ts`):
+- `EndringSkjema`/`sjekkEndring` får `fromTime`/`toTime`. Begge feltene er tomme, eller begge er
+  TT:MM med til > fra. TT:MM-sjekken trekkes ut av `sjekkSynkInnstillinger` og gjenbrukes.
+  `sjekkEndring` returnerer tidene, så `rettEndring` og `leggTilEndring` tar dem med.
+- `overlapper(a, b)`: samme `brukerId`, minst én felles dato, og tidsrommene krysser hverandre.
+  Uten tid regnes 00:00–24:00. 08–12 og 12–16 overlapper ikke.
+- `finnOverlapp(endringer)` gir et sett med id-er. Avviste endringer telles ikke med.
+
+Fase 35 ✅ 2026-10-13 — detaljer i logg
+
+**Fase 36 — Flere endringer i Måned.**
+- `prikkKlasse`/`tittelFor` i `MaanedClient.tsx` og `.prikk` i CSS gir en delt firkant: to farger,
+  og et lite tall ved flere enn to. Det gjelder både tabellen og `.mkal`.
+- Tooltipen lister alle endringene med tider.
+- Klikk åpner samme dagliste som i Ukeplan.
+- Den grønne ringen og stiplingen for «venter» virker fortsatt.
+
+**Verifisering:** du åpner Måned og ser dagen fra Fase 35 som en firkant med to farger; du holder
+musa over og ser begge endringene med tider; du klikker og ser dagens liste med «Ny endring samme
+dag».
+
+**Fase 37 — Varsel ved overlapp.**
+- `overlapper`/`finnOverlapp` i `lib/domene.ts`.
+- **I vinduet, før lagring:** vinduet får personens andre endringer og viser en gul merknad
+  («Overlapper med avspasering 12–16») mens du fyller ut. Lagre er aldri sperret av den.
+  `utforSom` endres ikke.
+- **I cella:** et lite varselmerke på linjene som overlapper, i Ukeplan og i Måned.
+- **I Admin → Godkjenning:** siden regner ut `finnOverlapp` på serveren og sender inn id-ene, og
+  `VenterListe` viser et merke ved Periode.
+- Sjekk: et midlertidig Node-skript mot `overlapper`, med disse tilfellene: 08–12 og 12–16 (nei),
+  08–12 og 11–16 (ja), hele dagen og 08–12 (ja), man–ons 08–12 og tirsdag 10–14 (ja), en avvist
+  endring (nei), og forskjellige personer (nei).
+
+**Verifisering:** du retter avspaseringen fra Fase 35 til 11–16 og ser den gule merknaden i
+vinduet; du lagrer likevel og ser varselmerket i cella og i Admin → Godkjenning; du retter tilbake
+til 12–16 og ser at merkene forsvinner; en ny endring samme dag uten klokkeslett gir også varsel.
+
 ## Senere (Entra og database)
 Parkert 2026-10-13 etter ønske fra bruker. Fasene er uendret bortsett fra nummer (var 16–19, så 21–24,
 så 22–25, så 30–33; nå 30 og 32–34 etter at TODO punkt 7 ble Fase 31).

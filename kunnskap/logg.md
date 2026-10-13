@@ -1,5 +1,26 @@
 # Logg
 
+## 2026-10-13 — Fase 35 ✅ Klokkeslett og flere endringer samme dag i Ukeplan (planlagt som Fase 35–37 i samme økt)
+
+- **Verifisert av Ståle:** skjermbilder av Ukeplan på bred og smal skjerm viste 13. oktober med fire linjer (Ferie, Fri, 08:00–12:00 Avspasering, 11:00–16:00 Mappeoppgave), alle godkjente, hver i sin farge, i både tabell og kort. Han skrev «ser bra ut» om tidsfeltene og «det ble bra» om dagnavnet. **Ikke oppgitt:** «Rett» fra dagens liste, en vanlig ansatt (ikke administrator) som legger inn endring nummer to, «Godkjenn»/«Avvis» på en linje i en celle med flere, og å rette en endring som har klokkeslett. At «Ny endring samme dag» ble brukt er sluttet ut fra at fire endringer fantes samme dag; han sa det ikke.
+- **Levert (koden):** `EndringSkjema` og `sjekkEndring` har `fromTime`/`toTime` (begge eller ingen, `TT:MM`, til etter fra); `rettEndring` tar nå med nye tider. `UkeplanCelle.endringer` (alle, hele dagen først så etter klokkeslett) i tillegg til `endring` (den første, brukt av Måned til Fase 36). Én linje per endring i `Celle` med egen farge, også i kortene. Vinduet har lista over dagens endringer, «Rett», «Ny endring samme dag» og «Tilbake til lista», og avkrysningen «Bestemt klokkeslett» (08:00–16:00, 15 min steg). Endringsloggens etikett har med klokkeslett.
+- **Beslutning (Claude, tidsfelt; Ståle godtok):** avkrysning i stedet for tidsfelt som alltid er med. Ståle spurte om å sette standard til 08:00 og 15 minutters steg. Et tomt `type="time"`-felt åpner på klokka nå (observert: 23:38), og kan ikke åpnes på 08:00 uten å være utfylt; utfylt som standard ville gjort hver endring tidsbestemt. 16:00 som sluttid valgte Claude selv.
+- **Funn (observert av Ståle, rettet):** på smal skjerm stod dagnavnet midt på en høy celle fordi `.kort-dag` har `align-items: center`. Rettet med `.kort-dag:has(.celle--flere)`. Jeg leste ikke beholderens regel før jeg endret cellas høyde.
+- **Observert i bildene, ikke rettet:** dagen med flere linjer er noen piksler smalere enn dagene med én (3 px indre mellomrom i `.celle--flere`), og klokkeslettet står på egen linje i tabellen men på samme linje i kortet. Ståle ba ikke om rettelse.
+- **Kjent begrensning:** tider fra Excel-importen i annet format enn `TT:MM` vises ikke i tidsfeltet, og blir tomme hvis endringen lagres i vinduet.
+- **Ikke gjort:** `node_modules/next/dist/docs/` ble ikke lest før koden (`AGENTS.md` ber om det); endringene brukte bare mønstre som fantes fra før (`useActionState`, handlinger, klientkomponenter), og `next build` er ikke kjørt.
+- **Sjekk:** `tsc --noEmit` og `npm run lint` grønne kl. 23:51, etter siste kodeendring (CSS for dagnavnet); Node-prøven av klokkeslettreglene 14 av 14 (oppdiktede rader, midlertidig skript, ikke lagret). `next build` ikke kjørt.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 6 treff. Datauttrekk i git 0.
+- STATUS: 43 linjer. fase-slutt: 23:49–23:52, 3 min (målt til commit).
+- Planlagt i planmodus med tyngste modell. Tre faser: Ukeplan (35), Måned (36) og varsel ved overlapp (37).
+- **Lest i koden (ikke prøvd):** dataene tåler allerede flere endringer per dag (`fromTime`/`toTime` finnes, og `ledigId` gir unike id-er), så det trengs ingen ny skjemaversjon. `beregnCelle` tar bare én endring. Klikk åpner bare den ene, så en administrator kan ikke legge til endring nummer to ved å klikke på dagen. `rettEndring` beholder gamle tider fordi `sjekkEndring` ikke returnerer dem. Ingen sjekk for overlapp finnes. `utforSom` kan bare gi feil eller ok.
+- **Beslutning (Ståle, hele dagen):** en endring uten klokkeslett overlapper alt samme dag og gir varsel, slik at man fyller inn tider når man mener deler av dagen.
+- **Beslutning (Ståle, flere dager):** klokkeslettet gjelder hver dag i perioden, fordi det er enklest å vise i hver celle.
+- **Beslutning (Ståle, varselet):** varselet står så lenge overlappen finnes, uten kvittering, fordi det er en merknad og ikke en feil og ikke krever nytt felt.
+- **Beslutning (Ståle, Måned):** delt firkant med én farge per endring; ved flere enn to vises de to første pluss et tall.
+- **Beslutning (Ståle, farger i Ukeplan):** fargene skal følges også i Ukeplan: hver linje i cella får sin endringstypes farge, slik at Ukeplan og Måned ser like ut. Lagt til Fase 35 etter at planen var godkjent.
+- **Hypotese (ført i `TODO.md` 9):** `.mkal` i Måned på mobil har 7 kolonner, men får bare hverdager, så mandager kan havne under «L» fra uke to. Avgjøres ved å se Måned i et smalt vindu.
+
 ## 2026-10-13 — Fase 31 ✅ Kolonnene i Admin → Ansatte
 
 - **Godkjenning:** Ståle ba om faseslutt. **Ikke oppgitt hva som ble sett** i nettleseren (bred skjerm, deaktivert rad, langt navn, smalt vindu), og Claude har ikke sett resultatet selv.

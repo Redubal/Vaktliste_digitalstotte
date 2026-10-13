@@ -16,6 +16,9 @@ export type TeamFilter = string;
 export type UkeplanCelle = {
   iso: string;
   primær: string;
+  /** Alle endringer som treffer dagen (ikke avviste): hele dagen først, så etter klokkeslett. */
+  endringer: Endring[];
+  /** Den første av `endringer`. Måned bruker bare denne fram til den får delt firkant (Fase 36). */
   endring?: Endring;
   utenforPeriode?: boolean;
   /** Dagen er merket fri i Admin → Dager og personen har ingen egen endring den dagen. */
@@ -58,14 +61,10 @@ function inActivePeriod(person: Ansatt, dagIso: string): boolean {
   return true;
 }
 
-// Godkjente først: treffer en godkjent og en ventende endring samme dag, viser cella den godkjente.
-// Den ventende finnes da bare i godkjenningslisten i Admin.
+// Avviste vises ikke i planen. Godkjente og ventende vises begge, hver på sin linje i cella.
 function synligePerPerson(endringer: Endring[]): Map<string, Endring[]> {
   const map = new Map<string, Endring[]>();
-  const synlige = endringer
-    .filter((e) => e.virkning !== "avvist")
-    .sort((a, b) => Number(a.virkning !== "godkjent") - Number(b.virkning !== "godkjent"));
-  for (const e of synlige) {
+  for (const e of endringer.filter((e) => e.virkning !== "avvist")) {
     const arr = map.get(e.personId);
     if (arr) arr.push(e);
     else map.set(e.personId, [e]);
@@ -87,14 +86,29 @@ function erFridag(dager: Dag[], dagIso: string): boolean {
   return dager.some((d) => d.fri && overlapsDate(d.fromDate, d.toDate, dagIso));
 }
 
+/** Klokkeslettene til en endring («08:00–12:00»), eller tom tekst når den gjelder hele dagen. */
+export function tidTekst(e: Endring): string {
+  if (e.fromTime && e.toTime) return `${e.fromTime}–${e.toTime}`;
+  if (e.fromTime) return `fra ${e.fromTime}`;
+  if (e.toTime) return `til ${e.toTime}`;
+  return "";
+}
+
+// Hele dagen først, så stigende klokkeslett. Sorteringen er stabil: ellers står de som i lagret rekkefølge.
+function sorterPaaTid(a: Endring, b: Endring): number {
+  return (a.fromTime || "").localeCompare(b.fromTime || "");
+}
+
 function beregnCelle(person: Ansatt, dagIso: string, personEndringer: Endring[], dager: Dag[]): UkeplanCelle {
   if (!inActivePeriod(person, dagIso)) {
-    return { iso: dagIso, primær: "—", utenforPeriode: true };
+    return { iso: dagIso, primær: "—", endringer: [], utenforPeriode: true };
   }
-  const match = personEndringer.find((e) => overlapsDate(e.fromDate, e.toDate, dagIso));
-  if (match) return { iso: dagIso, primær: endringLabel(match), endring: match };
-  if (erFridag(dager, dagIso)) return { iso: dagIso, primær: "Fri", fridag: true };
-  return { iso: dagIso, primær: person.location || "—" };
+  const treff = personEndringer.filter((e) => overlapsDate(e.fromDate, e.toDate, dagIso)).sort(sorterPaaTid);
+  if (treff.length > 0) {
+    return { iso: dagIso, primær: treff.map(endringLabel).join(" + "), endringer: treff, endring: treff[0] };
+  }
+  if (erFridag(dager, dagIso)) return { iso: dagIso, primær: "Fri", endringer: [], fridag: true };
+  return { iso: dagIso, primær: person.location || "—", endringer: [] };
 }
 
 function sorterAnsatte(ansatte: Ansatt[], team: TeamFilter): Ansatt[] {
@@ -155,9 +169,14 @@ export function classifyCelle(celle: UkeplanCelle): CelleType {
   if (celle.utenforPeriode) return "utenfor";
   if (celle.fridag) return "fri";
   if (!celle.endring) return "lokasjon";
-  if (celle.endring.newLocation) return "endring-lokasjon";
-  if (celle.endring.kategori === "fravaer") return "fri";
-  if (celle.endring.kategori === "lokasjon") return "endring-lokasjon";
+  return classifyEndring(celle.endring);
+}
+
+/** Hvordan én endring skal styles (en linje i cella, eller hele cella når det bare er én). */
+export function classifyEndring(endring: Endring): Exclude<CelleType, "lokasjon" | "utenfor"> {
+  if (endring.newLocation) return "endring-lokasjon";
+  if (endring.kategori === "fravaer") return "fri";
+  if (endring.kategori === "lokasjon") return "endring-lokasjon";
   return "endring-status";
 }
 
@@ -166,11 +185,22 @@ export function egenFarge(celle: UkeplanCelle): string | null {
   return !celle.utenforPeriode && celle.endring?.farge ? celle.endring.farge : null;
 }
 
-/** Cellefarge i ukeplanen: lys flate av fargen, kanten i full farge. */
-export function egenCelleStil(celle: UkeplanCelle): { background: string; borderColor: string; color: string } | undefined {
-  const farge = egenFarge(celle);
-  if (!farge) return undefined;
+type CelleStil = { background: string; borderColor: string; color: string };
+
+/** Lys flate av fargen, kanten i full farge. */
+function fargeStil(farge: string): CelleStil {
   return { background: `color-mix(in srgb, ${farge} 22%, white)`, borderColor: farge, color: "#1f2933" };
+}
+
+/** Cellefarge i ukeplanen. */
+export function egenCelleStil(celle: UkeplanCelle): CelleStil | undefined {
+  const farge = egenFarge(celle);
+  return farge ? fargeStil(farge) : undefined;
+}
+
+/** Fargen til én linje i en celle med flere endringer. */
+export function egenLinjeStil(endring: Endring): CelleStil | undefined {
+  return endring.farge ? fargeStil(endring.farge) : undefined;
 }
 
 export function forrigeUke(aar: number, uke: number): { aar: number; uke: number } {

@@ -127,14 +127,24 @@ export const ENDRING_KOMMENTAR_MAKSLENGDE = 200;
 /** Den som legger inn, retter eller sletter en endring i vaktlista. */
 export type Aktør = { id: string; erAdmin: boolean };
 
-/** Feltene fra vinduet for én endring, som tekst. Tom til-dato = samme dag som fra-datoen. */
+/**
+ * Feltene fra vinduet for én endring, som tekst. Tom til-dato = samme dag som fra-datoen.
+ * Tomme klokkeslett = hele dagen; ellers gjelder klokkeslettene hver dag i perioden.
+ */
 export type EndringSkjema = {
   typeId: string;
   lokasjonId: string;
   fromDate: string;
   toDate: string;
+  fromTime: string;
+  toTime: string;
   comment: string;
 };
+
+/** `TT:MM` på 24 timer. */
+function gyldigKlokkeslett(s: string): boolean {
+  return /^([01]\d|2[0-3]):[0-5]\d$/.test(s);
+}
 
 function gyldigDato(s: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
@@ -151,7 +161,9 @@ function sjekkEndring(
   brukerId: string,
   v: Vaktliste,
   aktør: Aktør,
-): { feil: string } | Pick<EndringRad, "brukerId" | "typeId" | "lokasjonId" | "fromDate" | "toDate" | "comment"> {
+):
+  | { feil: string }
+  | Pick<EndringRad, "brukerId" | "typeId" | "lokasjonId" | "fromDate" | "toDate" | "fromTime" | "toTime" | "comment"> {
   if (!aktør.erAdmin && brukerId !== aktør.id) return { feil: "Du kan bare legge inn endringer for deg selv." };
   if (!v.brukere.some((b) => b.id === brukerId && b.aktiv)) {
     return { feil: "Personen finnes ikke lenger. Last siden på nytt." };
@@ -166,11 +178,29 @@ function sjekkEndring(
   const toDate = rå.toDate || rå.fromDate;
   if (!gyldigDato(toDate)) return { feil: "Til-datoen er ikke en gyldig dato." };
   if (toDate < rå.fromDate) return { feil: "Til-datoen kan ikke være før fra-datoen." };
+  const fromTime = rå.fromTime.trim();
+  const toTime = rå.toTime.trim();
+  if (Boolean(fromTime) !== Boolean(toTime)) {
+    return { feil: "Fyll ut både fra og til klokkeslett, eller la begge stå tomme." };
+  }
+  if (fromTime && !(gyldigKlokkeslett(fromTime) && gyldigKlokkeslett(toTime))) {
+    return { feil: "Klokkeslettet må være på formen TT:MM." };
+  }
+  if (fromTime && toTime <= fromTime) return { feil: "Til-klokkeslettet må være etter fra-klokkeslettet." };
   const comment = rensNavn(rå.comment);
   if (comment.length > ENDRING_KOMMENTAR_MAKSLENGDE) {
     return { feil: `Kommentaren kan ha opptil ${ENDRING_KOMMENTAR_MAKSLENGDE} tegn.` };
   }
-  return { brukerId, typeId: type.id, lokasjonId: rå.lokasjonId || null, fromDate: rå.fromDate, toDate, comment: comment || null };
+  return {
+    brukerId,
+    typeId: type.id,
+    lokasjonId: rå.lokasjonId || null,
+    fromDate: rå.fromDate,
+    toDate,
+    fromTime: fromTime || null,
+    toTime: toTime || null,
+    comment: comment || null,
+  };
 }
 
 /** Kan `aktør` rette endringen? En ansatt: bare egne som venter. En administrator: alle. */
@@ -217,11 +247,11 @@ export function leggTilEndring(v: Vaktliste, brukerId: string, rå: EndringSkjem
     statusId = venterStatus(v.statuser)?.id ?? null;
   }
   const id = ledigId(`endring-${sjekket.fromDate}`, new Set(v.endringer.map((e) => e.id)), "endring");
-  v.endringer.push({ id, ...sjekket, statusId, fromTime: null, toTime: null, avvistGrunn: null });
+  v.endringer.push({ id, ...sjekket, statusId, avvistGrunn: null });
   return null;
 }
 
-/** Retter en endring. Personen, statusen og klokkeslettene står som før. */
+/** Retter en endring. Personen og statusen står som før. */
 export function rettEndring(v: Vaktliste, endringId: string, rå: EndringSkjema, aktør: Aktør): string | null {
   const funnet = finnEndringÅEndre(v, endringId, aktør);
   if ("feil" in funnet) return funnet.feil;
@@ -826,7 +856,7 @@ export function sjekkSynkInnstillinger(rå: {
   intervallTimer: string;
 }): { feil: string } | SynkInnstillinger {
   const klokkeslett = rå.klokkeslett.trim();
-  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(klokkeslett)) return { feil: "Klokkeslettet må være på formen TT:MM." };
+  if (!gyldigKlokkeslett(klokkeslett)) return { feil: "Klokkeslettet må være på formen TT:MM." };
   const intervall = SYNK_INTERVALLER.find((i) => String(i.timer) === rå.intervallTimer);
   if (!intervall) return { feil: "Velg hvor ofte synken skal kjøre." };
   return { klokkeslett, intervallTimer: intervall.timer };

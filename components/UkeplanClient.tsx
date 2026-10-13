@@ -7,10 +7,13 @@ import {
   ALLE_TEAM,
   beregnUkeplan,
   classifyCelle,
+  classifyEndring,
   egenCelleStil,
   egenGodkjent,
+  egenLinjeStil,
   forrigeUke,
   nesteUke,
+  tidTekst,
   venterPaaGodkjenning,
   type CelleType,
   type TeamFilter,
@@ -64,12 +67,58 @@ function Celle({
   revisjon: number | null;
   onAapne?: () => void;
 }) {
+  if (celle.endringer.length > 1) {
+    // Flere endringer samme dag: én linje per endring i sin egen farge. Knappen uten innhold
+    // dekker hele cella (se `.celle--flere` i globals.css), så hele dagen kan trykkes.
+    return (
+      <div className="celle celle--flere">
+        {onAapne && (
+          <button
+            type="button"
+            className="celle-aapne"
+            onClick={onAapne}
+            aria-label={`${celle.primær}, ${person}, ${celle.iso}. Se, legg inn eller endre`}
+          />
+        )}
+        {celle.endringer.map((e) => {
+          const eVenter = e.virkning === "venter";
+          const tid = tidTekst(e);
+          return (
+            <div
+              key={e.id}
+              className={`celle-linje celle--${classifyEndring(e)}${eVenter ? " celle--venter" : ""}`}
+              style={egenLinjeStil(e)}
+            >
+              <span className="celle-tekst">
+                {tid && <strong>{tid} </strong>}
+                {e.newLocation || e.type || "Endring"}
+              </span>
+              {e.newLocation && <span className="celle-badge">{e.type}</span>}
+              {eVenter && <VenterMerke />}
+              {jegId !== null && e.virkning === "godkjent" && e.personId === jegId && <GodkjentMerke />}
+              {eVenter && revisjon !== null && (
+                <BehandleKnapper
+                  endringId={e.id}
+                  revisjon={revisjon}
+                  navn={`${hva(e)} for ${person}, ${periode(e)}`}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
   const venter = venterPaaGodkjenning(celle);
   const godkjent = egenGodkjent(celle, jegId);
   const klasse = CELLE_KLASSE[classifyCelle(celle)] + (venter ? " celle--venter" : "");
+  const tid = celle.endring ? tidTekst(celle.endring) : "";
   const innhold = (
     <>
-      <span className="celle-tekst">{celle.primær}</span>
+      <span className="celle-tekst">
+        {tid && <strong>{tid} </strong>}
+        {celle.primær}
+      </span>
       {celle.endring && celle.endring.newLocation && <span className="celle-badge">{celle.endring.type}</span>}
     </>
   );
@@ -261,17 +310,23 @@ export function UkeplanClient({
                     </div>
                   </th>
                   {rad.celler.map((celle) => {
-                    const tooltip = celle.endring
-                      ? [
-                          celle.endring.type,
-                          celle.endring.newLocation ? `→ ${celle.endring.newLocation}` : null,
-                          celle.endring.comment || null,
-                          venterPaaGodkjenning(celle) ? "– venter på godkjenning" : null,
-                          `(${celle.endring.id})`,
-                        ]
-                          .filter(Boolean)
-                          .join(" ")
-                      : undefined;
+                    const tooltip =
+                      celle.endringer.length > 0
+                        ? celle.endringer
+                            .map((e) =>
+                              [
+                                tidTekst(e) || null,
+                                e.type,
+                                e.newLocation ? `→ ${e.newLocation}` : null,
+                                e.comment || null,
+                                e.virkning === "venter" ? "– venter på godkjenning" : null,
+                                `(${e.id})`,
+                              ]
+                                .filter(Boolean)
+                                .join(" "),
+                            )
+                            .join("\n")
+                        : undefined;
                     return (
                       <td key={celle.iso} title={tooltip}>
                         <Celle

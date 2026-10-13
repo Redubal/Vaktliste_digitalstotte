@@ -26,6 +26,8 @@ function skjema(data: FormData): EndringSkjema {
     lokasjonId: tekst(data, "lokasjonId"),
     fromDate: tekst(data, "fromDate"),
     toDate: tekst(data, "toDate"),
+    fromTime: tekst(data, "fromTime"),
+    toTime: tekst(data, "toTime"),
     comment: tekst(data, "comment"),
   };
 }
