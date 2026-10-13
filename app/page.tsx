@@ -3,12 +3,13 @@ import Link from "next/link";
 import type { EndringValg } from "@/components/EndringVindu";
 import { IdentitetsVelger } from "@/components/IdentitetsVelger";
 import { MaanedClient } from "@/components/MaanedClient";
+import { MineEndringer } from "@/components/MineEndringer";
 import { Tabs, type TabDefinition } from "@/components/Tabs";
 import { UkeplanClient } from "@/components/UkeplanClient";
 import { VaktlisteClient } from "@/components/VaktlisteClient";
 import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
 import { lesVaktliste } from "@/lib/lager";
-import { getAnsatte, getDager, getEndringer, getTeam } from "@/lib/vaktlista";
+import { getAnsatte, getDager, getEndringer, getMineEndringer, getTeam } from "@/lib/vaktlista";
 
 export const dynamic = "force-dynamic";
 
@@ -86,6 +87,15 @@ export default async function Home({
       ),
     },
   ];
+
+  // Egne endringer, valgt ut her på serveren: andres rader og begrunnelser sendes ikke med.
+  if (jeg) {
+    tabs.push({
+      id: "mine",
+      label: "Mine endringer",
+      content: <MineEndringer endringer={getMineEndringer(jeg.id)} />,
+    });
+  }
 
   if (erAdmin) {
     tabs.push({

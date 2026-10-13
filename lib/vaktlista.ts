@@ -126,3 +126,18 @@ export function getEndringer(): Endring[] {
     lokasjonId: e.lokasjonId ?? "",
   }));
 }
+
+/** En egen endring, med begrunnelsen fra «Avvis» (tom når den ikke er avvist eller mangler grunn). */
+export type MinEndring = Endring & { avvistGrunn: string };
+
+/**
+ * Endringene til én person, nyeste først. Begrunnelsen for avvisning er bare med her, ikke i
+ * `getEndringer`, som sendes til alle: den kan handle om personen og skal bare vises til dem.
+ */
+export function getMineEndringer(brukerId: string): MinEndring[] {
+  const grunner = new Map(lesVaktliste().endringer.map((e) => [e.id, e.avvistGrunn ?? ""]));
+  return getEndringer()
+    .filter((e) => e.personId === brukerId)
+    .map((e) => ({ ...e, avvistGrunn: e.virkning === "avvist" ? (grunner.get(e.id) ?? "") : "" }))
+    .sort((a, b) => b.fromDate.localeCompare(a.fromDate) || b.fromTime.localeCompare(a.fromTime));
+}

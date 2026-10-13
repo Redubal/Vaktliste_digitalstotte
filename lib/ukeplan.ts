@@ -76,6 +76,11 @@ export function venterPaaGodkjenning(celle: UkeplanCelle): boolean {
   return !celle.utenforPeriode && celle.endring?.virkning === "venter";
 }
 
+/** Cella viser en godkjent endring for den som har valgt seg selv. Andres godkjente får ikke merke. */
+export function egenGodkjent(celle: UkeplanCelle, jegId: string | null): boolean {
+  return jegId !== null && !celle.utenforPeriode && celle.endring?.virkning === "godkjent" && celle.endring.personId === jegId;
+}
+
 function beregnCelle(person: Ansatt, dagIso: string, personEndringer: Endring[]): UkeplanCelle {
   if (!inActivePeriod(person, dagIso)) {
     return { iso: dagIso, primær: "—", utenforPeriode: true };

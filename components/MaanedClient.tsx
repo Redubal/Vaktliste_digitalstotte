@@ -8,6 +8,7 @@ import {
   beregnMaaned,
   classifyCelle,
   egenFarge,
+  egenGodkjent,
   forrigeMaaned,
   nesteMaaned,
   venterPaaGodkjenning,
@@ -36,12 +37,13 @@ type Props = {
   valg: EndringValg | null;
 };
 
-/** Prikkens klasse, med merke for en endring som venter på godkjenning. */
-function prikkKlasse(celle: UkeplanCelle): string {
-  return PRIKK_KLASSE[classifyCelle(celle)] + (venterPaaGodkjenning(celle) ? " prikk--venter" : "");
+/** Prikkens klasse, med merke for en endring som venter, eller for ens egen godkjente. */
+function prikkKlasse(celle: UkeplanCelle, jegId: string | null): string {
+  const merke = venterPaaGodkjenning(celle) ? " prikk--venter" : egenGodkjent(celle, jegId) ? " prikk--godkjent" : "";
+  return PRIKK_KLASSE[classifyCelle(celle)] + merke;
 }
 
-function tittelFor(celle: UkeplanCelle, dag: Date): string {
+function tittelFor(celle: UkeplanCelle, dag: Date, jegId: string | null): string {
   const e = celle.endring;
   return [
     `${formatDayShort(dag)} ${dag.getUTCDate()}.`,
@@ -49,6 +51,7 @@ function tittelFor(celle: UkeplanCelle, dag: Date): string {
     e && e.newLocation ? e.type : null,
     e?.comment || null,
     venterPaaGodkjenning(celle) ? "venter på godkjenning" : null,
+    egenGodkjent(celle, jegId) ? "godkjent" : null,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -156,6 +159,12 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
           <span className="prikk prikk--endring-status prikk--venter" aria-hidden="true" />
           Venter på godkjenning
         </li>
+        {jegId && (
+          <li>
+            <span className="prikk prikk--endring-status prikk--godkjent" aria-hidden="true" />
+            Din godkjente endring
+          </li>
+        )}
       </ul>
 
       <VenterPanel endringer={endringer} revisjon={erAdmin ? revisjon : null} />
@@ -214,11 +223,11 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
                   </th>
                   {rad.celler.map((celle, i) => {
                     const dag = plan.dager[i];
-                    const tittel = tittelFor(celle, dag);
+                    const tittel = tittelFor(celle, dag, jegId);
                     const aapne = aapneFor(rad.person, celle);
                     const prikk = (
                       <span
-                        className={prikkKlasse(celle)}
+                        className={prikkKlasse(celle, jegId)}
                         style={egenFarge(celle) ? { background: egenFarge(celle)! } : undefined}
                         aria-label={aapne ? undefined : tittel}
                       />
@@ -285,10 +294,10 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
                   ))}
                   {rad.celler.map((celle, i) => {
                     const dag = plan.dager[i];
-                    const tittel = tittelFor(celle, dag);
+                    const tittel = tittelFor(celle, dag, jegId);
                     const aapne = aapneFor(rad.person, celle);
                     const felles = {
-                      className: `mkal-dag ${prikkKlasse(celle)}`,
+                      className: `mkal-dag ${prikkKlasse(celle, jegId)}`,
                       style: egenFarge(celle) ? { background: egenFarge(celle)! } : undefined,
                       title: tittel,
                     };

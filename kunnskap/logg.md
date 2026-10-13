@@ -1,5 +1,19 @@
 # Logg
 
+## 2026-10-13 — Fase 24 ✅ «Mine endringer» med status
+
+- **Levert:** fanen «Mine endringer» (`components/MineEndringer.tsx`, tabell og kort på smal skjerm), vist bare når noen har valgt seg selv. Viser egne endringer, nyeste først, med status (Venter / Godkjent / Avvist), hva, periode, kommentar og begrunnelse fra «Avvis». Leses fra dataene, ingen ny lagring (`getMineEndringer` i `lib/vaktlista.ts`). Merket «Godkjent» på egne godkjente endringer i Ukeplan (`GodkjentMerke`) og grønn heltrukken ring på prikken i Måned (`prikk--godkjent`, `egenGodkjent` i `lib/ukeplan.ts`), med linje i Månedens forklaring.
+- **Verifisert av bruker:** Ståle skrev «ja, det fungerer» på planens verifisering (velge seg, legge inn, se «venter», godkjent og avvist med begrunnelse, godkjent-merket i Ukeplan). Ikke oppgitt: ringen i Måned (prikk og mobilkalender), «Mine endringer» i smalt vindu, at en ansatt ikke ser andres rader.
+- **Utover fasen:** ny post i `TODO.md` (punkt 4) etter ønske fra Ståle: flere endringer på samme dag med klokkeslett, varsel ved overlapp uten stopp, administrator kan endre. Ført som TODO, ikke bygget.
+- **Fasesnitt:** 24 fikk plass i én økt uten `/compact`.
+- **Sjekk:** `tsc --noEmit` og `npm run lint` kjørt grønne i økten etter siste kodeendring; etterpå bare `kunnskap/` og `TODO.md`. `next build` ikke kjørt. STATUS: 43 linjer. Plan: Fase 24 kollapset; TODO: Fase 24-punktet fortettet til peker under «Levert».
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 3 treff. Ingen filer under `data/` i git.
+- fase-slutt: 20:57–21:00, ca. 3 min (inkludert ventetid på svar om plan og TODO).
+
+- **Beslutning (Ståle, godkjent-merket):** bare ens egne godkjente endringer får merket «Godkjent» i Ukeplan og Måned, ikke alle godkjente. Begrunnelse: de fleste endringene er godkjent (alt fra Excel og alt en administrator legger inn), så merke på alle ville merket nesten hver farget celle. Valgt blant tre forslag (egne / alle / bare de en ansatt la inn).
+- **Beslutning (Claude, hva en ansatt får se):** `avvistGrunn` er ikke med i `getEndringer`, som sendes til alle i Ukeplan og Måned. Den hentes bare i `getMineEndringer(brukerId)` i `lib/vaktlista.ts`, kalt fra `app/page.tsx` med id-en fra «Du er». Begrunnelse: en avvisningsgrunn kan handle om personen. Grensen er like svak som «Velg deg selv» til Entra kommer.
+- **Funn (lest i koden, ikke endret):** `getEndringer` sender alle endringer, også andres avviste med kommentar, til nettleseren hos alle; de vises ikke, men ligger i sidedataene. Hører til sikkerhetsgjennomgangen (Fase 29).
+
 ## 2026-10-13 — Fase 23 ✅ Avvis-knapp og bare administrator sletter
 
 - **Levert:** «Avvis» ved siden av «Godkjenn» (Admin → Godkjenning, Ukeplan, lista i Måned) med valgfri begrunnelse i et eget vindu (`AvvisKnapp` i `components/Godkjenning.tsx`, handlingen `avvis` i `app/admin/handlinger.ts`, regelen `avvisEndring` i `lib/domene.ts`). Skjemaversjon 11: `avvistGrunn` på endringen (`tilVersjon11`), og feltet står i endringsloggen som «Begrunnelse for avvisning». `kanSletteEndring` = bare administrator: sjekket i `slettEndring`, og vinduet viser ikke slett-knappen for ansatte. Ansatt kan fortsatt rette egne endringer som venter.

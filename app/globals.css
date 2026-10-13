@@ -765,6 +765,65 @@ tbody tr:nth-child(even) {
   color: #92400e;
 }
 
+/* Ens egen godkjente endring, og avvist i «Mine endringer». Samme form som «Venter»; teksten bærer betydningen. */
+.godkjent-merke,
+.avvist-merke {
+  align-self: flex-start;
+  background: #fff;
+  border-radius: 999px;
+  padding: 1px 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.godkjent-merke {
+  border: 1px solid #15803d;
+  color: #166534;
+}
+
+.avvist-merke {
+  border: 1px solid #b91c1c;
+  color: #991b1b;
+}
+
+.venter-merke {
+  white-space: nowrap;
+}
+
+/* «Mine endringer»: Status-kolonnen tar bredden merket trenger, resten deler det som er igjen. */
+.logg-tabell.mine-tabell {
+  table-layout: auto;
+}
+
+.mine-tabell th:first-child,
+.mine-tabell td:first-child {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.mine-tabell .venter-merke,
+.mine-tabell .godkjent-merke,
+.mine-tabell .avvist-merke {
+  font-size: 0.75rem;
+}
+
+.mine-kort {
+  gap: 4px;
+}
+
+.mine-kort-topp {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.mine-kort-tekst {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
 .godkjenn-skjema {
   display: flex;
   flex-direction: column;
@@ -1138,6 +1197,17 @@ button.mkal-dag {
 }
 
 .mkal .prikk--venter {
+  box-shadow: none;
+}
+
+/* Ens egen godkjente endring: heltrukken grønn ring, der «venter» er stiplet. */
+.prikk--godkjent {
+  outline: 2px solid #15803d;
+  outline-offset: 1px;
+  box-shadow: inset 0 0 0 4px #fff;
+}
+
+.mkal .prikk--godkjent {
   box-shadow: none;
 }
 

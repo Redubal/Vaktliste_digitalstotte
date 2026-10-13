@@ -8,6 +8,7 @@ import {
   beregnUkeplan,
   classifyCelle,
   egenCelleStil,
+  egenGodkjent,
   forrigeUke,
   nesteUke,
   venterPaaGodkjenning,
@@ -16,7 +17,7 @@ import {
   type UkeplanCelle,
 } from "@/lib/ukeplan";
 import { useEndringVindu, type EndringValg } from "./EndringVindu";
-import { BehandleKnapper, hva, periode, VenterMerke, VenterPanel } from "./Godkjenning";
+import { BehandleKnapper, GodkjentMerke, hva, periode, VenterMerke, VenterPanel } from "./Godkjenning";
 import { ariaSort, forstFor, sorterRader } from "@/lib/sortering";
 import { formatDayNumber, formatDayShort, formatWeekRange, isoWeek, todayUtc } from "@/lib/uker";
 import { PERSON_KOLONNER, PERSON_VERDIER, STANDARD_PERSON_SORTERING } from "./personSortering";
@@ -53,15 +54,18 @@ const CELLE_KLASSE: Record<CelleType, string> = {
 function Celle({
   celle,
   person,
+  jegId,
   revisjon,
   onAapne,
 }: {
   celle: UkeplanCelle;
   person: string;
+  jegId: string | null;
   revisjon: number | null;
   onAapne?: () => void;
 }) {
   const venter = venterPaaGodkjenning(celle);
+  const godkjent = egenGodkjent(celle, jegId);
   const klasse = CELLE_KLASSE[classifyCelle(celle)] + (venter ? " celle--venter" : "");
   const innhold = (
     <>
@@ -84,6 +88,7 @@ function Celle({
         innhold
       )}
       {venter && <VenterMerke />}
+      {godkjent && <GodkjentMerke />}
       {venter && revisjon !== null && celle.endring && (
         <BehandleKnapper
           endringId={celle.endring.id}
@@ -272,6 +277,7 @@ export function UkeplanClient({
                         <Celle
                           celle={celle}
                           person={rad.person.name}
+                          jegId={jegId}
                           revisjon={godkjennRevisjon}
                           onAapne={aapneFor(rad.person, celle)}
                         />
@@ -326,6 +332,7 @@ export function UkeplanClient({
                         <Celle
                           celle={celle}
                           person={rad.person.name}
+                          jegId={jegId}
                           revisjon={godkjennRevisjon}
                           onAapne={aapneFor(rad.person, celle)}
                         />

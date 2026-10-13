@@ -28,6 +28,20 @@ Løst i Fase 15 (2026-10-13, kort per person under 768 px), se logg.md. Resten a
 **Beslutning (bruker, 2026-09-30):** vi må finne et bedre format for mobil. Kom opp under
 verifiseringen av Fase 1, punkt 9.
 
+## 4. Flere endringer på samme dag, med klokkeslett
+
+Ønsket av Ståle 2026-10-13, under Fase 24. En dag skal kunne ha flere endringer
+med klokkeslett, f.eks. annen lokasjon 08–12 og avspasering resten av dagen.
+- Overlappende klokkeslett for samme person skal gi et **varsel, men ikke stoppes**.
+- Administrator må kunne endre (rette tidene, eller la overlappen stå).
+
+Slik er det i dag (lest i koden, ikke prøvd): en dagcelle viser bare én endring
+(`beregnCelle` i `lib/ukeplan.ts` tar den første som treffer, godkjente først),
+så en endring nummer to samme dag er bare synlig i lister. `fromTime`/`toTime`
+finnes på endringen og vises i perioden, men vinduet for endringer setter dem
+ikke (ny endring lagres med `null`). Trenger plan: celle og prikk må vise flere
+endringer, også i kortlisten og i Måned.
+
 ## Levert (pekere)
 - Tydelig ulagret (rødt) / lagret (grønt) — Fase 8 gjaldt hele Admin, se logg 2026-10-13. Ønsket sa «over alt»; om endringsvinduet i Ukeplan/Måned trenger det samme, er ikke vurdert.
 - Full logg over alle endringer — Fase 9, se logg 2026-10-13 og `/admin/logg`.
@@ -44,10 +58,10 @@ verifiseringen av Fase 1, punkt 9.
 - Den valgte personen øverst og navn stigende i Ukeplan og Måned — Fase 21 (Ukeplan og Måned hadde ingen standardsortering), se logg 2026-10-13.
 - «Avvis»-knapp med begrunnelse — Fase 23, se logg 2026-10-13. **Beslutning (SR, slette-rett):** bare administrator kan slette en endring (`kanSletteEndring`); ansatt retter egne som venter.
 - Lista over endringer som venter, også i Ukeplan (sett av bruker i Fase 21) — Fase 23 (alle som venter, uansett uke og team), se logg 2026-10-13.
+- Ansatt ser egne endringer med status, begrunnelse og godkjent-merke — Fase 24, se logg 2026-10-13. **Beslutning (SR, beskjed):** i appen, ikke e-post/Teams nå; varsel utenfor appen står igjen under «Senere».
 
-## I planen (Fase 22–29, godkjent 2026-10-13)
+## I planen (Fase 22, 25–29, godkjent 2026-10-13)
 - Figur som vandrer rundt på siden, som «Sheep» — Fase 22.
-- Ansatt ser hva som er godkjent og får beskjed om godkjent/avvist, i en liste over egne endringer (prøvd som Frode i Fase 18 og Max i Fase 19: godkjente har ikke merke) — Fase 24. **Beslutning (SR, beskjed):** i appen, ikke e-post/Teams nå.
 - Rette en endring fra godkjenningslisten i Admin — Fase 25.
 - Dager fra Excel mangler, både skolekalender og fridager — Fase 26 (Admin → Dager, merknader i Måned) og Fase 27 (fridager). Innlastingen leser bare kolonne A–C i arket «Dager», og fridag finnes ikke som begrep.
 - Full mobil- og pad-test — Fase 28.

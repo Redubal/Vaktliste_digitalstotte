@@ -139,13 +139,7 @@ Fase 22A ✅ 2026-10-13 — detaljer i logg
 Fase 22B ✅ 2026-10-13 — detaljer i logg
 Fase 23 ✅ 2026-10-13 — detaljer i logg
 
-**Fase 24 — «Mine endringer» med status (tyngste modell: hva en ansatt får se).**
-Liste for den som har valgt seg selv: egne endringer med venter / godkjent / avvist og begrunnelse.
-Leses fra dataene (ingen ny lagring); viser bare egne rader, sjekket på serveren. Godkjente
-endringer får et merke i Ukeplan og Måned, som de som venter har i dag.
-**Verifisering:** du velger deg selv som ansatt, legger inn en endring, ser den som «venter» i
-lista; administrator godkjenner én og avviser én; du ser «godkjent» og «avvist» med begrunnelsen,
-og godkjent-merket i Ukeplan.
+Fase 24 ✅ 2026-10-13 — detaljer i logg
 
 **Fase 25 — Rette en endring fra godkjenningslista (Sonnet).**
 Hver rad i Admin → Godkjenning får «Rett», som åpner samme vindu (`EndringVindu`) som i Ukeplan.

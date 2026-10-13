@@ -1,5 +1,13 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 24) — «Mine endringer» med status
+
+**Evaluering av forrige økts punkter:** `[sjekk-stilen-som-gjelder]` **fulgt:** stilreglene for `logg-tabell`, `visning-kort` (`display: block` på smal skjerm) og `.table-wrapper` ble lest før egne regler; lista fikk `table-layout: auto` og egen boks rundt kortene. Strøket. `[utseende-spør-først]` **fulgt:** merket ble avklart med tre forslag med enkle skisser før noe ble bygd; strøket.
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** 24 fikk plass i én økt uten `/compact`; ingen deling foreslått.
+
 ## 2026-10-13 (avslutning Fase 23) — Avvis-knapp og bare administrator sletter
 
 **Evaluering av forrige økts punkter:** `[skjemasteg-er-låst-etter-test]` **fulgt:** feltet kom i et nytt steg (`tilVersjon11`), versjon 10 er urørt; strøket. `[klikkflate-hele-ruta]` **fulgt:** «Avvis» har ramme og bakgrunn og er knapp over hele ruta, 44 px på berøring; strøket. `[utseende-spør-først]` ikke utløst (ingen ba om et bestemt utseende; vinduet ble levert som utkast med beskjed om det); Fase 24 lager en ny liste og kan utløse det, videreføres uten ny runde.

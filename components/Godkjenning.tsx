@@ -30,6 +30,16 @@ export function VenterMerke() {
   return <span className="venter-merke">Venter</span>;
 }
 
+/** Tekstmerket på ens egen godkjente endring. */
+export function GodkjentMerke() {
+  return <span className="godkjent-merke">Godkjent</span>;
+}
+
+/** Tekstmerket på en avvist endring (bare i «Mine endringer»; avviste vises ikke i planen). */
+export function AvvistMerke() {
+  return <span className="avvist-merke">Avvist</span>;
+}
+
 /**
  * Godkjenner én endring (hele perioden). Bare for administratorer: handlingen sjekker selv,
  * men knappen vises ikke for andre. Siden lastes på nytt med ny revisjon etter godkjenning.
