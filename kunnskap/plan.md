@@ -85,15 +85,7 @@ Fase 8–15 er mekaniske (Sonnet). Fase 16–19 er arkitektur/sikkerhet (tyngste
 Sjekk per fase: `tsc --noEmit`, `npm run lint` og `next build` grønne ved faseslutt; skjemaomgjøringer
 testes med oppdiktede rader i Node, aldri mot `data/`.
 
-**Fase 8 — Lagret eller ikke lagret i hele Admin.**
-Hver rad husker egne startverdier; endres et felt, får raden rød kant og «Ikke lagret». Etter lagring
-blir den grønn med «Lagret» noen sekunder. Fjern `key={revisjon}`-nullstillingen: raden får nøkkel fra
-egne verdier, og skjult `revisjon` tar alltid siste verdi fra siden, så en lagring i én rad ikke
-visker ut en annen. Advarsel ved å forlate siden med ulagrede rader (`beforeunload`).
-Filer: `components/AdminFelles.tsx` (felles krok + visning), alle `components/*Admin.tsx`, `app/globals.css`.
-**Verifisering:** du endrer team på to ansatte uten å lagre og ser begge radene røde; du lagrer den ene
-og ser den bli grønn mens den andre fortsatt er rød med endringen din i behold; du prøver å lukke
-fanen og får en advarsel.
+Fase 8 ✅ 2026-10-13 — detaljer i logg
 
 **Fase 9 — Full endringslogg.**
 `endreVaktliste` tar kopi før `endre`, sammenligner tabell for tabell på `id` etter, og legger én linje

@@ -62,3 +62,6 @@ Ansatte må kunne legge inn ny status
 
 ##
 legge til etternavn på ansatte i lista i egen kolonne
+
+##
+Mangler en knapp for lagring dersom man gjør mange endringer

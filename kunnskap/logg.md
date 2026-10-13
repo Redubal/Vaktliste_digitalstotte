@@ -1,5 +1,18 @@
 # Logg
 
+## 2026-10-13 — Fase 8 ✅ Lagret eller ikke lagret i hele Admin
+
+- Levert: felles krok `useSkjemaStatus` og visningen `Lagringsstatus` i `components/AdminFelles.tsx`, brukt i alle fem `*Admin.tsx`-filene (ansatte, team, lokasjoner, roller, statuser og endringstyper), og stiler i `app/globals.css`. Raden husker egne startverdier; avviker feltene fra det som er lagret, får den rød kant og «Ikke lagret». Etter vellykket lagring grønn kant og «Lagret» i 4 sekunder. `key={revisjon}` er fjernet, og skjult `revisjon` tar siste verdi fra siden, så en lagring i én rad ikke visker ut en annen. `beforeunload`-advarsel mens en rad er endret.
+- Verifisert av bruker: «fungerer» etter å ha endret to ansatte uten å lagre, lagret den ene og prøvd å lukke fanen.
+- **Beslutning (Claude, skjemaer for «legg til»):** de får samme krok, og tømmes ved at `key` er antall rader, ikke `revisjon`. Begrunnelse: «over alt» i TODO-ønsket, og en lagring i en annen rad skal ikke tømme et halvskrevet skjema.
+- Utestet i nettleser: «Lagret» som grønn kant i selve «legg til»-skjemaene, sjekkboksen «Vises i plan» som endring, sletting av rad med ulagrede endringer i en annen, normalisert navn fra serveren (sammenlignes trimmet).
+- Kjent begrensning (hypotese, ikke prøvd): `beforeunload` fanger lukking av fane og adresselinje, men ikke menyvalg mellom Admin-sider i Next. Det ville avgjøres ved å bytte side med ulagret rad.
+- Bruker ba om en «Lagre alle»-knapp ved mange endringer. Utenfor Fase 8; bruker førte den selv inn i `TODO.md`.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 18 treff.
+- Sjekk: `tsc --noEmit` og `npm run lint` grønne etter siste kodeendring; `next build` kjørt grønt ved faseslutt (alle seks Admin-ruter og forsiden bygger), etterpå bare `kunnskap/`-filer.
+- STATUS: 36 linjer.
+- fase-slutt: 10:54–10:56, 2 min
+
 ## 2026-10-13 — Ny plan: Fase 8–19 (Admin-forbedringer, ansatte og Entra)
 
 - Plan laget i planmodus på tyngste modell og godkjent av bruker. Den dekker ønskene i `TODO.md` pluss «Fast lokasjon»-kolonnen og mobilformat. Se `plan.md`, seksjonen «Admin-forbedringer, ansatte og Entra».

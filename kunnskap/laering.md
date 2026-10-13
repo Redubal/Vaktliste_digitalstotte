@@ -1,5 +1,14 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 8) — Lagret/ikke lagret i Admin
+
+**Evaluering av forrige økts punkter:**
+- `[bash-cd-persisterer]` brutt igjen (2. runde): ved faseoppstart ble `cd app` kjørt to ganger i separate kall og havnet i `app/app`, i samme melding som STATUS (og punktet) ble lest. Oppdaget og rettet med `git -C` og full sti; resten av økten brukte full sti. Videreføres.
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** Fase 8 fikk plass i én økt uten `/compact`. Resten av planen står uendret.
+
 ## 2026-10-13 (avslutning Fase 7) — Ansatte i Admin
 
 **Evaluering av forrige økts punkter:**

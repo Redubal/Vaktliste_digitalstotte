@@ -764,6 +764,38 @@ a.uke-btn {
   min-width: 130px;
 }
 
+/* Lagret / ikke lagret: rød kant på raden mens den har endringer, grønn et øyeblikk etter lagring. */
+.admin-skjema.admin-endret,
+.admin-skjema.admin-lagret {
+  border-left: 4px solid transparent;
+  padding-left: 10px;
+  border-radius: 6px;
+}
+
+.admin-skjema.admin-endret {
+  border-left-color: #c0392b;
+  background: #fdf3f1;
+}
+
+.admin-skjema.admin-lagret {
+  border-left-color: #2e7d32;
+  background: #f1f8f2;
+}
+
+.admin-status {
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-width: 80px;
+}
+
+.admin-endret .admin-status {
+  color: #a5281b;
+}
+
+.admin-lagret .admin-status {
+  color: #1f6b27;
+}
+
 .admin-feil {
   flex-basis: 100%;
   margin: 0;

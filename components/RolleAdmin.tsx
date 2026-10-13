@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { endreRolle, leggTilRolle, slettRolle } from "@/app/admin/handlinger";
 import { ROLLE_MAKSLENGDE } from "@/lib/domene";
-import { Bruk, Feil } from "./AdminFelles";
+import { Bruk, Feil, Lagringsstatus, useSkjemaStatus } from "./AdminFelles";
 
 export type RolleVisning = {
   id: string;
@@ -13,8 +13,9 @@ export type RolleVisning = {
 
 function NyRolle({ revisjon }: { revisjon: number }) {
   const [svar, handling, venter] = useActionState(leggTilRolle, null);
+  const status = useSkjemaStatus({ name: "" }, svar);
   return (
-    <form action={handling} className="admin-skjema">
+    <form action={handling} className={status.skjemaKlasse} onInput={status.onInput}>
       <input type="hidden" name="revisjon" value={revisjon} />
       <input
         name="name"
@@ -26,6 +27,7 @@ function NyRolle({ revisjon }: { revisjon: number }) {
       <button className="uke-btn" type="submit" disabled={venter}>
         Legg til
       </button>
+      <Lagringsstatus endret={status.endret} lagret={status.lagret} />
       <Feil svar={svar} />
     </form>
   );
@@ -35,10 +37,11 @@ function RolleRad({ rolle, revisjon }: { rolle: RolleVisning; revisjon: number }
   const [endreSvar, endreHandling, lagrer] = useActionState(endreRolle, null);
   const [slettSvar, slettHandling, sletter] = useActionState(slettRolle, null);
   const opptatt = lagrer || sletter;
+  const status = useSkjemaStatus({ name: rolle.name }, endreSvar);
 
   return (
     <li>
-      <form action={endreHandling} className="admin-skjema">
+      <form action={endreHandling} className={status.skjemaKlasse} onInput={status.onInput}>
         <input type="hidden" name="revisjon" value={revisjon} />
         <input type="hidden" name="id" value={rolle.id} />
         <input
@@ -55,6 +58,7 @@ function RolleRad({ rolle, revisjon }: { rolle: RolleVisning; revisjon: number }
         <button className="uke-btn" type="submit" formAction={slettHandling} disabled={opptatt}>
           Slett
         </button>
+        <Lagringsstatus endret={status.endret} lagret={status.lagret} />
         <Feil svar={endreSvar} />
         <Feil svar={slettSvar} />
       </form>
@@ -63,10 +67,10 @@ function RolleRad({ rolle, revisjon }: { rolle: RolleVisning; revisjon: number }
 }
 
 export function RolleAdmin({ roller, revisjon }: { roller: RolleVisning[]; revisjon: number }) {
-  // Nøkkelen byttes ved hver lagring, slik at skjemaene får friske verdier og tømmes.
+  // Hver rad husker sine egne verdier. Skjemaet for ny rolle tømmes når antall rader endres.
   return (
-    <div key={revisjon}>
-      <NyRolle revisjon={revisjon} />
+    <div>
+      <NyRolle key={roller.length} revisjon={revisjon} />
       <ul className="admin-lokasjoner">
         {roller.map((r) => (
           <RolleRad key={r.id} rolle={r} revisjon={revisjon} />

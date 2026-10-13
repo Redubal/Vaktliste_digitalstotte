@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { endreAnsatt } from "@/app/admin/handlinger";
 import type { Lokasjon, Rolle, Team } from "@/lib/domene";
-import { Feil } from "./AdminFelles";
+import { Feil, Lagringsstatus, useSkjemaStatus } from "./AdminFelles";
 
 export type AnsattVisning = {
   /** Id-en til oppsettet (ikke brukeren): en person kan ha flere oppsett. */
@@ -18,10 +18,14 @@ type Valg = { team: Team[]; roller: Rolle[]; lokasjoner: Lokasjon[]; teamNavn: M
 
 function AnsattRad({ ansatt, valg, revisjon }: { ansatt: AnsattVisning; valg: Valg; revisjon: number }) {
   const [svar, handling, lagrer] = useActionState(endreAnsatt, null);
+  const status = useSkjemaStatus(
+    { teamId: ansatt.teamId, rolleId: ansatt.rolleId ?? "", lokasjonId: ansatt.lokasjonId ?? "" },
+    svar,
+  );
 
   return (
     <li>
-      <form action={handling} className="admin-skjema">
+      <form action={handling} className={status.skjemaKlasse} onInput={status.onInput}>
         <input type="hidden" name="revisjon" value={revisjon} />
         <input type="hidden" name="id" value={ansatt.id} />
         <strong className="admin-navn">{ansatt.name}</strong>
@@ -55,6 +59,7 @@ function AnsattRad({ ansatt, valg, revisjon }: { ansatt: AnsattVisning; valg: Va
         <button className="uke-btn" type="submit" disabled={lagrer}>
           Lagre
         </button>
+        <Lagringsstatus endret={status.endret} lagret={status.lagret} />
         <Feil svar={svar} />
       </form>
     </li>
@@ -75,9 +80,9 @@ export function AnsattAdmin({
   revisjon: number;
 }) {
   const valg: Valg = { team, roller, lokasjoner, teamNavn: new Map(team.map((t) => [t.id, t.name])) };
-  // Nøkkelen byttes ved hver lagring, slik at skjemaene får friske verdier.
+  // Hver rad husker sine egne verdier; en lagring i én rad nullstiller ikke de andre.
   return (
-    <div key={revisjon}>
+    <div>
       <ul className="admin-lokasjoner">
         {ansatte.map((a) => (
           <AnsattRad key={a.id} ansatt={a} valg={valg} revisjon={revisjon} />

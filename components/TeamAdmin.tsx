@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { endreTeam, leggTilTeam, slettTeam } from "@/app/admin/handlinger";
 import { TEAM_MAKSLENGDE } from "@/lib/domene";
-import { Bruk, Feil } from "./AdminFelles";
+import { Bruk, Feil, Lagringsstatus, useSkjemaStatus } from "./AdminFelles";
 
 export type TeamVisning = {
   id: string;
@@ -13,8 +13,9 @@ export type TeamVisning = {
 
 function NyttTeam({ revisjon }: { revisjon: number }) {
   const [svar, handling, venter] = useActionState(leggTilTeam, null);
+  const status = useSkjemaStatus({ name: "" }, svar);
   return (
-    <form action={handling} className="admin-skjema">
+    <form action={handling} className={status.skjemaKlasse} onInput={status.onInput}>
       <input type="hidden" name="revisjon" value={revisjon} />
       <input
         name="name"
@@ -26,6 +27,7 @@ function NyttTeam({ revisjon }: { revisjon: number }) {
       <button className="uke-btn" type="submit" disabled={venter}>
         Legg til
       </button>
+      <Lagringsstatus endret={status.endret} lagret={status.lagret} />
       <Feil svar={svar} />
     </form>
   );
@@ -35,10 +37,11 @@ function TeamRad({ team, revisjon }: { team: TeamVisning; revisjon: number }) {
   const [endreSvar, endreHandling, lagrer] = useActionState(endreTeam, null);
   const [slettSvar, slettHandling, sletter] = useActionState(slettTeam, null);
   const opptatt = lagrer || sletter;
+  const status = useSkjemaStatus({ name: team.name }, endreSvar);
 
   return (
     <li>
-      <form action={endreHandling} className="admin-skjema">
+      <form action={endreHandling} className={status.skjemaKlasse} onInput={status.onInput}>
         <input type="hidden" name="revisjon" value={revisjon} />
         <input type="hidden" name="id" value={team.id} />
         <input
@@ -55,6 +58,7 @@ function TeamRad({ team, revisjon }: { team: TeamVisning; revisjon: number }) {
         <button className="uke-btn" type="submit" formAction={slettHandling} disabled={opptatt}>
           Slett
         </button>
+        <Lagringsstatus endret={status.endret} lagret={status.lagret} />
         <Feil svar={endreSvar} />
         <Feil svar={slettSvar} />
       </form>
@@ -63,10 +67,10 @@ function TeamRad({ team, revisjon }: { team: TeamVisning; revisjon: number }) {
 }
 
 export function TeamAdmin({ team, revisjon }: { team: TeamVisning[]; revisjon: number }) {
-  // Nøkkelen byttes ved hver lagring, slik at skjemaene får friske verdier og tømmes.
+  // Hver rad husker sine egne verdier. Skjemaet for nytt team tømmes når antall rader endres.
   return (
-    <div key={revisjon}>
-      <NyttTeam revisjon={revisjon} />
+    <div>
+      <NyttTeam key={team.length} revisjon={revisjon} />
       <ul className="admin-lokasjoner">
         {team.map((t) => (
           <TeamRad key={t.id} team={t} revisjon={revisjon} />

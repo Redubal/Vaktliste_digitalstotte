@@ -10,7 +10,7 @@ import {
   slettStatus,
 } from "@/app/admin/handlinger";
 import { ENDRINGSTYPE_MAKSLENGDE, KATEGORIER, STATUS_MAKSLENGDE, type Kategori } from "@/lib/domene";
-import { Feil } from "./AdminFelles";
+import { Feil, Lagringsstatus, useSkjemaStatus } from "./AdminFelles";
 
 export type StatusVisning = {
   id: string;
@@ -36,8 +36,9 @@ function BrukEndringer({ antall }: { antall: number }) {
 
 function NyStatus({ revisjon }: { revisjon: number }) {
   const [svar, handling, venter] = useActionState(leggTilStatus, null);
+  const status = useSkjemaStatus({ name: "", visesIPlan: "on" }, svar);
   return (
-    <form action={handling} className="admin-skjema">
+    <form action={handling} className={status.skjemaKlasse} onInput={status.onInput}>
       <input type="hidden" name="revisjon" value={revisjon} />
       <input
         name="name"
@@ -52,6 +53,7 @@ function NyStatus({ revisjon }: { revisjon: number }) {
       <button className="uke-btn" type="submit" disabled={venter}>
         Legg til
       </button>
+      <Lagringsstatus endret={status.endret} lagret={status.lagret} />
       <Feil svar={svar} />
     </form>
   );
@@ -61,10 +63,14 @@ function StatusRad({ status, revisjon }: { status: StatusVisning; revisjon: numb
   const [endreSvar, endreHandling, lagrer] = useActionState(endreStatus, null);
   const [slettSvar, slettHandling, sletter] = useActionState(slettStatus, null);
   const opptatt = lagrer || sletter;
+  const skjema = useSkjemaStatus(
+    { name: status.name, visesIPlan: status.visesIPlan ? "on" : "" },
+    endreSvar,
+  );
 
   return (
     <li>
-      <form action={endreHandling} className="admin-skjema">
+      <form action={endreHandling} className={skjema.skjemaKlasse} onInput={skjema.onInput}>
         <input type="hidden" name="revisjon" value={revisjon} />
         <input type="hidden" name="id" value={status.id} />
         <input
@@ -84,6 +90,7 @@ function StatusRad({ status, revisjon }: { status: StatusVisning; revisjon: numb
         <button className="uke-btn" type="submit" formAction={slettHandling} disabled={opptatt}>
           Slett
         </button>
+        <Lagringsstatus endret={skjema.endret} lagret={skjema.lagret} />
         <Feil svar={endreSvar} />
         <Feil svar={slettSvar} />
       </form>
@@ -105,8 +112,9 @@ function KategoriValg({ verdi, navn }: { verdi?: Kategori; navn: string }) {
 
 function NyType({ revisjon }: { revisjon: number }) {
   const [svar, handling, venter] = useActionState(leggTilEndringstype, null);
+  const status = useSkjemaStatus({ name: "", kategori: "annet" }, svar);
   return (
-    <form action={handling} className="admin-skjema">
+    <form action={handling} className={status.skjemaKlasse} onInput={status.onInput}>
       <input type="hidden" name="revisjon" value={revisjon} />
       <input
         name="name"
@@ -119,6 +127,7 @@ function NyType({ revisjon }: { revisjon: number }) {
       <button className="uke-btn" type="submit" disabled={venter}>
         Legg til
       </button>
+      <Lagringsstatus endret={status.endret} lagret={status.lagret} />
       <Feil svar={svar} />
     </form>
   );
@@ -128,10 +137,11 @@ function TypeRad({ type, revisjon }: { type: TypeVisning; revisjon: number }) {
   const [endreSvar, endreHandling, lagrer] = useActionState(endreEndringstype, null);
   const [slettSvar, slettHandling, sletter] = useActionState(slettEndringstype, null);
   const opptatt = lagrer || sletter;
+  const status = useSkjemaStatus({ name: type.name, kategori: type.kategori }, endreSvar);
 
   return (
     <li>
-      <form action={endreHandling} className="admin-skjema">
+      <form action={endreHandling} className={status.skjemaKlasse} onInput={status.onInput}>
         <input type="hidden" name="revisjon" value={revisjon} />
         <input type="hidden" name="id" value={type.id} />
         <input
@@ -149,6 +159,7 @@ function TypeRad({ type, revisjon }: { type: TypeVisning; revisjon: number }) {
         <button className="uke-btn" type="submit" formAction={slettHandling} disabled={opptatt}>
           Slett
         </button>
+        <Lagringsstatus endret={status.endret} lagret={status.lagret} />
         <Feil svar={endreSvar} />
         <Feil svar={slettSvar} />
       </form>
@@ -157,10 +168,10 @@ function TypeRad({ type, revisjon }: { type: TypeVisning; revisjon: number }) {
 }
 
 export function StatusAdmin({ statuser, revisjon }: { statuser: StatusVisning[]; revisjon: number }) {
-  // Nøkkelen byttes ved hver lagring, slik at skjemaene får friske verdier og tømmes.
+  // Hver rad husker sine egne verdier. Skjemaet for ny status tømmes når antall rader endres.
   return (
-    <div key={revisjon}>
-      <NyStatus revisjon={revisjon} />
+    <div>
+      <NyStatus key={statuser.length} revisjon={revisjon} />
       <ul className="admin-lokasjoner">
         {statuser.map((s) => (
           <StatusRad key={s.id} status={s} revisjon={revisjon} />
@@ -172,8 +183,8 @@ export function StatusAdmin({ statuser, revisjon }: { statuser: StatusVisning[];
 
 export function TypeAdmin({ typer, revisjon }: { typer: TypeVisning[]; revisjon: number }) {
   return (
-    <div key={revisjon}>
-      <NyType revisjon={revisjon} />
+    <div>
+      <NyType key={typer.length} revisjon={revisjon} />
       <ul className="admin-lokasjoner">
         {typer.map((t) => (
           <TypeRad key={t.id} type={t} revisjon={revisjon} />
