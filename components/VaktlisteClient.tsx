@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ariaSort, sorterRader } from "@/lib/sortering";
+import { ariaSort, delNavn, sorterRader, type Sortering } from "@/lib/sortering";
 import type { Employee, Team } from "@/lib/vaktlista";
 import { SorterKnapp, useSortering } from "./Sortering";
 
 const KOLONNER = [
-  { id: "navn", tittel: "Navn" },
+  { id: "navn", tittel: "Fornavn" },
+  { id: "etternavn", tittel: "Etternavn" },
   { id: "team", tittel: "Team" },
   { id: "rolle", tittel: "Rolle" },
   { id: "lokasjon", tittel: "Fast lokasjon" },
@@ -14,8 +15,10 @@ const KOLONNER = [
   { id: "til", tittel: "Aktiv til" },
 ];
 const KOLONNE_IDER = KOLONNER.map((k) => k.id);
+const STANDARD_SORTERING: Sortering = { kolonne: "navn", retning: "stigende" };
 const VERDIER: Record<string, (p: Employee) => string> = {
   navn: (p) => p.name,
+  etternavn: (p) => delNavn(p.name).etternavn,
   team: (p) => p.team,
   rolle: (p) => p.role,
   lokasjon: (p) => p.location,
@@ -42,7 +45,7 @@ export function VaktlisteClient({ employees, team }: { employees: Employee[]; te
     });
   }, [employees, search, teamFilter]);
 
-  const { sortering, sorterPaa } = useSortering(KOLONNE_IDER);
+  const { sortering, sorterPaa } = useSortering(KOLONNE_IDER, STANDARD_SORTERING);
   const sorterte = useMemo(
     () => sorterRader(filteredEmployees, sortering, VERDIER),
     [filteredEmployees, sortering],
@@ -143,7 +146,10 @@ export function VaktlisteClient({ employees, team }: { employees: Employee[]; te
               {sorterte.map((person) => (
                 <tr key={`${person.teamId}-${person.id}`}>
                   <td>
-                    <span className="person-name">{person.name}</span>
+                    <span className="person-name">{delNavn(person.name).fornavn}</span>
+                  </td>
+                  <td>
+                    <span className="person-name">{delNavn(person.name).etternavn}</span>
                   </td>
                   <td>
                     <span className="status-tag">{person.team}</span>

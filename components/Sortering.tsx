@@ -13,9 +13,10 @@ import {
  * Sorteringen fra adressen (`?sorter=`). Å klikke en overskrift bytter bare adressen på stedet
  * (`replaceState`), uten å hente siden på nytt og uten ny rad i nettleserhistorikken.
  */
-export function useSortering(kolonner: readonly string[]) {
+export function useSortering(kolonner: readonly string[], standard: Sortering | null = null) {
   const params = useSearchParams();
-  const sortering = lesSortering(params.get("sorter"), kolonner);
+  // Uten `?sorter=` (eller med en ukjent kolonne) gjelder `standard`.
+  const sortering = lesSortering(params.get("sorter"), kolonner) ?? standard;
 
   function sorterPaa(kolonne: string) {
     const url = new URL(window.location.href);

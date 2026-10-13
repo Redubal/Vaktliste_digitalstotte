@@ -1,5 +1,33 @@
 # Logg
 
+## 2026-10-13 — Fase 17 ✅ Små rettinger (etternavn, navn A–Å, egne farger)
+
+- Levert: Ansatte-fanen og Admin → Ansatte har kolonnene «Fornavn» og «Etternavn» (`delNavn` i `lib/sortering.ts`; navnet er ett felt, siste ord er etternavn). `useSortering` tar en standardsortering; begge lister starter på navn stigende. Endringstyper har valgfri egen farge (`farge: string | null` som `#rrggbb`, `Endringstype` i `lib/domene.ts`), valgt i Admin → Endringstyper (`KategoriOgFarge` i `components/EndringstypeAdmin.tsx`) og brukt i Ukeplan (cellefarge, `egenCelleStil`) og Måned (prikk og kalenderdag, `egenFarge` i `lib/ukeplan.ts`). Skjemaversjon 7 → 9 (`tilVersjon7–9`).
+- **Beslutning (Claude, etternavn):** «Fornavn»-kolonnen beholder sorteringsnøkkelen `navn` (hele navnet), «Etternavn» sorterer på siste ord. Begrunnelse: gamle adresser med `?sorter=navn` virker fortsatt, og planen ba om «navn stigende» som standard.
+- **Beslutning (Claude, farge):** `null` betyr standardfargen for kategorien fra stilarket (`STANDARDFARGER`: fravær `#9ab548`, lokasjon `#5b9bd5`, annet `#f2c94c`); fargen sjekkes som `#rrggbb` fordi den havner i en style-verdi.
+- **Beslutning (bruker, standardfarge):** «hvis fargene er fra stilarket, skal det ikke være avhuket for egen farge». Begrunnelse: bruker så alle typer avhuket etter at jeg la de gamle fargene inn som egne (versjon 8). Rettet i versjon 9: en farge lik standarden for kategorien settes tilbake til `null`.
+- Observert: bruker hadde lagret «Annet» med rosa før de gamle fargene kom inn, så datafila sto allerede på versjon 7 og et endret versjon 7-steg ble hoppet over. Dermed to nye versjonssteg (8 og 9) for ett felt; versjon 8 og 9 kjører samme funksjon. Observert: fargevelgeren viste fast blå på alle rader uten hake; den viser nå standardfargen for valgt kategori og bytter når kategorien byttes.
+- Kjent endring: en endring med ny lokasjon var alltid blå; har typen egen farge, følger den nå typens farge. Uten egen farge er det som før.
+- Bruker bekreftet «ok, det fungerer» på Admin → Endringstyper etter siste rettelse. Etternavn-kolonnen, navn A–Å som standard og fargene i Ukeplan og Måned ble ikke nevnt særskilt. Ikke testet: oppgraderingen mot en ekte versjon 7-fil (ikke kjørt i Node), kolonnebredden i Admin → Ansatte med to navnekolonner under 1280 px, `next build`.
+- `tsc --noEmit` og `npm run lint` grønne etter siste kodeendring (`KategoriOgFarge`). Fase 16-arbeidet lå ucommittet fra forrige økt og følger med i samme commit.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 2 treff. `data/` er ikke i git.
+- STATUS er 41 linjer (tak 45). fase-slutt: 14:32–14:34 fram til commit.
+
+## 2026-10-13 — Fase 16 ✅ «Lagre alle» og rollefilter
+
+- Levert: «Lagre alle» i Admin → Ansatte lagrer alle rader med ulagrede endringer i én lagring (`lagreAlleAnsatte` i `app/admin/handlinger.ts`, alt eller ingenting, samme sjekker som `endreAnsatt`; to oppsett for samme bruker med ulik adminstatus nektes). Radene sier fra til `AnsattAdmin` via `meldEndret`; verdiene leses fra radskjemaene (`data-oppsett`) idet knappen trykkes; radene nullstilles med samme `versjon`-mekanisme som masseendring. Rollefilter (`?rolle=`, `components/Rollefilter.tsx`) i Ukeplan og Måned, filtrerer både tabell og kort.
+- Rettet etter bruker: statustekst tar plassen til «Kom inn» så raden ikke vokser; knappene i masse-linja på egen linje 2 (to rader: valg, knapper); «Bruk på valgte» og «Deaktiver valgte» er grået ut uten avkrysning; en gammel feilmelding skjules når avkrysningen endres.
+- **Beslutning (bruker, plassering):** knappene flyttes til linje to i masse-linja. Begrunnelse: blandingen av valg og knapper på én linje ble «hulter til bulter».
+- Bruker bekreftet «det fungerer» etter at oppsettet var rettet; rollefilteret ble ikke nevnt særskilt. `tsc --noEmit` og `npm run lint` grønne etter siste kodeendring; `next build` ikke kjørt. Ikke prøvd: ugyldig rad blant gyldige i «Lagre alle», flere oppsett for samme bruker, rollefilter i Måned og på smal skjerm.
+
+## 2026-10-13 — Planendring: Entra og database parkert
+
+**Beslutning (bruker, Entra og import):** alt som har med Entra og import å gjøre flyttes til senere.
+Begrunnelse oppgitt ikke; tilgangene (app-registrering, Graph, database) og behandlingsgrunnlaget
+(`TODO.md` punkt 1) mangler uansett. Gamle Fase 16–19 er nå Fase 21–24 under «Senere» i `plan.md`.
+**Beslutning (bruker, neste faser):** i stedet kommer Fase 16 «Lagre alle» og rollefilter, 17 små
+rettinger, 18 godkjenningsliste, 19 status direkte i planen, 20 mobil/pad-test og logo. Ingen kode endret.
+
 ## 2026-10-13 — Fase 15 ✅ Bedre format på mobil
 
 - Levert: under 768 px skjules tabellene i Ukeplan og Måned (`.visning-tabell`) og en kortliste vises (`.visning-kort`, begge i `globals.css`). Ukeplan: ett kort per person, dagene under hverandre med lokasjon, farge og dagsmerknad. Måned: ett kort per person med kalender i sju kolonner (M T O T F L S), fargede ruter med dagnummer, første dag i riktig ukedagskolonne. Navn-/Rolle-sortering er flyttet over kortlisten. Uthevingen fra Admin ruller til det synlige elementet (tabellrad eller kort, valgt med `offsetParent`).

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import {
   endreEndringstype,
   endreStatus,
@@ -9,7 +9,13 @@ import {
   slettEndringstype,
   slettStatus,
 } from "@/app/admin/handlinger";
-import { ENDRINGSTYPE_MAKSLENGDE, KATEGORIER, STATUS_MAKSLENGDE, type Kategori } from "@/lib/domene";
+import {
+  ENDRINGSTYPE_MAKSLENGDE,
+  KATEGORIER,
+  STANDARDFARGER,
+  STATUS_MAKSLENGDE,
+  type Kategori,
+} from "@/lib/domene";
 import { Feil, Lagringsstatus, useSkjemaStatus } from "./AdminFelles";
 
 export type StatusVisning = {
@@ -23,6 +29,7 @@ export type TypeVisning = {
   id: string;
   name: string;
   kategori: Kategori;
+  farge: string | null;
   antallBrukere: number;
 };
 
@@ -98,21 +105,54 @@ function StatusRad({ status, revisjon }: { status: StatusVisning; revisjon: numb
   );
 }
 
-function KategoriValg({ verdi, navn }: { verdi?: Kategori; navn: string }) {
+/**
+ * Kategori og farge hører sammen: uten «Egen farge» viser fargefeltet (grået) standardfargen for
+ * valgt kategori. Fargefeltet sendes bare med når «Egen farge» er på.
+ */
+function KategoriOgFarge({
+  kategori: start,
+  farge,
+  navn,
+}: {
+  kategori?: Kategori;
+  farge?: string | null;
+  navn: { kategori: string; farge: string };
+}) {
+  const [kategori, setKategori] = useState<Kategori>(start ?? "annet");
+  const [paa, setPaa] = useState(Boolean(farge));
+  const [valgt, setValgt] = useState<string | null>(farge ?? null);
   return (
-    <select name="kategori" defaultValue={verdi ?? "annet"} aria-label={navn}>
-      {KATEGORIER.map((k) => (
-        <option key={k.id} value={k.id}>
-          {k.navn}
-        </option>
-      ))}
-    </select>
+    <>
+      <select
+        name="kategori"
+        value={kategori}
+        onChange={(e) => setKategori(e.target.value as Kategori)}
+        aria-label={navn.kategori}
+      >
+        {KATEGORIER.map((k) => (
+          <option key={k.id} value={k.id}>
+            {k.navn}
+          </option>
+        ))}
+      </select>
+      <label className="admin-avkryssing">
+        <input type="checkbox" name="egenFarge" checked={paa} onChange={(e) => setPaa(e.target.checked)} /> Egen farge
+      </label>
+      <input
+        type="color"
+        name="farge"
+        value={paa ? (valgt ?? STANDARDFARGER[kategori]) : STANDARDFARGER[kategori]}
+        onChange={(e) => setValgt(e.target.value)}
+        disabled={!paa}
+        aria-label={navn.farge}
+      />
+    </>
   );
 }
 
 function NyType({ revisjon }: { revisjon: number }) {
   const [svar, handling, venter] = useActionState(leggTilEndringstype, null);
-  const status = useSkjemaStatus({ name: "", kategori: "annet" }, svar);
+  const status = useSkjemaStatus({ name: "", kategori: "annet", egenFarge: "", farge: "" }, svar);
   return (
     <form action={handling} className={status.skjemaKlasse} onInput={status.onInput}>
       <input type="hidden" name="revisjon" value={revisjon} />
@@ -123,7 +163,7 @@ function NyType({ revisjon }: { revisjon: number }) {
         maxLength={ENDRINGSTYPE_MAKSLENGDE}
         required
       />
-      <KategoriValg navn="Kategori for ny endringstype" />
+      <KategoriOgFarge navn={{ kategori: "Kategori for ny endringstype", farge: "Farge for ny endringstype" }} />
       <button className="uke-btn" type="submit" disabled={venter}>
         Legg til
       </button>
@@ -137,7 +177,10 @@ function TypeRad({ type, revisjon }: { type: TypeVisning; revisjon: number }) {
   const [endreSvar, endreHandling, lagrer] = useActionState(endreEndringstype, null);
   const [slettSvar, slettHandling, sletter] = useActionState(slettEndringstype, null);
   const opptatt = lagrer || sletter;
-  const status = useSkjemaStatus({ name: type.name, kategori: type.kategori }, endreSvar);
+  const status = useSkjemaStatus(
+    { name: type.name, kategori: type.kategori, egenFarge: type.farge ? "on" : "", farge: type.farge ?? "" },
+    endreSvar,
+  );
 
   return (
     <li>
@@ -151,7 +194,11 @@ function TypeRad({ type, revisjon }: { type: TypeVisning; revisjon: number }) {
           maxLength={ENDRINGSTYPE_MAKSLENGDE}
           required
         />
-        <KategoriValg verdi={type.kategori} navn={`Kategori for ${type.name}`} />
+        <KategoriOgFarge
+          kategori={type.kategori}
+          farge={type.farge}
+          navn={{ kategori: `Kategori for ${type.name}`, farge: `Farge for ${type.name}` }}
+        />
         <BrukEndringer antall={type.antallBrukere} />
         <button className="uke-btn" type="submit" disabled={opptatt}>
           Lagre

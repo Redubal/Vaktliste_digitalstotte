@@ -7,6 +7,7 @@ import {
   ALLE_TEAM,
   beregnUkeplan,
   classifyCelle,
+  egenCelleStil,
   forrigeUke,
   nesteUke,
   type CelleType,
@@ -15,6 +16,7 @@ import {
 import { ariaSort, sorterRader } from "@/lib/sortering";
 import { formatDayNumber, formatDayShort, formatWeekRange, isoWeek, todayUtc } from "@/lib/uker";
 import { PERSON_KOLONNER, PERSON_VERDIER } from "./personSortering";
+import { Rollevelger, useRollefilter } from "./Rollefilter";
 import { SorterKnapp, useSortering } from "./Sortering";
 
 type Props = {
@@ -59,9 +61,16 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdm
   );
 
   const { sortering, sorterPaa } = useSortering(PERSON_KOLONNER);
+  const roller = useMemo(() => [...new Set(ansatte.map((a) => a.role))].sort((a, b) => a.localeCompare(b, "nb")), [ansatte]);
+  const { rolle, velgRolle } = useRollefilter(roller);
   const rader = useMemo(
-    () => sorterRader(ukeplan.rader, sortering, PERSON_VERDIER),
-    [ukeplan.rader, sortering],
+    () =>
+      sorterRader(
+        rolle === null ? ukeplan.rader : ukeplan.rader.filter((r) => r.person.role === rolle),
+        sortering,
+        PERSON_VERDIER,
+      ),
+    [ukeplan.rader, rolle, sortering],
   );
 
   const goToday =() => setUke({ aar: today.year, uke: today.week });
@@ -86,6 +95,8 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdm
             <option value={ALLE_TEAM}>Alle team</option>
           </select>
         </label>
+
+        <Rollevelger roller={roller} rolle={rolle} onVelg={velgRolle} />
 
         <div className="uke-nav" aria-label="Naviger uke">
           <button type="button" onClick={goPrev} className="uke-btn" aria-label="Forrige uke">
@@ -140,7 +151,7 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdm
               </tr>
             </thead>
             <tbody>
-              {ukeplan.rader.length === 0 && (
+              {rader.length === 0 && (
                 <tr>
                   <td colSpan={ukeplan.dager.length + 1} className="empty-row">
                     Ingen aktive personer denne uken.
@@ -181,7 +192,7 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdm
                       : undefined;
                     return (
                       <td key={celle.iso} title={tooltip}>
-                        <div className={CELLE_KLASSE[type]}>
+                        <div className={CELLE_KLASSE[type]} style={egenCelleStil(celle)}>
                           <span className="celle-tekst">{celle.primær}</span>
                           {celle.endring && celle.endring.newLocation && (
                             <span className="celle-badge">{celle.endring.type}</span>
@@ -205,7 +216,7 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdm
               Rolle
             </SorterKnapp>
           </div>
-          {ukeplan.rader.length === 0 && <p className="empty-row">Ingen aktive personer denne uken.</p>}
+          {rader.length === 0 && <p className="empty-row">Ingen aktive personer denne uken.</p>}
           <ul className="kortliste">
             {rader.map((rad) => (
               <li
@@ -235,7 +246,7 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdm
                           {formatDayShort(d)} {formatDayNumber(d)}
                           {noter.length > 0 && <span className="kort-dag-note">{noter.join(", ")}</span>}
                         </span>
-                        <div className={CELLE_KLASSE[classifyCelle(celle)]}>
+                        <div className={CELLE_KLASSE[classifyCelle(celle)]} style={egenCelleStil(celle)}>
                           <span className="celle-tekst">{celle.primær}</span>
                           {celle.endring && celle.endring.newLocation && (
                             <span className="celle-badge">{celle.endring.type}</span>

@@ -40,8 +40,8 @@ Mulig å gå fra ansatt på main til ansatt på admin — levert i Fase 12, se l
 ## Ansatte og synk mot Entra
 - Kom inn, deaktivering og adminstatus — levert i Fase 10, se logg 2026-10-13 og `/admin/ansatte`.
 - Mulig å gjøre masse endringer (flere ansatte om gangen)
-- Synk mot Entra: sette når og hvor ofte, og kunne tvinge en synk
-- Det kan hende andre parametere må settes for å få synken til å virke
+- Synk mot Entra: sette når og hvor ofte, og kunne tvinge en synk — parkert, Fase 21 i `plan.md` («Senere»)
+- Det kan hende andre parametere må settes for å få synken til å virke — parkert, Fase 21–23
 
 ##
 Sortering i kolonner 
@@ -53,7 +53,7 @@ Sette siden i vedlikeholdsmodus
 Ansatte må kunne legge inn ny status 
 
 ##
-legge til etternavn på ansatte i lista i egen kolonne
+Etternavn i egen kolonne — levert i Fase 17, se logg 2026-10-13.
 
 ##
 Mangler en knapp for lagring dersom man gjør mange endringer
@@ -62,10 +62,10 @@ Mangler en knapp for lagring dersom man gjør mange endringer
 superadmin -- som også har tilgang til Entra kobling og database kobling
 
 ##
-Fase 16 (synk): endringsloggen må få en egen avsender for synken (f.eks. «Synk (Entra)»). `endretAv` er i dag id-en til valgt administrator, og `hvem()` i `lib/endringslogg.ts` må godta avsenderen, ellers vises id-teksten rått.
+Fase 21 (synk, parkert): endringsloggen må få en egen avsender for synken (f.eks. «Synk (Entra)»). `endretAv` er i dag id-en til valgt administrator, og `hvem()` i `lib/endringslogg.ts` må godta avsenderen, ellers vises id-teksten rått.
 
 ##
-Fase 16 (synk): en synk gir én logglinje per person og oppsett og kan fylle «Endringslogg». Vurder filter på avsender.
+Fase 21 (synk, parkert): en synk gir én logglinje per person og oppsett og kan fylle «Endringslogg». Vurder filter på avsender.
 
 ##
 Legge til filtreing på roller på uke/mnd plan
@@ -85,7 +85,7 @@ full mobil og pad test
 full claude-security sjekk
 
 ##
-mulighet til å endere til egne farger på endringstyper
+Egne farger på endringstyper — levert i Fase 17 (Admin → Endringstyper), se logg 2026-10-13.
 
 ##
 hent logo og sett på siden
@@ -99,4 +99,7 @@ jeg vil ha noe tilsvarende med en litt fyr som er rundt på siden
 Mulighet for å dytte til Outlook ved f.eks sykdom
 
 ##
-Sortere nav asc default
+Navn stigende som standard — levert i Fase 17, se logg 2026-10-13.
+
+##
+Dager fra excel er ikke tatt med

@@ -1,5 +1,23 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 17) — Små rettinger
+
+**Evaluering av forrige økts punkter:** `[knapp-har-forutsetning]` ikke utløst (ingen knapp som krever et valg ble bygget); Fase 18 (godkjenn-knapper) kan utløse den, så den videreføres uten ny runde.
+
+**Nye punkter:**
+- `[skjemasteg-er-låst-etter-test]` Når brukeren har testet og lagret i appen, kan datafila alt stå på den nye skjemaversjonen. Rett data i et senere forsøk med et nytt versjonssteg, ikke ved å endre det som alt er sluppet. Belegg: de gamle fargene ble lagt i versjon 7-steget etter at fila var lagret som versjon 7, og ble hoppet over; det ble versjon 8 og 9 for ett felt.
+
+**Fasesnitt:** Fase 17 fikk plass i én økt uten `/compact`. Resten av planen står uendret.
+
+## 2026-10-13 (avslutning Fase 16) — «Lagre alle» og rollefilter
+
+**Evaluering av forrige økts punkter:** ingen aktive punkter.
+
+**Nye punkter:**
+- `[knapp-har-forutsetning]` En knapp som krever et valg (avkrysning, utfylt felt) grås ut til forutsetningen er oppfylt, og en gammel feilmelding skjules når valget endres. Belegg: bruker fant at «Kryss av minst én ansatt først.» ble stående etter «Deaktiver valgte».
+
+**Fasesnitt:** Fase 16 fikk plass i én økt uten `/compact`. Resten av planen står uendret.
+
 ## 2026-10-13 (avslutning Fase 15) — Bedre format på mobil
 
 **Evaluering av forrige økts punkter:** `[sjekk-mål-før-layout]` fulgt (leste `.page-shell`- og `.panel`-polstring og eksisterende bruddpunkter før kortene ble bygget): strykes. `[ingen-cd-i-bash]` fulgt (`git -C` og full sti, ingen `cd`): strykes.

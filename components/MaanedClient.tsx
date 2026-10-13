@@ -7,6 +7,7 @@ import {
   ALLE_TEAM,
   beregnMaaned,
   classifyCelle,
+  egenFarge,
   forrigeMaaned,
   nesteMaaned,
   type CelleType,
@@ -15,6 +16,7 @@ import {
 import { ariaSort, sorterRader } from "@/lib/sortering";
 import { formatDayShort, formatMonthName, todayUtc } from "@/lib/uker";
 import { PERSON_KOLONNER, PERSON_VERDIER } from "./personSortering";
+import { Rollevelger, useRollefilter } from "./Rollefilter";
 import { SorterKnapp, useSortering } from "./Sortering";
 
 type Props = {
@@ -55,7 +57,17 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
   );
 
   const { sortering, sorterPaa } = useSortering(PERSON_KOLONNER);
-  const rader = useMemo(() => sorterRader(plan.rader, sortering, PERSON_VERDIER), [plan.rader, sortering]);
+  const roller = useMemo(() => [...new Set(ansatte.map((a) => a.role))].sort((a, b) => a.localeCompare(b, "nb")), [ansatte]);
+  const { rolle, velgRolle } = useRollefilter(roller);
+  const rader = useMemo(
+    () =>
+      sorterRader(
+        rolle === null ? plan.rader : plan.rader.filter((r) => r.person.role === rolle),
+        sortering,
+        PERSON_VERDIER,
+      ),
+    [plan.rader, rolle, sortering],
+  );
 
   return (
     <section aria-label="Månedsoversikt">
@@ -69,6 +81,8 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
             <option value={ALLE_TEAM}>Alle team</option>
           </select>
         </label>
+
+        <Rollevelger roller={roller} rolle={rolle} onVelg={velgRolle} />
 
         <div className="uke-nav" aria-label="Naviger måned">
           <button
@@ -139,7 +153,7 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
               </tr>
             </thead>
             <tbody>
-              {plan.rader.length === 0 && (
+              {rader.length === 0 && (
                 <tr>
                   <td colSpan={plan.dager.length + 1} className="empty-row">
                     Ingen aktive personer denne måneden.
@@ -175,7 +189,11 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
                         title={tittel}
                         className={dag.getUTCDay() === 1 ? "col-mdag--uke" : undefined}
                       >
-                        <span className={PRIKK_KLASSE[type]} aria-label={tittel} />
+                        <span
+                          className={PRIKK_KLASSE[type]}
+                          style={egenFarge(celle) ? { background: egenFarge(celle)! } : undefined}
+                          aria-label={tittel}
+                        />
                       </td>
                     );
                   })}
@@ -194,7 +212,7 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
               Rolle
             </SorterKnapp>
           </div>
-          {plan.rader.length === 0 && <p className="empty-row">Ingen aktive personer denne måneden.</p>}
+          {rader.length === 0 && <p className="empty-row">Ingen aktive personer denne måneden.</p>}
           <ul className="kortliste">
             {rader.map((rad) => (
               <li key={`${rad.person.teamId}-${rad.person.id}`} className="kort">
@@ -233,6 +251,7 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
                       <span
                         key={celle.iso}
                         className={`mkal-dag ${PRIKK_KLASSE[classifyCelle(celle)]}`}
+                        style={egenFarge(celle) ? { background: egenFarge(celle)! } : undefined}
                         title={tittel}
                         aria-label={tittel}
                       >

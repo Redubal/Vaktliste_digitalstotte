@@ -2,7 +2,7 @@
 // Node importerer .ts direkte, så filen må holde seg til syntaks som kan strippes (ingen enum).
 
 /** Eldre versjoner gjøres om ved lesing av `oppgraderVaktliste`; øk og legg til et steg der. */
-export const SKJEMA_VERSJON = 6;
+export const SKJEMA_VERSJON = 9;
 
 /** Rekkefølgen i tabellen er rekkefølgen i teamvelgeren. */
 export type Team = {
@@ -53,6 +53,8 @@ export type Endringstype = {
   id: string;
   name: string;
   kategori: Kategori;
+  /** Egen farge i planen, som `#rrggbb`. `null` = standardfargen for kategorien (fra stilarket). */
+  farge: string | null;
 };
 
 export type Oppsett = {
@@ -237,9 +239,9 @@ export function sjekkStatus(
 
 /** Renser og sjekker feltene fra skjemaet. `andre` er typene som ikke er den som redigeres. */
 export function sjekkEndringstype(
-  rå: { name: string; kategori: string },
+  rå: { name: string; kategori: string; farge: string },
   andre: Endringstype[],
-): { feil: string } | { name: string; kategori: Kategori } {
+): { feil: string } | { name: string; kategori: Kategori; farge: string | null } {
   const sjekket = sjekkNavn(rå.name, andre, ENDRINGSTYPE_MAKSLENGDE, {
     bestemt: "Endringstypen",
     ubestemt: "en endringstype",
@@ -247,7 +249,9 @@ export function sjekkEndringstype(
   if ("feil" in sjekket) return sjekket;
   const kategori = KATEGORIER.find((k) => k.id === rå.kategori);
   if (!kategori) return { feil: "Velg en kategori." };
-  return { name: sjekket.name, kategori: kategori.id };
+  // Tom farge = ingen egen farge. Alt annet enn `#rrggbb` avvises, siden fargen havner i en style-verdi.
+  if (rå.farge && !/^#[0-9a-fA-F]{6}$/.test(rå.farge)) return { feil: "Fargen må være på formen #rrggbb." };
+  return { name: sjekket.name, kategori: kategori.id, farge: rå.farge ? rå.farge.toLowerCase() : null };
 }
 
 function navnPå(v: Vaktliste, brukerIder: Set<string>): string[] {
@@ -372,6 +376,7 @@ function tilVersjon3(v: RåVaktliste): RåVaktliste {
           id: typeId,
           name: typeNavn,
           kategori: FRAVAER_NAVN.includes(nøkkel(typeNavn)) ? "fravaer" : "annet",
+          farge: null,
         });
       }
     }
@@ -457,6 +462,30 @@ function tilVersjon6(v: RåVaktliste): RåVaktliste {
   };
 }
 
+// 6 → 7: endringstypene får `farge` (null = fargen kategorien gir). En farge som allerede står der, beholdes.
+function tilVersjon7(v: RåVaktliste): RåVaktliste {
+  const endringstyper = (v.endringstyper as (Omit<Endringstype, "farge"> & { farge?: string | null })[]).map(
+    (t) => ({ ...t, farge: t.farge ?? null }),
+  );
+  return { ...v, skjemaVersjon: 7, endringstyper };
+}
+
+// Standardfargene fra stilarket (prikkfargene i ukeplan og måned), per kategori.
+export const STANDARDFARGER: Record<Kategori, string> = { fravaer: "#9ab548", lokasjon: "#5b9bd5", annet: "#f2c94c" };
+
+// 7 → 8 og 8 → 9: en farge som er lik standardfargen for kategorien er ikke «egen», og settes tilbake
+// til null. Et første forsøk i versjon 8 fylte standardfargene inn som egne; to steg rydder begge filene.
+const medNullstiltStandardfarge = (versjon: number) =>
+  function (v: RåVaktliste): RåVaktliste {
+    const endringstyper = (v.endringstyper as Endringstype[]).map((t) => ({
+      ...t,
+      farge: t.farge === STANDARDFARGER[t.kategori] ? null : t.farge,
+    }));
+    return { ...v, skjemaVersjon: versjon, endringstyper };
+  };
+const tilVersjon8 = medNullstiltStandardfarge(8);
+const tilVersjon9 = medNullstiltStandardfarge(9);
+
 /** Renser meldingen fra skjemaet. Tom melding blir standardmeldingen. */
 export function sjekkInnstillinger(rå: {
   vedlikehold: boolean;
@@ -494,6 +523,9 @@ export function oppgraderVaktliste(rå: RåVaktliste): Vaktliste {
   if (v.skjemaVersjon === 3) v = tilVersjon4(v);
   if (v.skjemaVersjon === 4) v = tilVersjon5(v);
   if (v.skjemaVersjon === 5) v = tilVersjon6(v);
+  if (v.skjemaVersjon === 6) v = tilVersjon7(v);
+  if (v.skjemaVersjon === 7) v = tilVersjon8(v);
+  if (v.skjemaVersjon === 8) v = tilVersjon9(v);
   if (v.skjemaVersjon !== SKJEMA_VERSJON) {
     throw new Error(`data/vaktliste.json har skjemaversjon ${fra}, appen forventer ${SKJEMA_VERSJON}.`);
   }

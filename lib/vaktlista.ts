@@ -35,6 +35,8 @@ export type Endring = {
   type: string;
   /** Fra endringstypen; `null` når endringen ikke har en type. */
   kategori: Kategori | null;
+  /** Fra endringstypen: egen farge (`#rrggbb`), eller `null` for fargen kategorien gir. */
+  farge: string | null;
   newLocation: string;
   comment: string;
 };
@@ -114,6 +116,7 @@ export function getEndringer(): Endring[] {
     toTime: e.toTime ?? "",
     type: (e.typeId && typer.get(e.typeId)?.name) || "",
     kategori: (e.typeId && typer.get(e.typeId)?.kategori) || null,
+    farge: (e.typeId && typer.get(e.typeId)?.farge) || null,
     newLocation: (e.lokasjonId && lokasjoner.get(e.lokasjonId)?.name) || "",
     comment: e.comment ?? "",
   }));

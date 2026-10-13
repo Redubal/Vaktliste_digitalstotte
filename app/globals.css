@@ -883,6 +883,23 @@ a.uke-btn {
   margin-bottom: 0;
 }
 
+/* To faste linjer: valgene øverst, knappene (og beskjeden) under. */
+.admin-masse {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.admin-masse-rad {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-masse .uke-btn {
+  white-space: nowrap;
+}
+
 /* Deaktiverte ansatte: grået, nederst i lista. */
 .admin-deaktivert {
   opacity: 0.55;
@@ -1185,7 +1202,7 @@ a.uke-btn {
   .ansatt-rutenett,
   .admin-ansattinnhold > .admin-skjema:first-child {
     display: grid;
-    grid-template-columns: minmax(60px, 1fr) 128px 70px 128px 170px 120px 70px;
+    grid-template-columns: minmax(50px, 1fr) minmax(50px, 1fr) 128px 70px 128px 170px 120px 70px;
     gap: 10px;
     align-items: center;
   }
@@ -1206,8 +1223,7 @@ a.uke-btn {
     align-items: center;
   }
 
-  .admin-ansattinnhold > .admin-skjema:first-child .admin-feil,
-  .admin-ansattinnhold > .admin-skjema:first-child .admin-status {
+  .admin-ansattinnhold > .admin-skjema:first-child .admin-feil {
     grid-column: 1 / -1;
     margin: 0;
   }

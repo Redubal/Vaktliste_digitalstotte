@@ -114,6 +114,7 @@ const FELTNAVN: Record<string, string> = {
   brukerId: "Person",
   visesIPlan: "Vises i plan",
   kategori: "Kategori",
+  farge: "Farge",
   upn: "E-post",
   erAdministrator: "Administrator",
   aktiv: "Aktiv",

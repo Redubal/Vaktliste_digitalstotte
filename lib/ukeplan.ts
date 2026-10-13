@@ -139,6 +139,18 @@ export function classifyCelle(celle: UkeplanCelle): CelleType {
   return "endring-status";
 }
 
+/** Egen farge fra endringstypen (`#rrggbb`), hvis cella har en endring med en type som har det. */
+export function egenFarge(celle: UkeplanCelle): string | null {
+  return !celle.utenforPeriode && celle.endring?.farge ? celle.endring.farge : null;
+}
+
+/** Cellefarge i ukeplanen: lys flate av fargen, kanten i full farge. */
+export function egenCelleStil(celle: UkeplanCelle): { background: string; borderColor: string; color: string } | undefined {
+  const farge = egenFarge(celle);
+  if (!farge) return undefined;
+  return { background: `color-mix(in srgb, ${farge} 22%, white)`, borderColor: farge, color: "#1f2933" };
+}
+
 export function forrigeUke(aar: number, uke: number): { aar: number; uke: number } {
   const prev = addDays(isoWeekToMonday(aar, uke), -7);
   const { year, week } = isoWeek(prev);

@@ -50,7 +50,8 @@ export default async function EndringstyperSide() {
           <h2>Endringstyper</h2>
           <span className="counter">{typer.length} typer</span>
         </div>
-        <p className="admin-ingress">Typer i kategorien «Fravær» får fri-farge i planen.</p>
+        <p className="admin-ingress">Typer i kategorien «Fravær» får fri-farge i planen, hvis de ikke har egen farge.
+        </p>
         <TypeAdmin typer={typer} revisjon={v.revisjon} />
       </section>
     </main>

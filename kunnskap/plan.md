@@ -81,7 +81,8 @@ Funn fra kartleggingen (2026-10-13) som styrer snittet:
 - **Sperre (fra før):** reelle persondata ut til andre enn utvikler krever behandlingsgrunnlag
   (`TODO.md` punkt 1). Gjelder innloggings-, Graph- og databasefasene.
 
-Fase 8–15 er mekaniske (Sonnet). Fase 16–19 er arkitektur/sikkerhet (tyngste modell).
+Fase 8–17 og 20 er mekaniske (Sonnet). Fase 18–19 gjelder rettighetsregler (tyngste modell). Fase 21–24
+(Entra og database) er parkert til senere (bruker, 2026-10-13) og er arkitektur/sikkerhet (tyngste modell).
 Sjekk per fase: `tsc --noEmit`, `npm run lint` og `next build` grønne ved faseslutt; skjemaomgjøringer
 testes med oppdiktede rader i Node, aldri mot `data/`.
 
@@ -111,7 +112,28 @@ som administrator ser du siden som vanlig med et gult bånd øverst; du skrur av
 
 Fase 15 ✅ 2026-10-13 — detaljer i logg
 
-**Fase 16 — Synk av ansatte, med lokal testkilde (tyngste modell).**
+Fase 16 ✅ 2026-10-13 — detaljer i logg
+
+Fase 17 ✅ 2026-10-13 — detaljer i logg
+
+**Fase 18 — Godkjenningsliste i Admin (tyngste modell: rettighetsregler).**
+Liste over ikke godkjente endringer; godkjenn derfra og fra uke-/månedsvisning; ikke godkjente er
+tydelig merket.
+**Verifisering:** du ser en ikke godkjent endring merket i Ukeplan, godkjenner den, og merket er borte.
+
+**Fase 19 — Status direkte i uke-/månedsvisning (tyngste modell: hvem får endre hva).**
+Ansatt og admin legger inn/endrer status i planen; endringen venter på godkjenning av admin.
+**Verifisering:** som ansatt legger du inn en status i Ukeplan og ser den som «ikke godkjent»; som
+admin godkjenner du den.
+
+**Fase 20 — Mobil/pad-test og logo (Sonnet).**
+Gjennomgang på smal skjerm og pad med rettinger, og Vestfold-logoen på siden.
+**Verifisering:** du ser at siden holder i et smalt vindu og at logoen står øverst.
+
+## Senere (Entra og database)
+Parkert 2026-10-13 etter ønske fra bruker. Fasene er uendret bortsett fra nummer (var 16–19).
+
+**Fase 21 — Synk av ansatte, med lokal testkilde (tyngste modell).**
 `lib/synk.ts` med kilde-grensesnitt; testkilden leser `data/entra-test.json` (oppdiktede personer).
 Regler: match på `entraId`, deretter `upn`; ny person → `opprettet` = nå, havner under «Nye, mangler
 team» i Admin; borte fra gruppen → `aktiv: false`, aldri slettet. Innstillinger: tidspunkt og
@@ -121,7 +143,7 @@ siste synk er eldre enn intervallet (ingen egen tidsplanlegger på serveren).
 «Nye» med dagens dato; du fjerner en person fra fila, synker og ser vedkommende deaktivert; «Sist
 synket» viser klokkeslettet.
 
-**Fase 17 — Innlogging med Entra (tyngste modell, krever app-registrering).**
+**Fase 22 — Innlogging med Entra (tyngste modell, krever app-registrering).**
 Erstatter «Velg deg selv» i drift; `AUTH_MODUS=lokal` beholder velgeren under utvikling. Bibliotek
 (Auth.js med Entra-leverandør eller `@azure/msal-node`) velges ved faseoppstart etter å ha lest
 dokumentasjonen for Next 16. Innlogget person kobles til `Bruker` på `entraId`/`upn`. Hemmeligheter
@@ -131,21 +153,21 @@ og hemmelighet.
 **Verifisering:** du åpner appen, sendes til Microsoft-innlogging, kommer tilbake og ser navnet ditt
 øverst uten velger; en kollega uten adminstatus ser ikke Admin.
 
-**Fase 18 — Synk mot ekte Entra-gruppe (tyngste modell, krever Graph-tilgang).**
+**Fase 23 — Synk mot ekte Entra-gruppe (tyngste modell, krever Graph-tilgang).**
 Graph-kilden: `GET /groups/{id}/members` med `id, displayName, userPrincipalName, mail`; app-tillatelse
 `GroupMember.Read.All` med admin-samtykke. Gruppe-id i `.env`. Filterstrenger bygges bare av serververdier.
 **Forutsetning:** tillatelsen er gitt; behandlingsgrunnlag avklart (`TODO.md` punkt 1).
 **Verifisering:** du trykker «Synk nå» og ser antallet ansatte stemme med gruppen i Entra, og at en
 person du vet er ny, står under «Nye».
 
-**Fase 19 — Data over i database (tyngste modell, sperret til tilgang er gitt).**
+**Fase 24 — Data over i database (tyngste modell, sperret til tilgang er gitt).**
 `lib/lager.ts` er eneste vei inn og ut, så byttet holdes der: tabellene i `vaktliste.json` og
 endringsloggen blir tabeller. Databasetype (SQLite, Azure SQL, PostgreSQL) bestemmes når tilgangen
 er kjent; JSON-fila brukes fortsatt under utvikling hvis ønsket.
 **Verifisering:** du ser samme Ukeplan og samme endringslogg som før flyttingen, og en endring i Admin
 står der etter at appen er startet på nytt.
 
-Ikke med: drift/hosting (gamle Fase 5) og «Min plan»; de planlegges når Fase 17 er levert.
+Ikke med: drift/hosting (gamle Fase 5) og «Min plan»; de planlegges når Fase 22 er levert.
 
 ---
 

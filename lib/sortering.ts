@@ -30,7 +30,14 @@ export function ariaSort(s: Sortering | null, kolonne: string): "ascending" | "d
   return s.retning === "stigende" ? "ascending" : "descending";
 }
 
-const samling = new Intl.Collator("nb", { numeric: true, sensitivity: "base" });
+/** Navn er ett felt; siste ord regnes som etternavn. Ett ord alene er bare fornavn. */
+export function delNavn(navn: string): { fornavn: string; etternavn: string } {
+  const deler = navn.trim().split(/\s+/);
+  if (deler.length < 2) return { fornavn: navn.trim(), etternavn: "" };
+  return { fornavn: deler.slice(0, -1).join(" "), etternavn: deler[deler.length - 1] };
+}
+
+const samling =new Intl.Collator("nb", { numeric: true, sensitivity: "base" });
 
 /**
  * Sorterer en kopi av lista. `verdier` sier hvordan hver kolonne leses ut av en rad. Like verdier

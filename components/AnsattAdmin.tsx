@@ -1,19 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState, useSyncExternalStore } from "react";
-import { endreAnsatt, masseendreAnsatte, settAnsattAktiv } from "@/app/admin/handlinger";
+import { useActionState, useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { endreAnsatt, lagreAlleAnsatte, masseendreAnsatte, settAnsattAktiv } from "@/app/admin/handlinger";
 import { MASSE_INGEN, type Lokasjon, type Rolle, type Svar, type Team } from "@/lib/domene";
-import { ariaSort, sorterRader } from "@/lib/sortering";
+import { ariaSort, delNavn, sorterRader, type Sortering } from "@/lib/sortering";
 import { Feil, Lagringsstatus, useSkjemaStatus } from "./AdminFelles";
 import { SorterKnapp, useSortering } from "./Sortering";
 
 const ADMIN_KOLONNER = [
-  { id: "navn", tittel: "Navn" },
+  { id: "navn", tittel: "Fornavn" },
+  { id: "etternavn", tittel: "Etternavn" },
   { id: "team", tittel: "Team" },
   { id: "rolle", tittel: "Rolle" },
   { id: "lokasjon", tittel: "Lokasjon" },
 ];
+const STANDARD_SORTERING: Sortering = { kolonne: "navn", retning: "stigende" };
 
 export type AnsattVisning = {
   /** Id-en til oppsettet (ikke brukeren): en person kan ha flere oppsett. */
@@ -64,6 +66,7 @@ function AnsattRad({
   onVelg,
   ankerId,
   uthevet,
+  meldEndret,
 }: {
   ansatt: AnsattVisning;
   valg: Valg;
@@ -73,6 +76,8 @@ function AnsattRad({
   /** Bruker-id som anker, bare på første rad for en bruker (en bruker kan ha flere oppsett). */
   ankerId?: string;
   uthevet: boolean;
+  /** Sier fra til «Lagre alle» når raden har ulagrede endringer. */
+  meldEndret: (id: string, endret: boolean) => void;
 }) {
   const [svar, handling, lagrer] = useActionState(endreAnsatt, null);
   const status = useSkjemaStatus(
@@ -84,6 +89,10 @@ function AnsattRad({
     },
     svar,
   );
+  useEffect(() => {
+    meldEndret(ansatt.id, status.endret);
+    return () => meldEndret(ansatt.id, false);
+  }, [meldEndret, ansatt.id, status.endret]);
 
   return (
     <li id={ankerId} className={uthevet ? "admin-ansattrad rad--uthevet" : "admin-ansattrad"}>
@@ -94,11 +103,14 @@ function AnsattRad({
         aria-label={`Velg ${ansatt.name}`}
       />
       <div className="admin-ansattinnhold">
-      <form action={handling} className={status.skjemaKlasse} onInput={status.onInput}>
+      <form action={handling} className={status.skjemaKlasse} onInput={status.onInput} data-oppsett={ansatt.id}>
         <input type="hidden" name="revisjon" value={revisjon} />
         <input type="hidden" name="id" value={ansatt.id} />
-        <strong className="admin-navn">{ansatt.name}</strong>
-        <span className="admin-bruk">Kom inn: {komInn(ansatt.opprettet)}</span>
+        <strong className="admin-navn">{delNavn(ansatt.name).fornavn}</strong>
+        <strong className="admin-navn">{delNavn(ansatt.name).etternavn}</strong>
+        {/* Status og «Kom inn» deler plassen, så raden ikke blir høyere når den har ulagrede endringer. */}
+        <Lagringsstatus endret={status.endret} lagret={status.lagret} />
+        {!status.endret && !status.lagret && <span className="admin-bruk">Kom inn: {komInn(ansatt.opprettet)}</span>}
         <select name="teamId" defaultValue={ansatt.teamId} aria-label={`Team for ${ansatt.name}`}>
           {valg.team.map((t) => (
             <option key={t.id} value={t.id}>
@@ -133,7 +145,6 @@ function AnsattRad({
         <button className="uke-btn" type="submit" disabled={lagrer}>
           Lagre
         </button>
-        <Lagringsstatus endret={status.endret} lagret={status.lagret} />
         <Feil svar={svar} />
       </form>
       <AktivKnapp ansatt={ansatt} revisjon={revisjon} />
@@ -161,7 +172,8 @@ function DeaktivertRad({
       <span className="avkryssing-plass" />
       <div className="admin-ansattinnhold">
         <div className="admin-skjema" style={{ flex: "1 1 auto", marginBottom: 0 }}>
-          <strong className="admin-navn">{ansatt.name}</strong>
+          <strong className="admin-navn">{delNavn(ansatt.name).fornavn}</strong>
+          <strong className="admin-navn">{delNavn(ansatt.name).etternavn}</strong>
           <span className="admin-bruk">Kom inn: {komInn(ansatt.opprettet)}</span>
           <span className="admin-bruk">Deaktivert</span>
         </div>
@@ -185,11 +197,12 @@ export function AnsattAdmin({
   revisjon: number;
 }) {
   const valg: Valg = { team, roller, lokasjoner, teamNavn: new Map(team.map((t) => [t.id, t.name])) };
-  const { sortering, sorterPaa } = useSortering(ADMIN_KOLONNER.map((k) => k.id));
+  const { sortering, sorterPaa } = useSortering(ADMIN_KOLONNER.map((k) => k.id), STANDARD_SORTERING);
   const rolleNavn = new Map(roller.map((r) => [r.id, r.name]));
   const lokasjonNavn = new Map(lokasjoner.map((l) => [l.id, l.name]));
   const verdier: Record<string, (a: AnsattVisning) => string> = {
     navn: (a) => a.name,
+    etternavn: (a) => delNavn(a.name).etternavn,
     team: (a) => valg.teamNavn.get(a.teamId) ?? a.teamId,
     rolle: (a) => (a.rolleId ? (rolleNavn.get(a.rolleId) ?? "") : ""),
     lokasjon: (a) => (a.lokasjonId ? (lokasjonNavn.get(a.lokasjonId) ?? "") : ""),
@@ -219,7 +232,11 @@ export function AnsattAdmin({
   // Bare aktive kan være valgt (en deaktivert rad har ingen avkrysning).
   const valgte = aktive.filter((a) => krysset.has(a.id)).map((a) => a.id);
 
+  // En feilmelding fra masseendring skjules så snart avkrysningen endres; den gjaldt forrige valg.
+  const [skjultMasseSvar, setSkjultMasseSvar] = useState<Svar | null>(null);
+
   function velg(id: string, valgt: boolean) {
+    setSkjultMasseSvar(masseSvar);
     const ny = new Set(krysset);
     if (valgt) ny.add(id);
     else ny.delete(id);
@@ -238,20 +255,65 @@ export function AnsattAdmin({
 
   const [masseSvar, masse, masserLagrer] = useActionState(masseHandling, null);
 
+  // «Lagre alle»: radene med ulagrede endringer sier fra hver for seg (`meldEndret`); verdiene
+  // leses fra radskjemaene (`data-oppsett`) idet knappen trykkes og sendes inn på én revisjon.
+  const [endrede, setEndrede] = useState<Set<string>>(new Set());
+  const meldEndret = useCallback((id: string, endret: boolean) => {
+    setEndrede((forrige) => {
+      if (forrige.has(id) === endret) return forrige;
+      const ny = new Set(forrige);
+      if (endret) ny.add(id);
+      else ny.delete(id);
+      return ny;
+    });
+  }, []);
+  const listeRef = useRef<HTMLUListElement | null>(null);
+
+  async function lagreAlleHandling(): Promise<Svar> {
+    const rader: Record<string, string | boolean>[] = [];
+    for (const skjema of listeRef.current?.querySelectorAll<HTMLFormElement>("form[data-oppsett]") ?? []) {
+      const id = skjema.dataset.oppsett ?? "";
+      if (!endrede.has(id)) continue;
+      const felt = new FormData(skjema);
+      const tekst = (n: string) => (typeof felt.get(n) === "string" ? (felt.get(n) as string) : "");
+      rader.push({
+        id,
+        teamId: tekst("teamId"),
+        rolleId: tekst("rolleId"),
+        lokasjonId: tekst("lokasjonId"),
+        erAdministrator: felt.get("erAdministrator") === "on",
+      });
+    }
+    const data = new FormData();
+    data.set("revisjon", String(revisjon));
+    data.set("rader", JSON.stringify(rader));
+    const svar = await lagreAlleAnsatte(null, data);
+    if (svar.ok) setVentende({ ider: rader.map((r) => String(r.id)), revisjon });
+    return svar;
+  }
+
+  const [alleSvar, lagreAlle, alleLagrer] = useActionState(lagreAlleHandling, null);
+
   // Hver rad husker sine egne verdier; en lagring i én rad nullstiller ikke de andre.
   // Deaktiverte ligger nederst, grået.
   return (
     <div>
+      {/* «Lagre alle» står i masse-linja (knappen hører til dette skjemaet via `form`), så knappene står på én linje. */}
+      <form id="lagre-alle" action={lagreAlle} hidden />
       <form action={masse} className="admin-skjema admin-masse">
         <input type="hidden" name="revisjon" value={revisjon} />
         {valgte.map((id) => (
           <input key={id} type="hidden" name="id" value={id} />
         ))}
+        <div className="admin-masse-rad">
         <label className="admin-avkryssing">
           <input
             type="checkbox"
             checked={aktive.length > 0 && valgte.length === aktive.length}
-            onChange={(e) => setKrysset(e.target.checked ? new Set(aktive.map((a) => a.id)) : new Set())}
+            onChange={(e) => {
+              setSkjultMasseSvar(masseSvar);
+              setKrysset(e.target.checked ? new Set(aktive.map((a) => a.id)) : new Set());
+            }}
           />
           Velg alle synlige
         </label>
@@ -282,14 +344,22 @@ export function AnsattAdmin({
             </option>
           ))}
         </select>
-        <button className="uke-btn" type="submit" name="handling" value="sett" disabled={masserLagrer}>
+        </div>
+        <div className="admin-masse-rad">
+        <button className="uke-btn" type="submit" form="lagre-alle" disabled={alleLagrer || endrede.size === 0}>
+          Lagre alle{endrede.size > 0 ? ` (${endrede.size})` : ""}
+        </button>
+        <button className="uke-btn" type="submit" name="handling" value="sett" disabled={masserLagrer || valgte.length === 0}>
           Bruk på valgte
         </button>
-        <button className="uke-btn" type="submit" name="handling" value="deaktiver" disabled={masserLagrer}>
+        <button className="uke-btn" type="submit" name="handling" value="deaktiver" disabled={masserLagrer || valgte.length === 0}>
           Deaktiver valgte
         </button>
         {masseSvar?.ok && <span className="admin-status" role="status">{masseSvar.melding}</span>}
-        <Feil svar={masseSvar} />
+        {alleSvar?.ok && endrede.size === 0 && <span className="admin-status" role="status">{alleSvar.melding}</span>}
+        </div>
+        <Feil svar={masseSvar === skjultMasseSvar ? null : masseSvar} />
+        <Feil svar={alleSvar} />
       </form>
       <div className="sorter-rad" role="group" aria-label="Sorter ansatte">
         <span className="admin-bruk">Sorter på:</span>
@@ -305,7 +375,7 @@ export function AnsattAdmin({
         <span className="avkryssing-plass" />
         <div className="ansatt-hode-ytre">
           <div className="ansatt-rutenett">
-            {(["navn", "", "team", "rolle", "lokasjon"] as const).map((id, i) =>
+            {(["navn", "etternavn", "", "team", "rolle", "lokasjon"] as const).map((id, i) =>
               id ? (
                 <span key={id} aria-sort={ariaSort(sortering, id)}>
                   <SorterKnapp kolonne={id} sortering={sortering} onSorter={sorterPaa}>
@@ -319,9 +389,10 @@ export function AnsattAdmin({
           </div>
         </div>
       </div>
-      <ul className="admin-lokasjoner">
+      <ul className="admin-lokasjoner" ref={listeRef}>
         {aktive.map((a) => (
           <AnsattRad
+            meldEndret={meldEndret}
             key={`${a.id}:${versjon[a.id] ?? 0}`}
             ansatt={a}
             valg={valg}

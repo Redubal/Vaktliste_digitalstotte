@@ -32,6 +32,11 @@ function tekst(data: FormData, felt: string): string {
   return typeof verdi === "string" ? verdi : "";
 }
 
+/** Fargen fra skjemaet: bare med når «Egen farge» er krysset av, ellers tom (= ingen egen farge). */
+function fargeFra(data: FormData): string {
+  return data.get("egenFarge") === "on" ? tekst(data, "farge") : "";
+}
+
 // Sjekkes i hver handling: en handling er et åpent POST-endepunkt, så å skjule skjemaet
 // i siden er ikke tilgangskontroll.
 async function utfor(
@@ -115,6 +120,75 @@ export async function endreAnsatt(_forrige: Svar | null, data: FormData): Promis
       return null;
     },
     "Endringen er lagret.",
+  );
+}
+
+/**
+ * «Lagre alle»: lagrer team, rolle, lokasjon og adminstatus for flere oppsett i én lagring. `rader`
+ * er en JSON-liste med ett objekt per oppsett (`id`, `teamId`, `rolleId`, `lokasjonId`,
+ * `erAdministrator`). Alt eller ingenting: finner vi én feil, lagres ingenting.
+ */
+export async function lagreAlleAnsatte(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  const jegId = await minId();
+  let rader: unknown;
+  try {
+    rader = JSON.parse(tekst(data, "rader"));
+  } catch {
+    rader = null;
+  }
+  const liste = Array.isArray(rader) ? rader : [];
+  const antall = `${liste.length} ${liste.length === 1 ? "ansatt" : "ansatte"}`;
+  return utfor(
+    data,
+    "/admin/ansatte",
+    (v) => {
+      if (liste.length === 0) return "Ingen endringer å lagre.";
+      const adminPerBruker = new Map<string, boolean>();
+      const nye: {
+        oppsettId: string;
+        teamId: string;
+        rolleId: string | null;
+        lokasjonId: string | null;
+      }[] = [];
+      for (const rad of liste) {
+        const r = typeof rad === "object" && rad !== null ? (rad as Record<string, unknown>) : {};
+        const felt = (navn: string) => (typeof r[navn] === "string" ? (r[navn] as string) : "");
+        const oppsett = v.oppsett.find((o) => o.id === felt("id"));
+        const bruker = oppsett && v.brukere.find((b) => b.id === oppsett.brukerId);
+        if (!oppsett || !bruker) return "En av ansatte finnes ikke lenger. Last siden på nytt.";
+        const sjekket = sjekkOppsett(
+          { teamId: felt("teamId"), rolleId: felt("rolleId"), lokasjonId: felt("lokasjonId") },
+          v,
+        );
+        if ("feil" in sjekket) return sjekket.feil;
+        const erAdmin = r.erAdministrator === true;
+        const tidligere = adminPerBruker.get(bruker.id);
+        if (tidligere !== undefined && tidligere !== erAdmin) {
+          return `${bruker.name} står med ulik administratortilgang på flere rader. Gjør dem like.`;
+        }
+        adminPerBruker.set(bruker.id, erAdmin);
+        nye.push({ oppsettId: oppsett.id, ...sjekket });
+      }
+      for (const [brukerId, erAdmin] of adminPerBruker) {
+        const bruker = v.brukere.find((b) => b.id === brukerId);
+        if (!bruker) continue;
+        const status = sjekkAnsattStatus({ aktiv: bruker.aktiv, erAdministrator: erAdmin }, bruker.id, jegId);
+        if ("feil" in status) return status.feil;
+      }
+      for (const n of nye) {
+        const oppsett = v.oppsett.find((o) => o.id === n.oppsettId);
+        if (!oppsett) continue;
+        oppsett.teamId = n.teamId;
+        oppsett.rolleId = n.rolleId;
+        oppsett.lokasjonId = n.lokasjonId;
+      }
+      for (const [brukerId, erAdmin] of adminPerBruker) {
+        const bruker = v.brukere.find((b) => b.id === brukerId);
+        if (bruker) bruker.erAdministrator = erAdmin;
+      }
+      return null;
+    },
+    `Endringene er lagret for ${antall}.`,
   );
 }
 
@@ -448,12 +522,12 @@ export async function leggTilEndringstype(_forrige: Svar | null, data: FormData)
     ENDRINGSTYPER_STI,
     (v) => {
       const sjekket = sjekkEndringstype(
-        { name: tekst(data, "name"), kategori: tekst(data, "kategori") },
+        { name: tekst(data, "name"), kategori: tekst(data, "kategori"), farge: fargeFra(data) },
         v.endringstyper,
       );
       if ("feil" in sjekket) return sjekket.feil;
       const id = ledigId(slugify(sjekket.name), new Set(v.endringstyper.map((t) => t.id)), "type");
-      v.endringstyper.push({ id, name: sjekket.name, kategori: sjekket.kategori });
+      v.endringstyper.push({ id, name: sjekket.name, kategori: sjekket.kategori, farge: sjekket.farge });
       return null;
     },
     "Endringstypen er lagt til.",
@@ -468,12 +542,13 @@ export async function endreEndringstype(_forrige: Svar | null, data: FormData): 
       const type = v.endringstyper.find((t) => t.id === tekst(data, "id"));
       if (!type) return "Endringstypen finnes ikke lenger. Last siden på nytt.";
       const sjekket = sjekkEndringstype(
-        { name: tekst(data, "name"), kategori: tekst(data, "kategori") },
+        { name: tekst(data, "name"), kategori: tekst(data, "kategori"), farge: fargeFra(data) },
         v.endringstyper.filter((t) => t.id !== type.id),
       );
       if ("feil" in sjekket) return sjekket.feil;
       type.name = sjekket.name;
       type.kategori = sjekket.kategori;
+      type.farge = sjekket.farge;
       return null;
     },
     "Endringen er lagret.",
