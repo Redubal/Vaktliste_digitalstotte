@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
+import Image from "next/image";
+import Link from "next/link";
 import { IdentitetsVelger } from "@/components/IdentitetsVelger";
 import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
 import { lesVaktliste } from "@/lib/lager";
@@ -62,7 +64,17 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       lang="nb"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{innhold}</body>
+      <body className="min-h-full flex flex-col">
+        {/* Designmanualen: sidestilt logo på nett, minst 75 px høy, fri sone rundt. */}
+        <div className="logo-band">
+          <div className="logo-indre">
+            <Link href="/" className="logo-lenke">
+              <Image src="/vestfold-logo.svg" alt="Vestfold fylkeskommune" width={226} height={75} preload />
+            </Link>
+          </div>
+        </div>
+        {innhold}
+      </body>
     </html>
   );
 }

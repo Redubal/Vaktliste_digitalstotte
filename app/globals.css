@@ -43,6 +43,34 @@ body {
   padding: 40px 20px 64px;
 }
 
+/* Logo øverst på alle sider. Hvit bakgrunn og luft rundt etter designmanualen (fri sone). */
+.logo-band {
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo-indre {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.logo-lenke {
+  display: inline-block;
+  line-height: 0;
+}
+
+.logo-lenke img {
+  height: 75px;
+  width: auto;
+}
+
+.logo-lenke:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
 .page-header {
   display: flex;
   align-items: end;
@@ -667,7 +695,10 @@ button.mkal-dag {
 
 .endring-vindu {
   width: min(460px, calc(100vw - 32px));
-  max-height: calc(100vh - 32px);
+  /* dvh: den synlige høyden, uten adresselinje og tastatur på mobil. */
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 20px;
@@ -715,6 +746,11 @@ button.mkal-dag {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+/* Fra og til under hverandre når vinduet er for smalt til to hele datofelt. */
+.vindu-datoer .vindu-felt {
+  flex: 1 1 150px;
 }
 
 .vindu-info,
@@ -985,6 +1021,20 @@ a.uke-btn {
   color: var(--heading);
 }
 
+.admin-skjema input[type="color"] {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+}
+
+.admin-skjema input[type="color"]:disabled {
+  opacity: 0.5;
+}
+
 .admin-skjema input[name="name"],
 .admin-skjema select {
   border: 1px solid var(--border);
@@ -1122,6 +1172,12 @@ a.uke-btn {
   white-space: nowrap;
 }
 
+/* Lange valg («Lokasjon (Team)») skal ikke gjøre siden bredere enn skjermen. */
+.admin-masse select {
+  max-width: 100%;
+  min-width: 0;
+}
+
 /* Deaktiverte ansatte: grået, nederst i lista. */
 .admin-deaktivert {
   opacity: 0.55;
@@ -1217,6 +1273,26 @@ a.uke-btn {
   overflow-wrap: anywhere;
 }
 
+/* Dagsrutene i kortene kan trykkes: høye nok for en finger. */
+.kort .celle {
+  min-height: 44px;
+  justify-content: center;
+}
+
+/* Uten mus finnes ingen hover-ramme, og en vanlig dag så ut som ren tekst.
+   Gjelder kortene alltid, og tabellen på berøringsskjerm (nettbrett). */
+.kort .celle--lokasjon:has(.celle-aapne) {
+  background: white;
+  border: 1px solid var(--border);
+}
+
+@media (pointer: coarse) {
+  .celle--lokasjon:has(.celle-aapne) {
+    background: white;
+    border: 1px solid var(--border);
+  }
+}
+
 .mkal {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -1287,11 +1363,19 @@ a.uke-btn {
     padding: 20px 12px 40px;
   }
 
+  .logo-indre {
+    padding: 16px 12px;
+  }
+
   .ukeplan-toolbar {
     padding: 12px;
     gap: 12px;
   }
+}
 
+/* Tabellene vises bare over 768 px (under det er det kort), så de smale tabellreglene
+   gjelder nettbrett: hele uka får plass uten å skyve sidelengs. */
+@media (max-width: 1024px) {
   .ukeplan-table {
     min-width: 540px;
   }
@@ -1310,12 +1394,36 @@ a.uke-btn {
     padding: 6px;
   }
 
+  /* 31 dager à minst 32 px, så hver dag kan trykkes med en finger; resten ruller i tabellen. */
   .maaned-table {
-    min-width: 640px;
+    min-width: calc(96px + 31 * 32px);
   }
 
   .maaned-table .col-person {
     width: 96px;
+  }
+}
+
+/* --- Berøringsskjerm (mobil og nettbrett) --- */
+
+@media (pointer: coarse) {
+  /* Under 16 px zoomer iOS inn når feltet får fokus, og siden blir stående forskjøvet. */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  /* Trykkflater på minst 44 px. */
+  .tab-btn,
+  .uke-btn,
+  .celle .godkjenn-knapp {
+    min-height: 44px;
+  }
+
+  .sorter-knapp {
+    min-height: 44px;
+    padding: 0 8px;
   }
 }
 

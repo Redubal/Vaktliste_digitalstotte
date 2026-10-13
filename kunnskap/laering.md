@@ -1,5 +1,13 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 20) — Mobil/pad-test og logo
+
+**Evaluering av forrige økts punkter:** `[skjemasteg-er-låst-etter-test]` ikke utløst (ingen skjemaendring); Fase 21 og senere kan trenge nye felt, så den videreføres uten ny runde. `[vis-felt-heller-enn-å-skjule]` ikke utløst (ingen nye felt med data Claude ikke kan lese); videreføres uten ny runde. `[klikkflate-hele-ruta]` klikkflaten var allerede hele ruta, så den ble fulgt; bruddet var et annet (se nytt punkt), og punktet utvides i stedet for å få ny runde.
+
+**Utvidet punkt:** `[klikkflate-hele-ruta]` sier nå også at noe som kan trykkes skal se trykkbart ut uten mus. Belegg: i Fase 19 fikk bare hover-rammen vist at en dag kunne trykkes; i telefonvisning så vanlige dager ut som ren tekst, og bruker skrev «mangler feltet å trykke i».
+
+**Fasesnitt:** Fase 20 fikk plass i én økt uten `/compact`. Resten av planen står uendret.
+
 ## 2026-10-13 (avslutning Fase 19) — Status direkte i uke-/månedsvisning
 
 **Evaluering av forrige økts punkter:** `[knapp-har-forutsetning]` fulgt (Lagre er grå til typen er valgt, og feilmeldingen skjules når noe i vinduet endres); strykes som innarbeidet. `[skjemasteg-er-låst-etter-test]` ikke utløst (ingen endring av skjemaversjon i fasen); Fase 21–24 kan trenge nye felt, så den videreføres uten ny runde.

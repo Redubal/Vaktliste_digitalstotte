@@ -1,5 +1,18 @@
 # Logg
 
+## 2026-10-13 — Fase 20 ✅ Mobil/pad-test og logo
+
+- Verifisert av bruker: etter at kortene fikk ramme skrev bruker «så lang .. så fungerer det», og ba så om faseslutt. Bruker så på telefonvisning (smalt vindu) i nettleseren; logoen står øverst. **Ikke prøvd:** nettbrettbredde (769–1024 px), Admin-sidene og endringsvinduet på smal skjerm, Måned på smal skjerm, ekte telefon eller pad (iOS-zoom og dvh er ikke sett).
+- **Beslutning (bruker, logo):** Vestfold-logoen sidestilt øverst på alle sider, fra designmanualen. Begrunnelse: TODO-ønske fra bruker; sidestilt passer nettsider ifølge manualen.
+- Sjekk: `tsc --noEmit` og `npm run lint` kjørt grønne i økten etter kodeendringene i `layout.tsx`; etterpå bare `globals.css` (dekkes ikke av dem) og `kunnskap/`. `next build` ikke kjørt (kjørende `next dev`).
+
+- Logo: sidestilt hovedlogo (SVG, RGB) hentet fra designmanualen (`vestfoldfylke.no/.../logo-og-bruk/hovedlogo/`), lagt i `public/vestfold-logo.svg` uendret (ingen skript eller lenker i fila; to farger). Står i `app/layout.tsx` over alt innhold, også vedlikeholdssiden; lenke til `/`.
+- Designmanualens regler (lest på siden, ikke tolket): sidestilt for nettsider; minst 75 px høy digitalt; fri sone halve bredden av fylkesvåpenet (minst en tredjedel); farget på hvit/lys bakgrunn; ikke endre fila, ingen tekst ved siden av logoen. Derfor 75 px på hvit stripe med 20 px luft (16/12 px på smal skjerm) — det er under halv våpenbredde (~33 px) vertikalt, men over minimum (~22 px).
+- Funn (fra koden, ikke sett i nettleser): de smale tabellreglene for Ukeplan og Måned lå i `max-width: 768px`, der tabellen alt er skjult og kort vises — de virket aldri. Flyttet til `max-width: 1024px` (nettbrett). Måned fikk minst 32 px per dag (ruller i tabellen) i stedet for ~18–26 px.
+- Rettet for berøringsskjerm (`pointer: coarse`): felt 16 px (iOS zoomer inn under det), knapper/faner/«Godkjenn»/sortering minst 44 px. Endringsvinduet bruker `100dvh` og ruller selv; datofeltene brytes under hverandre når det er trangt. Masseendringens valg i Admin → Ansatte kan ikke lenger gjøre siden bredere enn skjermen. Fargevelgeren 44×44. Dagsrutene i ukekortene minst 44 px.
+- Observert av bruker (telefonvisning i nettleseren): i ukekortene ser en vanlig dag ikke ut som noe man kan trykke på. Årsak: `.celle--lokasjon` har ingen bakgrunn eller ramme, og hover-rammen fra tabellen finnes ikke uten mus. Rettet med hvit bakgrunn og tynn ramme i kortene alltid, og i tabellen ved `pointer: coarse`.
+- Ikke rettet (hypoteser fra kodelesing): «Admin»-knappen står ~18 px lavere enn «Du er»-feltet fordi hintet under feltet teller med (utseende). Admin → Ansatte mellom 769 og 1279 px bryter radene ulikt, så valgene ikke står under hverandre; rutenettet trenger ~1210 px. Avkrysningsboksen der er 18×18 uten større trykkflate. Overskriftsraden i Ukeplan-tabellen blir ikke stående øverst når siden rulles (rulleboksen rundt tabellen tar den).
+
 ## 2026-10-13 — Fase 19 ✅ Status direkte i uke-/månedsvisning
 
 - Bruker ba om faseslutt etter å ha prøvd det (som ansatt, Max, og som administrator): «kan godkjenne både i ukeplan og i admin liste». Hvilke deler som ble prøvd utover det (retting, sletting, Måned, mobil) ble ikke oppgitt punkt for punkt; føres derfor som ikke bekreftet nedenfor.
