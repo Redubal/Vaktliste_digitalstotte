@@ -758,6 +758,39 @@ a.uke-btn {
   color: var(--heading);
 }
 
+/* Endringsloggen: feltene står på én linje med bunnen likt, og kolonnebreddene er låst så
+   tabellen ikke hopper når et filter gir andre linjer. */
+.logg-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 0 0 20px;
+}
+
+.logg-filter input[type="date"],
+.logg-filter select {
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 0.96rem;
+  color: var(--heading);
+}
+
+.logg-filter .uke-btn {
+  height: 46px;
+}
+
+.logg-tabell {
+  table-layout: fixed;
+}
+
+.logg-tabell td {
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
 .admin-bruk {
   color: var(--muted);
   font-size: 0.85rem;

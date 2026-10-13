@@ -1,5 +1,21 @@
 # Logg
 
+## 2026-10-13 — Fase 9 ✅ Full endringslogg
+
+- Levert: `lib/endringslogg.ts` (ny) sammenligner listen før og etter hver lagring, tabell for tabell på `id`, og skriver én linje per rad som er lagt til, endret eller fjernet til `data/endringslogg.jsonl` (ikke i git). Linja har tid, hvem, tabell, rad og felt med gammel → ny verdi; navn på team, lokasjon, rolle, status, type og person er slått opp og lagret med linja, så den tåler sletting. `endreVaktliste` i `lib/lager.ts` tar kopi før `endre` og logger etter vellykket lagring; feiler loggskrivingen, er listen likevel lagret og feilen går til serverloggen. Siden `/admin/logg` (ny) med lenke i `app/admin/page.tsx`.
+- Utover planen, etter ønske fra bruker under verifiseringen: loggen begrenses til en periode (åpner på «I dag», knapper for «Denne måneden», «I år» og «Hele loggen», og «Fra»/«Til»-felt; dagene regnes i norsk tid; tak på 500 linjer). Tabellvalget er en nedtrekksliste i samme skjema som datoene. Kolonnebreddene i tabellen er låst. Stiler `.logg-filter` og `.logg-tabell` i `app/globals.css`.
+- Verifisert av bruker: «virker», etter at to ting var rettet på brukers tilbakemelding i nettleser: kolonnene hoppet når filteret byttet, og datofeltene sto ikke på linje.
+- **Beslutning (bruker, begrense loggen):** loggen kan bli lang og skal kunne begrenses per dag, måned, år eller valgt periode. Begrunnelse: en full logg uten avgrensning blir uleselig.
+- **Beslutning (bruker, tabellvalg):** nedtrekksliste i stedet for ni knapper. Begrunnelse: ryddigere.
+- **Beslutning (Claude, avsender ved synk):** synk mot Entra (Fase 16) skal ha egen avsender i loggen; ført i `TODO.md` sammen med et mulig avsenderfilter. Begrunnelse: `endretAv` er id-en til valgt administrator, og en synk har ingen slik person.
+- Utestet: `beregnEndringer` er ikke kjørt mot oppdiktede rader i Node (`lib/endringslogg.ts` importerer `./domene` uten filendelse, som Node ikke løser). Ikke sett i nettleser av meg: logglinjer for lagt til og fjernet rader, at en ødelagt linje i fila hoppes over, taket på 500 linjer, endring rundt midnatt norsk tid, at loggen har linjer for sletting av status/type i bruk.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 8 treff. Ingen filer i `data/` ligger i git.
+- Sjekk: `tsc --noEmit` og `npm run lint` grønne etter siste kodeendring; `next build` ikke kjørt denne fasen (en kjørende `next dev` kan komme i konflikt), sist kjørt grønt i Fase 8.
+- Regel: `[bash-cd-persisterer]` (3. runde) gjort til regel i `app/CLAUDE.md`, se `laering.md`.
+- `TODO.md`: «Full logg over alle endringer» fortettet til pekerlinje; to nye synk-punkter for Fase 16 ført inn.
+- STATUS: 37 linjer.
+- fase-slutt: ca. 11:11–11:14, 3 min
+
 ## 2026-10-13 — Fase 8 ✅ Lagret eller ikke lagret i hele Admin
 
 - Levert: felles krok `useSkjemaStatus` og visningen `Lagringsstatus` i `components/AdminFelles.tsx`, brukt i alle fem `*Admin.tsx`-filene (ansatte, team, lokasjoner, roller, statuser og endringstyper), og stiler i `app/globals.css`. Raden husker egne startverdier; avviker feltene fra det som er lagret, får den rød kant og «Ikke lagret». Etter vellykket lagring grønn kant og «Lagret» i 4 sekunder. `key={revisjon}` er fjernet, og skjult `revisjon` tar siste verdi fra siden, så en lagring i én rad ikke visker ut en annen. `beforeunload`-advarsel mens en rad er endret.

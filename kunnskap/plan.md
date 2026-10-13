@@ -87,14 +87,7 @@ testes med oppdiktede rader i Node, aldri mot `data/`.
 
 Fase 8 ✅ 2026-10-13 — detaljer i logg
 
-**Fase 9 — Full endringslogg.**
-`endreVaktliste` tar kopi før `endre`, sammenligner tabell for tabell på `id` etter, og legger én linje
-per lagt til / endret / fjernet rad i `data/endringslogg.jsonl`: tid, hvem (`endretAv`), tabell, rad,
-felt med gammel og ny verdi. Navn på personer, team osv. slås opp og lagres med linjen, så loggen tåler
-senere sletting. Siden `/admin/logg`: nyeste først, lesbar setning per endring, filter på tabell.
-Filer: `lib/lager.ts`, ny `lib/endringslogg.ts`, `app/admin/logg/page.tsx`, lenke i `app/admin/page.tsx`.
-**Verifisering:** du endrer navnet på en lokasjon og team på en ansatt, åpner «Endringslogg» i Admin og
-ser to linjer øverst med navnet ditt, klokkeslett og gammel → ny verdi.
+Fase 9 ✅ 2026-10-13 — detaljer i logg
 
 **Fase 10 — Ansatte: når de kom inn, deaktivering og adminstatus.**
 Skjemaversjon 5: `Bruker` får `opprettet` (ISO-tid, `null` for eksisterende = vises som «før loggen»),

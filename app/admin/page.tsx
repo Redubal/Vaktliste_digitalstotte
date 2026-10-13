@@ -50,6 +50,9 @@ export default async function AdminSide() {
           <Link className="uke-btn" href="/admin/endringstyper">
             Endringstyper og statuser
           </Link>
+          <Link className="uke-btn" href="/admin/logg">
+            Endringslogg
+          </Link>
         </div>
         <p className="admin-advarsel">
           Identiteten over er et midlertidig valg, ikke innlogging. Hvem som helst kan velge

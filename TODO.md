@@ -38,7 +38,7 @@ etter Fase 3. Kom opp under verifiseringen av Fase 1, punkt 9.
 Når man gjør endringer på alle steder .. så må det komme tydelig frem at man har endringer som ikke er lagret .. type rød farge og grønn når den er lagret .. gjelder over alt .
 
 ##
-Full logg over alle endringer
+Full logg over alle endringer — levert i Fase 9, se logg 2026-10-13 og `/admin/logg`.
 
 ##
 Mulig å gå fra ansatt på main til ansatt på admin
@@ -65,3 +65,12 @@ legge til etternavn på ansatte i lista i egen kolonne
 
 ##
 Mangler en knapp for lagring dersom man gjør mange endringer
+
+##
+superadmin -- som også har tilgang til Entra kobling og database kobling
+
+##
+Fase 16 (synk): endringsloggen må få en egen avsender for synken (f.eks. «Synk (Entra)»). `endretAv` er i dag id-en til valgt administrator, og `hvem()` i `lib/endringslogg.ts` må godta avsenderen, ellers vises id-teksten rått.
+
+##
+Fase 16 (synk): en synk gir én logglinje per person og oppsett og kan fylle «Endringslogg». Vurder filter på avsender.

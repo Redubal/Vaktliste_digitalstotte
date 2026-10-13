@@ -129,5 +129,7 @@ deny-sett hører sammen som par, og ingen av dem er en sandkasse.
     fildekodingen, ikke konsollet.
 - **Flerlinjede commit-meldinger:** skriv meldingen til fil og bruk
   `git commit -F <fil>` — here-strings avvises i enkelte oppsett av Claude Code.
+- **Bruk aldri `cd` i Bash:** mappebyttet blir stående mellom kall (brutt tre
+  ganger, derfor regel). Bruk `git -C <full sti>` og full sti.
 - **PowerShell 5.1 mangler `&&`/`||` (bruk `A; if ($?) { B }`), ternary/`??`/`?.`,
   og Unix-kommandoene `head`/`tail`/`touch`/`which`/`wc`.**

@@ -1,5 +1,14 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 9) — Full endringslogg
+
+**Evaluering av forrige økts punkter:**
+- `[bash-cd-persisterer]` brutt igjen (3. runde): `cd app && git status --porcelain` ble kjørt i første git-sjekk ved faseoppstart, selv om punktet var kvittert. Bruker godkjente forslaget om å gjøre det til regel: skrevet inn i `app/CLAUDE.md` (Windows og PowerShell) og tatt ut av STATUS.
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** Fase 9 fikk plass i én økt uten `/compact`, selv med periodefilter og nedtrekksliste lagt til underveis. Resten av planen står uendret.
+
 ## 2026-10-13 (avslutning Fase 8) — Lagret/ikke lagret i Admin
 
 **Evaluering av forrige økts punkter:**

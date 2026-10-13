@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { beregnEndringer, skrivEndringer } from "./endringslogg";
 import { SKJEMA_VERSJON, oppgraderVaktliste, tomVaktliste, type Vaktliste } from "./domene";
 
 const DATA_DIR = path.resolve(process.cwd(), "data");
@@ -75,11 +76,18 @@ export function endreVaktliste(
   if (v.revisjon !== valg.forventetRevisjon) {
     return "Listen er endret av noen andre siden du åpnet siden. Last siden på nytt og prøv igjen.";
   }
+  const før = structuredClone(v);
   const feil = endre(v);
   if (feil) return feil;
   takSikkerhetskopi(v.revisjon);
   v.revisjon += 1;
   v.sistEndretAv = valg.endretAv;
   skrivAtomisk(JSON.stringify(v, null, 2) + "\n");
+  // Listen er lagret; en feil i loggen skal ikke få det til å se ut som lagringen feilet.
+  try {
+    skrivEndringer(beregnEndringer(før, v, valg.endretAv, new Date().toISOString()));
+  } catch (e) {
+    console.error("Skriving til endringsloggen feilet", e);
+  }
   return null;
 }
