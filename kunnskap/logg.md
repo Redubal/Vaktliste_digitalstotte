@@ -1,5 +1,14 @@
 # Logg
 
+## 2026-10-13 — Ny plan: Fase 8–19 (Admin-forbedringer, ansatte og Entra)
+
+- Plan laget i planmodus på tyngste modell og godkjent av bruker. Den dekker ønskene i `TODO.md` pluss «Fast lokasjon»-kolonnen og mobilformat. Se `plan.md`, seksjonen «Admin-forbedringer, ansatte og Entra».
+- **Beslutning (SR, Entra):** Entra finnes, og de ansatte ligger i en egen gruppe. Planen bygger mot Entra-innlogging og -synk og mot en database på sikt. Under utvikling brukes lokale data. Begrunnelse: appen skal i drift med ekte identitet, men tilgangene er ikke på plass ennå.
+- **Beslutning (SR, vedlikeholdsmodus):** andre ser bare en melding, administratorer slipper inn. **Beslutning (SR, endringslogg):** hvem, når, før og etter, bare admin ser den. **Beslutning (SR, eldre punkter):** «Fast lokasjon» og mobilformat tas med.
+- **Beslutning (Claude, logg-lager / adminstatus / deaktivering / synk-kilde):** se `plan.md` med begrunnelser.
+- Funn (observert under kartleggingen): `key={revisjon}` på Admin-skjemaene nullstiller ulagrede endringer i alle rader når én rad lagres. Suksessmeldingen fra `utfor` vises aldri. Dette er grunnlaget for Fase 8.
+- Funn (observert): `cd app` ble igjen stående mellom Bash-kall i fase-start. Rettet med full sti.
+
 ## 2026-10-13 — Fase 7 ✅ Ansattes team, rolle og lokasjon kan endres i Admin
 
 - Levert: siden `/admin/ansatte` (`app/admin/ansatte/page.tsx`, `components/AnsattAdmin.tsx`), handlingen `endreAnsatt` i `app/admin/handlinger.ts` og regelen `sjekkOppsett` i `lib/domene.ts`. Én rad per oppsett med tre nedtrekkslister (team, rolle, lokasjon) og «Lagre». Knapp «Ansatte» i `/admin`, «Kommer»-linja fjernet. Ingen ny tabell, `SKJEMA_VERSJON` står på 4.

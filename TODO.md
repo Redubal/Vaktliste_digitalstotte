@@ -53,3 +53,12 @@ Mulig å gå fra ansatt på main til ansatt på admin
 
 ##
 Sortering i kolonner 
+
+##
+Sette siden i vedlikeholdsmodus
+
+##
+Ansatte må kunne legge inn ny status 
+
+##
+legge til etternavn på ansatte i lista i egen kolonne

@@ -14,7 +14,7 @@ Git-repoet ligger i `app/`, remote: github.com/Redubal/Vaktliste_digitalstotte (
 - Omgjøringene v2 → v3 og v3 → v4 er testet med oppdiktede rader i Node, ikke mot ekte data. Ikke testet i nettleser av meg: omdøping av «Godkjent», «Vises i plan» av/på, ny type med kategori fravær, sletting av status/type i bruk, to faner samtidig, ny lagring ved låst fil, opprydding av sikkerhetskopier, team med flere enn to team i alle visninger, endring av rolle og lokasjon på en ansatt.
 
 ## Neste
-Planen er ferdig. Bruker har lagt nye ønsker i `TODO.md`: markering av ulagrede endringer (rødt) og lagret (grønt) i hele Admin, full endringslogg, hopp mellom ansatt på forsiden og i Admin, og ansatte/Entra-synk (se når ansatt kom inn, masseendringer, deaktivere, synk-tidspunkt og tvunget synk, adminstatus). Neste økt: lag en ny plan av dem i planmodus med tyngste modell (`/model` til tyngste før planen skrives). Planmodus er når Claude bare planlegger og du godkjenner først.
+Ny plan godkjent 2026-10-13: Fase 8–19 (`plan.md`, «Admin-forbedringer, ansatte og Entra»). Neste: Fase 8, «Lagret eller ikke lagret i hele Admin», på Sonnet. Fase 16–19 går på tyngste modell; 17–19 venter på tilganger (app-registrering, Graph, database).
 
 ## Arbeidsmåte neste økt
 - `[bash-cd-persisterer]` Mappebyttet fra `cd` blir stående mellom Bash-kall: bruk full sti i hvert kall, og sjekk mappen før et tomt svar tolkes som «ingenting».

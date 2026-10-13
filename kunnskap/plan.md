@@ -46,6 +46,147 @@ Ansatt ser bare Ukeplan og Måned. Administrator (Ståle, Espen) ser i tillegg A
 - **Fase 6 ✅ 2026-10-13** — Team er data og kan redigeres i Admin; detaljer i logg.
 - **Fase 7 ✅ 2026-10-13** — Ansattes team, rolle og lokasjon kan endres i Admin; detaljer i logg.
 
+### Admin-forbedringer, ansatte og Entra (godkjent 2026-10-13)
+
+Ønskene i `TODO.md` etter Fase 7, pluss to eldre punkter («Fast lokasjon»-kolonnen og mobilformat).
+
+Funn fra kartleggingen (2026-10-13) som styrer snittet:
+- Admin-skjemaene pakkes i `<div key={revisjon}>`, så **enhver lagring nullstiller ulagrede endringer i
+  alle andre rader**. Suksessmeldingen fra `utfor` returneres, men vises aldri.
+- All skriving går gjennom `endreVaktliste` i `lib/lager.ts`: én plass å fange endringsloggen.
+- `Bruker` har `id, name, upn, erAdministrator?` — ingen `opprettet`, `aktiv` eller Entra-id.
+  Nye felt = `SKJEMA_VERSJON` 5 + `tilVersjon5` i `lib/domene.ts` (og tom-struktur i importskriptene).
+- Ingen auth-pakker, ingen `proxy.ts`. «Velg deg selv» (`lib/identitet.ts`) er ikke sikkerhet.
+
+**Avklarte beslutninger:**
+- **Beslutning (SR, Entra 2026-10-13):** Entra finnes, og de ansatte ligger i en egen gruppe. Planen
+  bygger mot Entra (innlogging og synk), og data skal på sikt over i en database. Under utvikling
+  brukes lokale data.
+- **Beslutning (SR, vedlikeholdsmodus):** andre ser bare en melding; administratorer bruker siden som
+  vanlig og kan skru modusen av.
+- **Beslutning (SR, endringslogg):** hvem, når, gammel og ny verdi per lagring; bare admin ser den.
+- **Beslutning (SR, eldre punkter):** «Fast lokasjon»-kolonnen og mobilformatet tas med.
+- **Beslutning (Claude, logg-lager):** loggen ligger i egen fil `data/endringslogg.jsonl` (én linje per
+  endring, bare tillegg), ikke i `vaktliste.json`. Begrunnelse: den vokser uten tak og skal ikke
+  blåse opp hver sikkerhetskopi. Blir en tabell når databasen kommer.
+- **Beslutning (Claude, adminstatus):** settes i appen (`erAdministrator`) inntil videre. Kan flyttes
+  til en Entra-gruppe i innloggingsfasen hvis brukeren vil. Begrunnelse: TODO ber om å kunne sette
+  den i Admin.
+- **Beslutning (Claude, deaktivering):** ansatte slettes aldri, de får `aktiv: false` (som
+  `arkitektur.md` alt sier). Deaktiverte vises ikke i Ukeplan, Måned, Ansatte-fanen eller velgeren.
+  Man kan ikke deaktivere seg selv eller fjerne siste aktive administrator.
+- **Beslutning (Claude, synk-kilde):** synken skrives mot et grensesnitt med to kilder: en lokal
+  testfil med oppdiktede personer (dev) og Microsoft Graph (ekte). Slik kan alt unntatt selve
+  Graph-kallet bygges og ses før tilgangen er på plass.
+- **Sperre (fra før):** reelle persondata ut til andre enn utvikler krever behandlingsgrunnlag
+  (`TODO.md` punkt 1). Gjelder innloggings-, Graph- og databasefasene.
+
+Fase 8–15 er mekaniske (Sonnet). Fase 16–19 er arkitektur/sikkerhet (tyngste modell).
+Sjekk per fase: `tsc --noEmit`, `npm run lint` og `next build` grønne ved faseslutt; skjemaomgjøringer
+testes med oppdiktede rader i Node, aldri mot `data/`.
+
+**Fase 8 — Lagret eller ikke lagret i hele Admin.**
+Hver rad husker egne startverdier; endres et felt, får raden rød kant og «Ikke lagret». Etter lagring
+blir den grønn med «Lagret» noen sekunder. Fjern `key={revisjon}`-nullstillingen: raden får nøkkel fra
+egne verdier, og skjult `revisjon` tar alltid siste verdi fra siden, så en lagring i én rad ikke
+visker ut en annen. Advarsel ved å forlate siden med ulagrede rader (`beforeunload`).
+Filer: `components/AdminFelles.tsx` (felles krok + visning), alle `components/*Admin.tsx`, `app/globals.css`.
+**Verifisering:** du endrer team på to ansatte uten å lagre og ser begge radene røde; du lagrer den ene
+og ser den bli grønn mens den andre fortsatt er rød med endringen din i behold; du prøver å lukke
+fanen og får en advarsel.
+
+**Fase 9 — Full endringslogg.**
+`endreVaktliste` tar kopi før `endre`, sammenligner tabell for tabell på `id` etter, og legger én linje
+per lagt til / endret / fjernet rad i `data/endringslogg.jsonl`: tid, hvem (`endretAv`), tabell, rad,
+felt med gammel og ny verdi. Navn på personer, team osv. slås opp og lagres med linjen, så loggen tåler
+senere sletting. Siden `/admin/logg`: nyeste først, lesbar setning per endring, filter på tabell.
+Filer: `lib/lager.ts`, ny `lib/endringslogg.ts`, `app/admin/logg/page.tsx`, lenke i `app/admin/page.tsx`.
+**Verifisering:** du endrer navnet på en lokasjon og team på en ansatt, åpner «Endringslogg» i Admin og
+ser to linjer øverst med navnet ditt, klokkeslett og gammel → ny verdi.
+
+**Fase 10 — Ansatte: når de kom inn, deaktivering og adminstatus.**
+Skjemaversjon 5: `Bruker` får `opprettet` (ISO-tid, `null` for eksisterende = vises som «før loggen»),
+`aktiv` (standard `true`) og `entraId` (`null`, brukes i Fase 16). Admin → Ansatte viser «Kom inn»,
+avkrysning «Administrator» og knapp «Deaktiver»/«Aktiver»; deaktiverte vises nederst, grået.
+Filer: `lib/domene.ts`, `lib/vaktlista.ts`, `lib/ukeplan.ts`, `app/admin/handlinger.ts`,
+`components/AnsattAdmin.tsx`, `components/IdentitetsVelger.tsx`, importskriptene (tom struktur).
+Omgjøringen v4 → v5 testes med oppdiktede rader i Node.
+**Verifisering:** du deaktiverer en ansatt og ser personen forsvinne fra Ukeplan og fra «Velg deg selv»,
+og dukke opp igjen når du aktiverer; du gjør en annen til administrator og ser Admin-knappen når du
+velger den personen; du prøver å deaktivere deg selv og får beskjed om at det ikke går.
+
+**Fase 11 — Masseendring av ansatte.**
+Avkrysning per rad i Admin → Ansatte, «Velg alle synlige», og en linje øverst: sett team / rolle /
+lokasjon / deaktiver for alle valgte. Én handling, én revisjon, én loggrad per ansatt.
+**Verifisering:** du krysser av tre ansatte, setter rolle på alle samtidig og ser alle tre med ny rolle
+i listen og tre linjer i endringsloggen.
+
+**Fase 12 — Hopp mellom ansatt på forsiden og i Admin, og bort med «Fast lokasjon».**
+For administratorer blir navnet i Ukeplan og Måned en lenke til `/admin/ansatte#<brukerId>`, der raden
+utheves; raden i Admin har «Vis i ukeplan» tilbake (`/?person=<brukerId>` med uthevet rad). Rydd
+dobbelt-nøkkelen i Ukeplan (`key={rad.person.id}` når en person har flere oppsett). «Fast lokasjon»-
+kolonnen fjernes fra Ukeplan (og Måned om den finnes der), og `.col-home` i `globals.css` går ut.
+**Verifisering:** som administrator klikker du et navn i Ukeplan og havner på personens rad i Admin,
+uthevet; «Vis i ukeplan» tar deg tilbake til samme person; som vanlig ansatt er navnet ikke en lenke;
+kolonnen «Fast lokasjon» er borte.
+
+**Fase 13 — Sortering i kolonner.**
+Klikkbare kolonneoverskrifter (stigende/synkende, pil og `aria-sort`) i Ansatte-fanen
+(`components/VaktlisteClient.tsx`) og i Admin → Ansatte; Ukeplan og Måned kan sorteres på navn og rolle.
+Valget huskes i adressen (`?sorter=`), så det tåler oppdatering. Felles hjelpefunksjon i `lib/`.
+**Verifisering:** du klikker «Navn» i Ansatte-fanen og ser listen snu, klikker «Team» og ser den
+gruppert; du oppdaterer siden og sorteringen står.
+
+**Fase 14 — Vedlikeholdsmodus.**
+`innstillinger` i `vaktliste.json` (`vedlikehold: boolean`, `melding`). `app/layout.tsx` viser bare
+meldingen for alle som ikke er administrator; `utfor` nekter skriving for andre. Bryter i `/admin`.
+Forbehold til Entra er på plass: hvem som helst kan velge en administrator i «Velg deg selv».
+**Verifisering:** du skrur på vedlikehold, velger deg selv som vanlig ansatt og ser bare meldingen;
+som administrator ser du siden som vanlig med et gult bånd øverst; du skrur av og alt er tilbake.
+
+**Fase 15 — Bedre format på mobil.**
+Under en viss bredde blir Ukeplan og Måned en liste per person (kort med dagene under hverandre) i
+stedet for en tabell som scroller sidelengs. Formatet velges sammen med deg ved faseoppstart, med to
+skisser å velge mellom.
+**Verifisering:** du gjør nettleservinduet smalt (eller åpner på mobil) og ser Ukeplan og Måned uten
+sidelengs scrolling, med alle dagene lesbare.
+
+**Fase 16 — Synk av ansatte, med lokal testkilde (tyngste modell).**
+`lib/synk.ts` med kilde-grensesnitt; testkilden leser `data/entra-test.json` (oppdiktede personer).
+Regler: match på `entraId`, deretter `upn`; ny person → `opprettet` = nå, havner under «Nye, mangler
+team» i Admin; borte fra gruppen → `aktiv: false`, aldri slettet. Innstillinger: tidspunkt og
+hyppighet (f.eks. daglig kl. 06), sist kjørt og utfall; «Synk nå»-knapp. Kjøres når en side lastes og
+siste synk er eldre enn intervallet (ingen egen tidsplanlegger på serveren).
+**Verifisering:** du legger en oppdiktet person til i testfila, trykker «Synk nå» og ser personen under
+«Nye» med dagens dato; du fjerner en person fra fila, synker og ser vedkommende deaktivert; «Sist
+synket» viser klokkeslettet.
+
+**Fase 17 — Innlogging med Entra (tyngste modell, krever app-registrering).**
+Erstatter «Velg deg selv» i drift; `AUTH_MODUS=lokal` beholder velgeren under utvikling. Bibliotek
+(Auth.js med Entra-leverandør eller `@azure/msal-node`) velges ved faseoppstart etter å ha lest
+dokumentasjonen for Next 16. Innlogget person kobles til `Bruker` på `entraId`/`upn`. Hemmeligheter
+legges i `.env` av deg — Claude leser den aldri. Sikkerhetsgjennomgang mot `kunnskap/sikkerhet.md`.
+**Forutsetning:** app-registrering med omdirigering til `http://localhost:3000`, klient-id, tenant-id
+og hemmelighet.
+**Verifisering:** du åpner appen, sendes til Microsoft-innlogging, kommer tilbake og ser navnet ditt
+øverst uten velger; en kollega uten adminstatus ser ikke Admin.
+
+**Fase 18 — Synk mot ekte Entra-gruppe (tyngste modell, krever Graph-tilgang).**
+Graph-kilden: `GET /groups/{id}/members` med `id, displayName, userPrincipalName, mail`; app-tillatelse
+`GroupMember.Read.All` med admin-samtykke. Gruppe-id i `.env`. Filterstrenger bygges bare av serververdier.
+**Forutsetning:** tillatelsen er gitt; behandlingsgrunnlag avklart (`TODO.md` punkt 1).
+**Verifisering:** du trykker «Synk nå» og ser antallet ansatte stemme med gruppen i Entra, og at en
+person du vet er ny, står under «Nye».
+
+**Fase 19 — Data over i database (tyngste modell, sperret til tilgang er gitt).**
+`lib/lager.ts` er eneste vei inn og ut, så byttet holdes der: tabellene i `vaktliste.json` og
+endringsloggen blir tabeller. Databasetype (SQLite, Azure SQL, PostgreSQL) bestemmes når tilgangen
+er kjent; JSON-fila brukes fortsatt under utvikling hvis ønsket.
+**Verifisering:** du ser samme Ukeplan og samme endringslogg som før flyttingen, og en endring i Admin
+står der etter at appen er startet på nytt.
+
+Ikke med: drift/hosting (gamle Fase 5) og «Min plan»; de planlegges når Fase 17 er levert.
+
 ---
 
 **Fase 1 ✅ 2026-09-30** — ukeplan per team, Måned og normaliserte data; detaljer i logg. Mobilvisning utsatt, se `TODO.md` punkt 3.
