@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { Ansatt, Dag, Endring, Team } from "@/lib/vaktlista";
 import {
@@ -18,6 +19,7 @@ type Props = {
   ansatte: Ansatt[];
   endringer: Endring[];
   dager: Dag[];
+  erAdmin: boolean;
 };
 
 const PRIKK_KLASSE: Record<CelleType, string> = {
@@ -36,7 +38,7 @@ const FORKLARING: { type: CelleType; tekst: string }[] = [
   { type: "utenfor", tekst: "Ikke aktiv" },
 ];
 
-export function MaanedClient({ team: alleTeam, ansatte, endringer, dager }: Props) {
+export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmin }: Props) {
   const today = useMemo(() => {
     const t = todayUtc();
     return { aar: t.getUTCFullYear(), maaned: t.getUTCMonth() + 1 };
@@ -130,9 +132,15 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager }: Prop
                 </tr>
               )}
               {plan.rader.map((rad) => (
-                <tr key={rad.person.id}>
+                <tr key={`${rad.person.teamId}-${rad.person.id}`}>
                   <th scope="row" className="col-person">
-                    <span className="person-name">{rad.person.name}</span>
+                    {erAdmin ? (
+                      <Link className="person-name person-lenke" href={`/admin/ansatte#${rad.person.id}`}>
+                        {rad.person.name}
+                      </Link>
+                    ) : (
+                      <span className="person-name">{rad.person.name}</span>
+                    )}
                   </th>
                   {rad.celler.map((celle, i) => {
                     const type = classifyCelle(celle);

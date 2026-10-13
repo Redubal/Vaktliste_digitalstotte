@@ -1,5 +1,13 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 12) — Hopp mellom ansatt på forsiden og i Admin
+
+**Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere. `git -C` med full sti ble brukt i hele økten; ingen `cd`.
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** Fase 12 fikk plass i én økt uten `/compact`. Resten av planen står uendret.
+
 ## 2026-10-13 (avslutning Fase 11) — Masseendring av ansatte
 
 **Evaluering av forrige økts punkter:** ingen aktive punkter å evaluere. Regelen om `cd` i Bash (nå i `app/CLAUDE.md`) ble brutt én gang: `cd .. && ls` i første kodeutforskning, så full sti. Ingen nytt punkt i STATUS, fordi regelen alt står i CLAUDE.md (én adresse).

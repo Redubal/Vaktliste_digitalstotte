@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Ansatt, Dag, Endring, Team } from "@/lib/vaktlista";
 import {
   ALLE_TEAM,
@@ -18,6 +19,9 @@ type Props = {
   ansatte: Ansatt[];
   endringer: Endring[];
   dager: Dag[];
+  erAdmin: boolean;
+  /** Bruker-id som skal utheves (fra «Vis i ukeplan» i Admin). */
+  utheves: string | null;
 };
 
 const CELLE_KLASSE: Record<CelleType, string> = {
@@ -28,9 +32,16 @@ const CELLE_KLASSE: Record<CelleType, string> = {
   utenfor: "celle celle--utenfor",
 };
 
-export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager }: Props) {
+export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager, erAdmin, utheves }: Props) {
   const today = useMemo(() => isoWeek(todayUtc()), []);
-  const [team, setTeam] = useState<TeamFilter>(alleTeam[0]?.id ?? ALLE_TEAM);
+  // Kommer du fra Admin, starter visningen på teamet til personen, ellers er raden ikke i listen.
+  const [team, setTeam] = useState<TeamFilter>(
+    ansatte.find((a) => a.id === utheves)?.teamId ?? alleTeam[0]?.id ?? ALLE_TEAM,
+  );
+  const utheveRef = useRef<HTMLTableRowElement | null>(null);
+  useEffect(() => {
+    utheveRef.current?.scrollIntoView({ block: "center" });
+  }, []);
   const [{ aar, uke }, setUke] = useState<{ aar: number; uke: number }>({
     aar: today.year,
     uke: today.week,
@@ -87,7 +98,6 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager }: Pro
             <thead>
               <tr>
                 <th className="col-person">Ansatt</th>
-                <th className="col-home">Fast lokasjon</th>
                 {ukeplan.dager.map((d, i) => {
                   const noter = ukeplan.merknader[i];
                   return (
@@ -111,22 +121,31 @@ export function UkeplanClient({ team: alleTeam, ansatte, endringer, dager }: Pro
             <tbody>
               {ukeplan.rader.length === 0 && (
                 <tr>
-                  <td colSpan={ukeplan.dager.length + 2} className="empty-row">
+                  <td colSpan={ukeplan.dager.length + 1} className="empty-row">
                     Ingen aktive personer denne uken.
                   </td>
                 </tr>
               )}
               {ukeplan.rader.map((rad) => (
-                <tr key={rad.person.id}>
+                <tr
+                  key={`${rad.person.teamId}-${rad.person.id}`}
+                  ref={rad.person.id === utheves ? utheveRef : undefined}
+                  className={rad.person.id === utheves ? "rad--uthevet" : undefined}
+                >
                   <th scope="row" className="col-person">
                     <div className="person-cell">
-                      <span className="person-name">{rad.person.name}</span>
+                      {erAdmin ? (
+                        <Link className="person-name person-lenke" href={`/admin/ansatte#${rad.person.id}`}>
+                          {rad.person.name}
+                        </Link>
+                      ) : (
+                        <span className="person-name">{rad.person.name}</span>
+                      )}
                       <span className="person-meta">
                         {rad.person.team} · {rad.person.role}
                       </span>
                     </div>
                   </th>
-                  <td className="col-home">{rad.person.location}</td>
                   {rad.celler.map((celle) => {
                     const type = classifyCelle(celle);
                     const tooltip = celle.endring

@@ -423,11 +423,26 @@ tbody tr:nth-child(even) {
   z-index: 3;
 }
 
-.ukeplan-table .col-home {
-  width: 140px;
-  color: var(--muted);
+.person-lenke {
+  color: var(--primary);
+  text-decoration: none;
 }
 
+.person-lenke:hover {
+  text-decoration: underline;
+}
+
+/* Raden som lenken fra Admin eller Ukeplan peker på. */
+.rad--uthevet,
+.rad--uthevet .col-person {
+  background: #fff4c2;
+}
+
+.admin-ansattrad.rad--uthevet {
+  outline: 2px solid #e0b400;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
 
 .day-head {
   display: flex;
@@ -957,11 +972,6 @@ a.uke-btn {
   .ukeplan-table td {
     padding: 8px 6px;
     font-size: 0.82rem;
-  }
-
-  /* Fast lokasjon vises allerede i cellene; kolonnen tar for mye plass på smal skjerm. */
-  .ukeplan-table .col-home {
-    display: none;
   }
 
   .celle {

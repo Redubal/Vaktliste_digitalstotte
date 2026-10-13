@@ -10,7 +10,13 @@ import { getAnsatte, getDager, getEndringer, getTeam } from "@/lib/vaktlista";
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ [nøkkel: string]: string | string[] | undefined }>;
+}) {
+  const person = (await searchParams).person;
+  const utheves = typeof person === "string" ? person : null;
   const ansatte = getAnsatte();
   const endringer = getEndringer();
   const dager = getDager();
@@ -27,12 +33,23 @@ export default async function Home() {
     {
       id: "ukeplan",
       label: "Ukeplan",
-      content: <UkeplanClient team={team} ansatte={ansatte} endringer={endringer} dager={dager} />,
+      content: (
+        <UkeplanClient
+          team={team}
+          ansatte={ansatte}
+          endringer={endringer}
+          dager={dager}
+          erAdmin={erAdmin}
+          utheves={utheves}
+        />
+      ),
     },
     {
       id: "maaned",
       label: "Måned",
-      content: <MaanedClient team={team} ansatte={ansatte} endringer={endringer} dager={dager} />,
+      content: (
+        <MaanedClient team={team} ansatte={ansatte} endringer={endringer} dager={dager} erAdmin={erAdmin} />
+      ),
     },
   ];
 

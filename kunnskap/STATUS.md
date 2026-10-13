@@ -4,17 +4,17 @@
 **Gjenstående:** `TODO.md` i rotkatalogen
 
 ## Tilstand
-Fase 1–11 ✅. Fase 11 (masseendring av ansatte) er avsluttet 2026-10-13: brukeren bekreftet at lokasjon byttes på tre valgte og at layouten er bra. Forbehold fra Fase 10 (hva som ble prøvd ble ikke oppgitt) og tidligere: omdøping av «Godkjent» lar planen stå uendret er ikke sett (Fase 5); nytt rollenavn i Ansatte er ikke testet (Fase 4); rolle og lokasjon på en ansatt er ikke bekreftet enkeltvis (Fase 7). Mobilvisningen trenger et bedre format (utsatt, `TODO.md`).
+Fase 1–12 ✅. Fase 12 (hopp mellom ansatt på forsiden og i Admin, bort med «Fast lokasjon» i Ukeplan) er avsluttet 2026-10-13: brukeren svarte «virker» uten å oppgi hva som ble prøvd. Fase 11 (masseendring): bruker bekreftet at lokasjon byttes på tre valgte. Forbehold fra Fase 10 (hva som ble prøvd ble ikke oppgitt) og tidligere: omdøping av «Godkjent» lar planen stå uendret er ikke sett (Fase 5); nytt rollenavn i Ansatte er ikke testet (Fase 4); rolle og lokasjon på en ansatt er ikke bekreftet enkeltvis (Fase 7). Mobilvisningen trenger et bedre format (utsatt, `TODO.md`).
 Administratorer: Espen, Ståle og Jens.
 Stack: Next.js 16.3.7 (nytt API, les `node_modules/next/dist/docs/` før kode), React 19, Tailwind v4.
 Git-repoet ligger i `app/`, remote: github.com/Redubal/Vaktliste_digitalstotte (privat), gren `master`.
 
 ## Verifisert
-- `tsc --noEmit` og `npm run lint` rene etter siste kodeendring i Fase 11. `next build` ble ikke kjørt i Fase 10 eller 11 (en kjørende `next dev` kan komme i konflikt); sist kjørt ved faseslutt i Fase 8.
-- Omgjøringene v2 → v3, v3 → v4 og v4 → v5 er testet med oppdiktede rader i Node, ikke mot ekte data. `beregnEndringer` (endringsloggen) er ikke kjørt i Node. Ikke bekreftet av bruker: tre loggrader etter masseendring, «Velg alle synlige», «Deaktiver valgte», rolle-/teamvalg og «Fjern», feilmeldingene i masseendringen. Ikke testet i nettleser av meg: alt i Fase 10 (deaktivering/aktivering, adminavkrysning, selvdeaktivering), samt fra før: loggføring av lagt til og fjernet rader, ødelagt linje i loggfila, taket på 500 linjer, omdøping av «Godkjent», «Vises i plan» av/på, sletting av status/type i bruk, to faner samtidig, ny lagring ved låst fil, opprydding av sikkerhetskopier, team med flere enn to team i alle visninger, «Lagret»-farge i «legg til»-skjemaene, advarsel ved menyvalg mellom Admin-sider.
+- `tsc --noEmit` og `npm run lint` rene etter siste kodeendring i Fase 12. `next build` ble ikke kjørt i Fase 10–12 (en kjørende `next dev` kan komme i konflikt); sist kjørt ved faseslutt i Fase 8.
+- Omgjøringene v2 → v3, v3 → v4 og v4 → v5 er testet med oppdiktede rader i Node, ikke mot ekte data. `beregnEndringer` (endringsloggen) er ikke kjørt i Node. Ikke bekreftet av bruker: tre loggrader etter masseendring, «Velg alle synlige», «Deaktiver valgte», rolle-/teamvalg og «Fjern», feilmeldingene i masseendringen. Ikke testet i nettleser av meg: alt i Fase 12 (lenker i Ukeplan og Måned, «Vis i ukeplan», uthevet rad, person med flere oppsett, person i annet team), alt i Fase 10 (deaktivering/aktivering, adminavkrysning, selvdeaktivering), samt fra før: loggføring av lagt til og fjernet rader, ødelagt linje i loggfila, taket på 500 linjer, omdøping av «Godkjent», «Vises i plan» av/på, sletting av status/type i bruk, to faner samtidig, ny lagring ved låst fil, opprydding av sikkerhetskopier, team med flere enn to team i alle visninger, «Lagret»-farge i «legg til»-skjemaene, advarsel ved menyvalg mellom Admin-sider.
 
 ## Neste
-Fase 12, «Hopp mellom ansatt på forsiden og i Admin, og bort med Fast lokasjon» (`plan.md`), på Sonnet. Fase 16–19 går på tyngste modell; 17–19 venter på tilganger (app-registrering, Graph, database). «Lagre alle»-knapp og rollefilter i uke-/månedsplanen er ønsket av bruker, utenfor planen, se `TODO.md`.
+Fase 13, «Sortering i kolonner» (`plan.md`), på Sonnet. Fase 16–19 går på tyngste modell; 17–19 venter på tilganger (app-registrering, Graph, database). «Lagre alle»-knapp og rollefilter i uke-/månedsplanen er ønsket av bruker, utenfor planen, se `TODO.md`.
 
 ## Arbeidsmåte neste økt
 Ingen aktive punkter.
@@ -34,5 +34,5 @@ Ingen aktive punkter.
 - Team er data: filter og telling går på `teamId`, navnet (`Ansatt.team`) er bare til visning. Valget «Alle team» er `ALLE_TEAM = "*"` i `lib/ukeplan.ts`. Rekkefølgen i tabellen `team` er rekkefølgen i velgeren.
 - `python` finnes ikke i Git Bash her; skriv filer med Write/Edit, ikke store heredocs med flere filer.
 - Data har navn, e-post og sykefravær: aldri lim ekte rader inn i logg, STATUS eller plan.
-- Ingen database nå: JSON i `data/` (blokkerer SQLite). Reelle persondata i appen krever behandlingsgrunnlag, se `TODO.md` punkt 1. `TODO.md` punkt 2: fjern «Fast lokasjon»-kolonnen.
+- Ingen database nå: JSON i `data/` (blokkerer SQLite). Reelle persondata i appen krever behandlingsgrunnlag, se `TODO.md` punkt 1. «Fast lokasjon»-kolonnen er fjernet fra Ukeplan (Fase 12) men står igjen i Ansatte-fanen (`VaktlisteClient`). `Ansatt.id` er bruker-id; en bruker med flere oppsett gir flere rader med samme id, så nøkler i lister bruker `teamId-id`.
 - Persondata-deny-settet (`Read(data/**)` m.fl.) er tilbudt i `.claude/settings.json`, ikke besluttet. Fila har en ucommittet endring (`git push` tillatt) som er brukerens egen godkjenning; den tas ikke med i faseslutt-commit.

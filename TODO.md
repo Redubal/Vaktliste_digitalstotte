@@ -18,15 +18,9 @@ enn utvikler kan nå det.
 
 ## 2. «Fast lokasjon» skal ikke være egen kolonne i ukeplanen
 
-**Beslutning (SR, 2026-09-30):** Fast lokasjon er standard arbeidssted — det som
-gjelder når ingenting er endret. Dagcellene viser det allerede, så kolonnen
-gjentar samme opplysning og tar plass, særlig på smal skjerm der den skjules i
-dag (`globals.css`, `.col-home`).
-
-Fjern kolonnen fra `components/UkeplanClient.tsx`, og vurder samtidig om
-`.col-home`-regelen i mobilvisningen kan gå ut. Sjekk om Måned-fanen har samme
-dobbeltføring. Meldt under Fase 2; hører hjemme i en egen liten fase eller som
-opprydding i en fase som uansett rører ukeplantabellen.
+Levert i Fase 12 for Ukeplan, se logg 2026-10-13. **Beslutning (SR, 2026-09-30):**
+kolonnen gjentok det dagcellene allerede viser og tok plass på smal skjerm.
+Måned hadde ingen slik kolonne. Står igjen i Ansatte-fanen (`VaktlisteClient`).
 
 ## 3. Mobilvisning trenger et bedre format
 
@@ -41,7 +35,7 @@ Når man gjør endringer på alle steder .. så må det komme tydelig frem at ma
 Full logg over alle endringer — levert i Fase 9, se logg 2026-10-13 og `/admin/logg`.
 
 ##
-Mulig å gå fra ansatt på main til ansatt på admin
+Mulig å gå fra ansatt på main til ansatt på admin — levert i Fase 12, se logg 2026-10-13.
 
 ## Ansatte og synk mot Entra
 - Kom inn, deaktivering og adminstatus — levert i Fase 10, se logg 2026-10-13 og `/admin/ansatte`.
@@ -73,5 +67,14 @@ Fase 16 (synk): endringsloggen må få en egen avsender for synken (f.eks. «Syn
 ##
 Fase 16 (synk): en synk gir én logglinje per person og oppsett og kan fylle «Endringslogg». Vurder filter på avsender.
 
-#
+##
 Legge til filtreing på roller på uke/mnd plan
+
+##
+Alle legges i egen list på admin siden for enkel håndtering av godkjenning..
+skal kunne godkjenne fra uke/mnd visning .. ikke godkjente må være tydelig markert
+
+##
+ansatt og admin skal kunne endre staus direkte i ukes/mnd visning
+endringer godkjennes av admin
+

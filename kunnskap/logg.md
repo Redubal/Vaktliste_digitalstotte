@@ -1,5 +1,16 @@
 # Logg
 
+## 2026-10-13 — Fase 12 ✅ Hopp mellom ansatt på forsiden og i Admin, og bort med «Fast lokasjon»
+
+- Levert: for administratorer er navnet i Ukeplan og Måned en lenke til `/admin/ansatte#<brukerId>`; raden i Admin utheves (`rad--uthevet`, gul bakgrunn og ramme). Hver aktive rad i Admin har «Vis i ukeplan» (`/?person=<brukerId>`): `app/page.tsx` leser `searchParams` (en `Promise`, som i `admin/logg/page.tsx`), `UkeplanClient` starter på personens team og ruller raden til midten. Nøkkelen i Ukeplan og Måned er nå `teamId-id` (som i `VaktlisteClient`). Kolonnen «Fast lokasjon» og `.col-home` (også i smal-skjerm-regelen) er fjernet fra Ukeplan; Måned hadde ingen slik kolonne, bare forklaringen «Fast lokasjon» (uendret). `erAdmin` sendes fra `page.tsx` til begge klientene.
+- Valg (mitt, ikke spurt om): uthevingen i Admin leser `window.location.hash` med `useSyncExternalStore` i stedet for `:target`/effekt, fordi `:target` oppdateres ikke ved `pushState`-navigering og lint (React 19) advarer mot `setState` i effekt. Ikke prøvd mot alternativene; begrunnelsen er resonnement, ikke observasjon. Ankeret (`id`) settes bare på første rad per bruker, siden en bruker kan ha flere oppsett.
+- Utenfor planen er «Fast lokasjon»-kolonnen i Ansatte-fanen (`VaktlisteClient`) beholdt; planen nevner bare Ukeplan og Måned.
+- Verifisering: bruker svarte «virker» etter at jeg la fram de fire punktene i planen (lenke som admin, «Vis i ukeplan» tilbake, ren tekst som vanlig ansatt, kolonnen borte). Brukeren oppga ikke hva som ble prøvd punkt for punkt. Ikke testet av meg i nettleser. Ikke sett: lenker i Måned, person med flere oppsett (duplikat-anker), «Vis i ukeplan» for deaktivert person (raden har ingen knapp), person i annet team enn første.
+- Ikke kjørt: `next build` (en kjørende `next dev` kan komme i konflikt).
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 32 treff. Ingen filer i `data/` ligger i git.
+- Sjekk: `tsc --noEmit` og `npm run lint` rene (kjørt rett etter siste kodeendring; etterpå bare `kunnskap/`-filer).
+- STATUS: 38 linjer.
+- fase-slutt: 11:49–11:53, 4 min (inkl. ventetid på svar om plan og `TODO.md`).
 ## 2026-10-13 — Fase 11 ✅ Masseendring av ansatte
 
 - Levert: Admin → Ansatte har avkrysning per aktive rad (deaktiverte har ingen), «Velg alle synlige», teller og en linje øverst med valg for team, rolle og lokasjon («uendret» er standard, rolle og lokasjon har også «Fjern») og knappene «Bruk på valgte» og «Deaktiver valgte». Handlingen `masseendreAnsatte` i `app/admin/handlinger.ts` tar flere `id` (oppsett-id) og går gjennom `utfor` og `endreVaktliste`: én revisjon, alt eller ingenting (all validering før noe endres), endringsloggen skriver én rad per berørt oppsett/bruker. Deaktivering bruker `sjekkAnsattStatus` per person, så å ta med seg selv nekter hele samlingen. `MASSE_INGEN` ligger i `lib/domene.ts`. Rader og knapper: `components/AnsattAdmin.tsx`, `.admin-masse` og `.admin-ansattrad` i `globals.css`.

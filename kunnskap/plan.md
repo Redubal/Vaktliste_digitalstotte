@@ -93,14 +93,7 @@ Fase 10 ✅ 2026-10-13 — detaljer i logg
 
 Fase 11 ✅ 2026-10-13 — detaljer i logg
 
-**Fase 12 — Hopp mellom ansatt på forsiden og i Admin, og bort med «Fast lokasjon».**
-For administratorer blir navnet i Ukeplan og Måned en lenke til `/admin/ansatte#<brukerId>`, der raden
-utheves; raden i Admin har «Vis i ukeplan» tilbake (`/?person=<brukerId>` med uthevet rad). Rydd
-dobbelt-nøkkelen i Ukeplan (`key={rad.person.id}` når en person har flere oppsett). «Fast lokasjon»-
-kolonnen fjernes fra Ukeplan (og Måned om den finnes der), og `.col-home` i `globals.css` går ut.
-**Verifisering:** som administrator klikker du et navn i Ukeplan og havner på personens rad i Admin,
-uthevet; «Vis i ukeplan» tar deg tilbake til samme person; som vanlig ansatt er navnet ikke en lenke;
-kolonnen «Fast lokasjon» er borte.
+Fase 12 ✅ 2026-10-13 — detaljer i logg
 
 **Fase 13 — Sortering i kolonner.**
 Klikkbare kolonneoverskrifter (stigende/synkende, pil og `aria-sort`) i Ansatte-fanen

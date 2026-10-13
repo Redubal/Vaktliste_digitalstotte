@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import Link from "next/link";
+import { useActionState, useState, useSyncExternalStore } from "react";
 import { endreAnsatt, masseendreAnsatte, settAnsattAktiv } from "@/app/admin/handlinger";
 import { MASSE_INGEN, type Lokasjon, type Rolle, type Svar, type Team } from "@/lib/domene";
 import { Feil, Lagringsstatus, useSkjemaStatus } from "./AdminFelles";
@@ -20,6 +21,11 @@ export type AnsattVisning = {
 };
 
 type Valg = { team: Team[]; roller: Rolle[]; lokasjoner: Lokasjon[]; teamNavn: Map<string, string> };
+
+function abonnerPaaHash(varsle: () => void) {
+  window.addEventListener("hashchange", varsle);
+  return () => window.removeEventListener("hashchange", varsle);
+}
 
 function komInn(opprettet: string | null): string {
   return opprettet ? opprettet.slice(0, 10) : "før loggen";
@@ -47,12 +53,17 @@ function AnsattRad({
   revisjon,
   avkrysset,
   onVelg,
+  ankerId,
+  uthevet,
 }: {
   ansatt: AnsattVisning;
   valg: Valg;
   revisjon: number;
   avkrysset: boolean;
   onVelg: (valgt: boolean) => void;
+  /** Bruker-id som anker, bare på første rad for en bruker (en bruker kan ha flere oppsett). */
+  ankerId?: string;
+  uthevet: boolean;
 }) {
   const [svar, handling, lagrer] = useActionState(endreAnsatt, null);
   const status = useSkjemaStatus(
@@ -66,7 +77,7 @@ function AnsattRad({
   );
 
   return (
-    <li className="admin-ansattrad">
+    <li id={ankerId} className={uthevet ? "admin-ansattrad rad--uthevet" : "admin-ansattrad"}>
       <input
         type="checkbox"
         checked={avkrysset}
@@ -117,14 +128,27 @@ function AnsattRad({
         <Feil svar={svar} />
       </form>
       <AktivKnapp ansatt={ansatt} revisjon={revisjon} />
+      <Link className="uke-btn" href={`/?person=${encodeURIComponent(ansatt.brukerId)}`}>
+        Vis i ukeplan
+      </Link>
       </div>
     </li>
   );
 }
 
-function DeaktivertRad({ ansatt, revisjon }: { ansatt: AnsattVisning; revisjon: number }) {
+function DeaktivertRad({
+  ansatt,
+  revisjon,
+  ankerId,
+  uthevet,
+}: {
+  ansatt: AnsattVisning;
+  revisjon: number;
+  ankerId?: string;
+  uthevet: boolean;
+}) {
   return (
-    <li className="admin-deaktivert admin-ansattrad">
+    <li id={ankerId} className={uthevet ? "admin-deaktivert admin-ansattrad rad--uthevet" : "admin-deaktivert admin-ansattrad"}>
       <div className="admin-ansattinnhold">
         <div className="admin-skjema" style={{ flex: "1 1 auto", marginBottom: 0 }}>
           <strong className="admin-navn">{ansatt.name}</strong>
@@ -152,6 +176,15 @@ export function AnsattAdmin({
 }) {
   const valg: Valg = { team, roller, lokasjoner, teamNavn: new Map(team.map((t) => [t.id, t.name])) };
   const aktive = ansatte.filter((a) => a.aktiv);
+  // Raden fra lenken i Ukeplan/Måned (`#<brukerId>`) utheves. Ankeret ligger bare på første rad per bruker.
+  const hash = useSyncExternalStore(abonnerPaaHash, () => window.location.hash, () => "");
+  const utheves = decodeURIComponent(hash.slice(1));
+  const ankre = new Set<string>();
+  const ankerFor = (a: AnsattVisning) => {
+    if (ankre.has(a.brukerId)) return undefined;
+    ankre.add(a.brukerId);
+    return a.brukerId;
+  };
   const [krysset, setKrysset] = useState<Set<string>>(new Set());
   // Radene er ukontrollerte og tar ikke imot nye verdier fra siden. Etter en masseendring får
   // de berørte radene ny nøkkel, så de vises på nytt med det som nå er lagret. Andre rader røres ikke.
@@ -247,12 +280,20 @@ export function AnsattAdmin({
             revisjon={revisjon}
             avkrysset={krysset.has(a.id)}
             onVelg={(v) => velg(a.id, v)}
+            ankerId={ankerFor(a)}
+            uthevet={a.brukerId === utheves}
           />
         ))}
         {ansatte
           .filter((a) => !a.aktiv)
           .map((a) => (
-            <DeaktivertRad key={a.id} ansatt={a} revisjon={revisjon} />
+            <DeaktivertRad
+              key={a.id}
+              ansatt={a}
+              revisjon={revisjon}
+              ankerId={ankerFor(a)}
+              uthevet={a.brukerId === utheves}
+            />
           ))}
       </ul>
     </div>
