@@ -1,5 +1,13 @@
 # Læringslogg
 
+## 2026-10-13 (avslutning Fase 22A) — Levende figur
+
+**Evaluering av forrige økts punkter:** `[skjemasteg-er-låst-etter-test]` ikke utløst (ingen skjemaendring); Fase 23 og 27 lager nye steg, videreføres uten ny runde. `[klikkflate-hele-ruta]` ikke utløst (bare «Figur»-bryteren er ny, en vanlig knapp); Fase 23 og 25 legger til knapper, videreføres uten ny runde. `[start-verdi-følger-ikke-valg]` ikke utløst (figuren har ingen verdi fra props); **tas ut av STATUS fordi taket er tre punkter**, teksten står her: en visning som starter fra et valg (`useState` med verdi fra props) følger ikke med når valget byttes med `router.refresh()`; gi komponenten `key` fra valget (Fase 24–25 kan utløse den).
+
+**Nytt punkt:** `[utseende-spør-først]` — ønsker brukeren noe som skal se ut eller oppføre seg på en bestemt måte (figur, animasjon, ikon) og det finnes ingen referanse: be om en referanse, eller vis ett enkelt utkast, før et helt system bygges på gjetning. Belegg: figuren ble bygd og forkastet to ganger («styggeste figuren jeg har sett», «helt lite levende») før brukeren viste til eSheep.
+
+**Fasesnitt:** 22A fikk plass i én økt uten `/compact`. Den opprinnelige Fase 22 var for stor og ble delt i 22A/22B (planen oppdatert i økten); ingen ytterligere deling foreslått.
+
 ## 2026-10-13 (avslutning Fase 21) — Meg øverst og navn stigende
 
 **Evaluering av forrige økts punkter:** `[skjemasteg-er-låst-etter-test]` ikke utløst (ingen skjemaendring); Fase 23 (`avvistGrunn`) og Fase 27 (`fri`) lager nye steg, så den videreføres uten ny runde. `[klikkflate-hele-ruta]` ikke utløst (ingen nye trykkflater); Fase 23 og 25 legger til knapper, så den videreføres uten ny runde. `[vis-felt-heller-enn-å-skjule]` ikke utløst; **tas ut av STATUS fordi taket er tre punkter**, teksten står her: felt som bare vises for visse verdier i data jeg ikke kan lese, vises alltid, som valgfritt (Fase 26–27 kan utløse den).

@@ -4,23 +4,23 @@
 **Gjenstående:** `TODO.md` i rotkatalogen
 
 ## Tilstand
-Fase 1–21 ✅. Fase 21 («Meg øverst og navn stigende i Ukeplan og Måned») er avsluttet etter at bruker så at den valgte personen står øverst, at bytte i «Du er» virker, at Måned sorterer og at smalt vindu ser riktig ut (2026-10-13). Ikke prøvd: «Navn» som snur lista i Ukeplan (bare Måned sett), person med flere oppsett, nettbrettbredde (769–1024 px), Admin-sidene og endringsvinduet på smal skjerm, ekte telefon eller pad. Fase 13 (sortering): resultatet etter siste justering av Admin → Ansatte er ikke sett. Forbehold fra tidligere faser: nytt rollenavn i Ansatte er ikke testet (Fase 4); rolle og lokasjon på en ansatt er ikke bekreftet enkeltvis (Fase 7).
+Fase 1–21 og 22A ✅. Fase 22A («Levende figur: rigg, underlag, gange, hopp og fall») er avsluttet etter at bruker skrev «ok, den virker» (2026-10-13), etter to rettingsrunder. Ikke uttrykkelig bekreftet: at figuren følger flaten ved rulling, at den er borte når «Legg inn endring» er åpen, at klikk virker der figuren står, «Figur: av» + omlasting, smalt vindu, ytelse. Ikke prøvd fra Fase 21: «Navn» som snur lista i Ukeplan, person med flere oppsett, nettbrettbredde (769–1024 px), Admin-sidene og endringsvinduet på smal skjerm, ekte telefon eller pad. Fase 13 (sortering): resultatet etter siste justering av Admin → Ansatte er ikke sett. Forbehold fra tidligere faser: nytt rollenavn i Ansatte er ikke testet (Fase 4); rolle og lokasjon på en ansatt er ikke bekreftet enkeltvis (Fase 7).
 Administratorer: Espen, Ståle og Jens.
 Stack: Next.js 16.3.7 (nytt API, les `node_modules/next/dist/docs/` før kode), React 19, Tailwind v4.
 Git-repoet ligger i `app/`, remote: github.com/Redubal/Vaktliste_digitalstotte (privat), gren `master`.
 
 ## Verifisert
-- `tsc --noEmit` og `npm run lint` grønne etter siste kodeendring (`app/page.tsx`, Fase 21). `next build` ikke kjørt i Fase 10–21 (en kjørende `next dev` kan komme i konflikt); sist kjørt ved faseslutt i Fase 8.
+- `tsc --noEmit` og `npm run lint` grønne etter siste kodeendring (`components/figur/motor.ts`, Fase 22A). `next build` ikke kjørt i Fase 10–22A (en kjørende `next dev` kan komme i konflikt); sist kjørt ved faseslutt i Fase 8.
 - Reglene for å legge inn, rette og slette en endring er prøvd i Node med oppdiktede rader (28 av 28) og sett virke i nettleseren: ansatt legger inn, administrator godkjenner (Ukeplan og Admin).
 - Ikke prøvd fra før: retting og sletting i vinduet, klikk i Måned (prikk og mobilkalender), vedlikeholdsmodus mot en ansatt som lagrer, to faner samtidig, alt i Fase 18, 17, 16, 15, 14, 13, 12 og 10, endringslogg, masseendring, sletting av status/type i bruk, ny lagring ved låst fil, team med flere enn to team.
 
 ## Neste
-Fase 22–29 er TODO-punktene i `plan.md` (godkjent 2026-10-13): 22 figur som vandrer (Sonnet), 23 «Avvis» og bare administrator sletter (tyngste modell), 24 «Mine endringer» (tyngste), 25 rette fra godkjenningslista, 26 Admin → Dager, 27 fridager, 28 mobil/pad-rest, 29 sikkerhetsgjennomgang (tyngste). Entra og database er parkert som Fase 30–33. Foreslått neste: Fase 22. Planmodus først hvis noe nytt skal inn i planen.
+Fase 22B (figurens atferd: sove og gjespe, reagere på musa, klatre, spade/sprayboks/brekkjern; tyngste modell) og Fase 23–29 er i `plan.md`: 23 «Avvis» og bare administrator sletter (tyngste), 24 «Mine endringer» (tyngste), 25 rette fra godkjenningslista, 26 Admin → Dager, 27 fridager, 28 mobil/pad-rest, 29 sikkerhetsgjennomgang (tyngste). Entra og database er parkert som Fase 30–33. Foreslått neste: Fase 22B (bruker ba om mer arbeid på figuren i en egen fase); rekkefølgen er brukerens valg. Planmodus først hvis noe nytt skal inn i planen.
 
 ## Arbeidsmåte neste økt
-- `[start-verdi-følger-ikke-valg]` En visning som starter fra et valg (`useState` med verdi fra props) følger ikke med når valget byttes (`router.refresh()` beholder tilstanden); gi komponenten `key` fra valget.
 - `[skjemasteg-er-låst-etter-test]` Er datafila lagret etter at et versjonssteg ble skrevet, rett data med et nytt steg, ikke ved å endre det gamle.
 - `[klikkflate-hele-ruta]` Noe som skal trykkes gjøres klikkbart over hele ruta, og ser trykkbart ut også uten mus (ramme eller bakgrunn, ikke bare hover).
+- `[utseende-spør-først]` Ønsker brukeren noe som skal se ut eller oppføre seg på en bestemt måte og det finnes ingen referanse: be om en, eller vis ett enkelt utkast, før et helt system bygges på gjetning.
 
 ## Det en ny økt må vite
 - **Git er i orden:** jobbadressen er byttet ut i historikken; push uten force gikk 2026-09-30. Gammel historikk ligger lokalt som `refs/original/`. Repoet er satt til `mrredubal@gmail.com` lokalt.
@@ -37,6 +37,7 @@ Fase 22–29 er TODO-punktene i `plan.md` (godkjent 2026-10-13): 22 figur som va
 - Admin-skjemaer er ukontrollerte og bruker `useSkjemaStatus` i `components/AdminFelles.tsx`. Feltene er `defaultValue`: endres en rad utenfra, bytt nøkkel først når siden har fått ny revisjon (`ventende` i `AnsattAdmin.tsx`). En `"use server"`-fil kan bare eksportere funksjoner; konstanter ligger i `lib/domene.ts`.
 - **Sortering og rollefilter:** `?sorter=kolonne` / `-kolonne`, `?rolle=` og `?fane=` skrives med `replaceState`; nye tabeller bruker `useSortering(kolonner, standard?)` + `sorterRader`. Ukeplan og Måned: navn stigende som standard (`STANDARD_PERSON_SORTERING`), valgt person øverst (`forstFor`, `lib/sortering.ts`), og `key={jegId}` på visningene i `app/page.tsx` så de starter på nytt ved bytte i «Du er».
 - **Mobil:** Ukeplan og Måned har både tabell (`.visning-tabell`) og kortliste (`.visning-kort`); CSS bytter ved 768 px, og de smale tabellreglene gjelder opp til 1024 px (nettbrett). Ny kolonne eller felt må inn begge steder. Berøringsregler (felt 16 px, knapper 44 px) ligger i `@media (pointer: coarse)` i `globals.css`. Logoen er `public/vestfold-logo.svg`, satt inn i `app/layout.tsx` (manualen: uendret fil, minst 75 px høy). Etter CSS-endringer kan nettleseren vise gammel versjon (Ctrl+F5).
+- **Figur (Fase 22A):** `components/figur/{Figur,Tegning,motor,flater}`; `Tegning.tsx` er leddene, `motor.ts` vrir dem (vinkler i grader) og har fysikken, `flater.ts` leser plassering av synlige blokker (`UTVALG`), aldri tekst. Laget har `pointer-events: none`, skjules ved `dialog[open]`; av/på i `localStorage` (`figur-av`) via bryteren i `app/layout.tsx`.
 - «Velg deg selv» er ikke sikkerhet; erstattes av Entra (Fase 31, parkert). Team er data (`ALLE_TEAM = "*"`).
 - `python` finnes ikke i Git Bash her; skriv filer med Write/Edit. CSS-klassenavn uten æøå. Data har navn, e-post og sykefravær: aldri lim ekte rader inn i logg, STATUS eller plan.
 - Ingen database nå: JSON i `data/`. Reelle persondata i appen krever behandlingsgrunnlag, `TODO.md` punkt 1. En bruker med flere oppsett gir flere rader med samme id, så nøkler i lister bruker `teamId-id`.

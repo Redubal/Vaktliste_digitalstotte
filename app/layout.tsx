@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
+import { Figur } from "@/components/figur/Figur";
 import { IdentitetsVelger } from "@/components/IdentitetsVelger";
 import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
 import { lesVaktliste } from "@/lib/lager";
@@ -71,6 +72,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             <Link href="/" className="logo-lenke">
               <Image src="/vestfold-logo.svg" alt="Vestfold fylkeskommune" width={226} height={75} preload />
             </Link>
+            <Figur />
           </div>
         </div>
         {innhold}
