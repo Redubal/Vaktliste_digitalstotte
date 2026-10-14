@@ -1,5 +1,17 @@
 # Logg
 
+## 2026-10-14 (ny økt) — Mobilkalenderen i Måned: fem kolonner
+
+- **Observert (skjermbilde fra Ståle):** `.mkal` hadde sju kolonner (M–S), men dagene er bare man–fre. Mandag 5. okt. sto under «L», og alt etter det var forskjøvet (TODO punkt 9 var hypotese til nå).
+- **Beslutning (Ståle, fem kolonner):** først la jeg inn to tomme ruter før hver mandag; Ståle spurte hvorfor L og S er med i Måned men ikke ellers. De har aldri hatt innhold, så kalenderen er nå M–F. Begrunnelse: enklere og større ruter på smal skjerm.
+- **Levert:** `repeat(5, …)` i `.mkal` (`globals.css`), fem ukedagsoverskrifter og `getUTCDay() - 1` tomme ruter før første dag i `MaanedClient.tsx`.
+- **Verifisert av Ståle:** oktober i smalt vindu, «ja, det er riktig».
+- **Ikke oppgitt:** en måned som starter på mandag (f.eks. juni 2026).
+- Slettingen som hang: virket ved neste forsøk etter sidelasting, ikke gjentatt; se Fase 37-oppføringen. TODO punkt 9 fortettet til pekerlinje.
+- **Sjekk:** `tsc --noEmit` ren og `npm run lint` ren etter siste kodeendring; `next build` ikke kjørt.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 1 treff. Datauttrekk i git 0.
+- STATUS: 43 linjer. fase-slutt: 09:20–09:22, 2 min.
+
 ## 2026-10-14 — Fase 37 ✅ Varsel ved overlapp
 
 - **Verifisert av Ståle:** sendte skjermbilde av vinduet «Rett endring» som viste den gule merknaden med tre treff (avspasering, ferie og mappeoppgave, hver med dato og klokkeslett), og så Måned i mobilkalenderen. Skrev «ferdig med denne fasen» som egen melding. **Ikke oppgitt:** merket «Overlapper» i Ukeplan-cella, merket ved Periode i Admin → Godkjenning, at merkene forsvinner når han retter tilbake til 12–16, og ny endring samme dag uten klokkeslett.
@@ -7,7 +19,7 @@
 - **Observert (Node, oppdiktede rader):** planens seks tilfeller pluss ulike dager og tom til-dato ga riktig svar, og `finnOverlapp` ga id 1 og 2 men ikke 3 (9 av 9). Skriptet lå i økt-mappa, ikke i repoet.
 - **Beslutning (Claude, overlapp per dag i cella):** merket settes bare på dagen der endringene faktisk overlapper, ikke på hele perioden. Begrunnelse: man–ons 08–12 og tirsdag 10–14 skal ikke merke mandag. Ståle har ikke uttalt seg om dette.
 - **Overraskelse (mobilkalenderen):** første plassering av utropstegnet (−6 px, på kanten) og av antallet (−5 px) så rotete ut i `.mkal` (Ståle: «ikke helt pent»). Begge ligger nå 3 px inni hjørnene, bare i `.mkal`. Ståle skrev «ble bra».
-- **Observert, ikke løst:** i vinduet sto «Sletter …» fast og Lagre var grå etter «Ja, slett» (skjermbilde fra Ståle). Jeg fant ingen kobling til Fase 37 i koden (`slettEndring` er urørt), men har ikke sett dev-serverens utskrift. **Hypotese:** lagring mot låst fil på Windows, eller dev-serveren etter mange kodeendringer under kjøring. Avgjøres av: feilmelding i terminalen der dev-serveren kjører, og om det henger igjen etter omstart.
+- **Observert, ikke løst:** i vinduet sto «Sletter …» fast og Lagre var grå etter «Ja, slett» (skjermbilde fra Ståle). Jeg fant ingen kobling til Fase 37 i koden (`slettEndring` er urørt), men har ikke sett dev-serverens utskrift. **Hypotese:** lagring mot låst fil på Windows, eller dev-serveren etter mange kodeendringer under kjøring. Avgjøres av: feilmelding i terminalen der dev-serveren kjører, og om det henger igjen etter omstart. **Oppfølging (Ståle, 2026-10-14, ny økt):** etter en sidelasting (refresh) var ingenting slettet, og slettingen virket ved neste forsøk. Ikke gjentatt, ingen feilmelding sett; hypotesen om en kortvarig låst fil står, men er ikke bekreftet. Kommer det igjen: les terminalen der dev-serveren kjører, og sjekk om `data/` ligger i en OneDrive-synket mappe.
 - **Ikke gjort:** `node_modules/next/dist/docs/` ikke lest (ingen nye Next-API-er, bare klientkomponenter og CSS); `next build` ikke kjørt. Måned-merket i det store (ikke mobile) rutenettet er ikke sett av Ståle.
 - **Fasesnitt:** én økt, uten `/compact`.
 - **Sjekk:** `tsc --noEmit` og `npm run lint` grønne etter siste kodeendring i `.ts`/`.tsx`; deretter bare CSS endret to ganger (utropstegn og antall inn i hjørnene), og sjekkene ble ikke kjørt på nytt etter det.

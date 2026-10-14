@@ -355,11 +355,11 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
                   </span>
                 </div>
                 <div className="mkal">
-                  {["M", "T", "O", "T", "F", "L", "S"].map((b, i) => (
+                  {["M", "T", "O", "T", "F"].map((b, i) => (
                     <span key={i} className="mkal-uke-dag">{b}</span>
                   ))}
-                  {/* Første dag får riktig ukedagskolonne (mandag = 0). */}
-                  {Array.from({ length: (plan.dager[0].getUTCDay() + 6) % 7 }, (_, i) => (
+                  {/* Dagene er bare man–fre; første dag får riktig ukedagskolonne (mandag = 0). */}
+                  {Array.from({ length: plan.dager[0].getUTCDay() - 1 }, (_, i) => (
                     <span key={`tom-${i}`} />
                   ))}
                   {rad.celler.map((celle, i) => {

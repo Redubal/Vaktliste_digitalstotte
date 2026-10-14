@@ -63,13 +63,11 @@ Ståle 2026-10-13 under Fase 30: deaktiverte ligger nederst i Admin → Ansatte,
 alle sammen. Med synk fra Entra vokser lista for hver som slutter, og den kan
 ikke listes uendelig. Ikke vurdert hvordan det skal løses. Trenger plan.
 
-## 9. Måned på mobil: mandager kan havne i lørdagskolonnen (hypotese)
+## 9. Måned på mobil: mandager havnet i lørdagskolonnen
 
-Funnet 2026-10-13 ved lesing av koden under planleggingen av punkt 4, ikke sett i
-nettleseren. Kalenderen `.mkal` i `MaanedClient.tsx` har 7 kolonner (M–S), men
-`plan.dager` fra `beregnMaaned` (`lib/ukeplan.ts`) har bare hverdager. Da vil
-mandagen i uke to havne under «L». Avgjøres ved å åpne Måned i et smalt vindu og se
-om datoene står under riktig ukedag.
+Rettet 2026-10-14, se logg. Kalenderen `.mkal` hadde 7 kolonner mot hverdager fra
+`beregnMaaned`; nå fem (M–F). **Beslutning (Ståle, fem kolonner):** lørdag og søndag
+har aldri innhold i vaktlista, så de fjernes heller enn å holdes tomme.
 
 ## Levert (pekere)
 - Tydelig ulagret (rødt) / lagret (grønt) — Fase 8 gjaldt hele Admin, se logg 2026-10-13. Ønsket sa «over alt»; om endringsvinduet i Ukeplan/Måned trenger det samme, er ikke vurdert.

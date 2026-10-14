@@ -1,5 +1,14 @@
 # Læringslogg
 
+## 2026-10-14 (avslutning, liten økt) — Mobilkalenderen i Måned
+
+**Evaluering av forrige økts punkter:**
+- `[forelder-layout]` — ikke utløst: økten la ikke noe merke, ring eller tall i en celle. TODO punkt 6 (ukenummer i Måned) kan utløse det, så det videreføres uten å øke runden (2. runde).
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** én økt uten `/compact`; en liten rettelse utenfor plan (TODO punkt 9), ikke en egen fase. Ingen deling foreslått.
+
 ## 2026-10-14 (avslutning Fase 37) — Varsel ved overlapp
 
 **Evaluering av forrige økts punkter:**
