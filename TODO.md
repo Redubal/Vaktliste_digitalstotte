@@ -35,14 +35,9 @@ Levert i Fase 35 (klokkeslett, flere linjer i Ukeplan), 36 (Måned, delt firkant
 **Åpent:** Max-tilfellet (endring flyttet til en «okkupert» dag vises ikke riktig) er ikke
 bekreftet mot hans data.
 
-## 5. Hurtigknapp «Registrer» for administrator, foran Ukeplan
+## 5. Hurtigknapp «Registrer» for administrator, foran Ukeplan ✅
 
-Ønsket av Ståle 2026-10-13, under Fase 25. En administrator skal få en
-«Registrer»-knapp foran Ukeplan som åpner et kjapt skjema, i stedet for å lete opp
-personen i kalenderen og klikke på dagen. Ikke vurdert i koden. Trenger plan, og
-planmodus med tyngste modell før den får fasenummer. Endringsvinduet
-(`components/EndringVindu.tsx`) har i dag bare inngang via en dag i planen eller,
-fra Fase 25, «Rett» i Admin → Godkjenning.
+Levert i Fase 38 2026-10-14 (knapp først i verktøylinja på Ukeplan, personvelger i vinduet); se logg 2026-10-14 og beslutningen om plassering. Ønsket av Ståle 2026-10-13.
 
 ## 6. Ukenummer i kalenderen
 
@@ -104,3 +99,8 @@ har aldri innhold i vaktlista, så de fjernes heller enn å holdes tomme.
 - Fase 33: lagre fornavn og etternavn fra Entra som egne felt på personen (synken leser dem allerede, `KildePerson.fornavn/etternavn`), og la visningen bruke dem i stedet for `delNavn` (siste ord = etternavn). Ellers vises doble etternavn feil. Spurt av Ståle 2026-10-13 under Fase 30.
 - Dytte til Outlook, f.eks. ved sykdom — merknad i Fase 33 (samme Graph-tilgang).
 - Varsel utenfor appen (e-post eller Teams) når en endring blir godkjent, avvist eller får annen status. Spurt av Ståle 2026-10-13 under Fase 23. Beskjeden **i appen** er Fase 24 og skal komme uansett: «det må likevel være en del av siden». Varsel utenfor appen trenger Graph-tilgang som Fase 30 og 32–33, og vet først hvem mottakeren er når e-post kommer fra Entra.
+
+## 
+Ukeplan blir Uke
+Legge til Dag (vise kun dagens hendelser, bruker må kunne legge inn og registrere her)
+Highligte hvilken dag det er i Uke og Måned for enklere visuelt.

@@ -161,7 +161,7 @@ export function UkeplanClient({
   valg,
   utheves,
 }: Props) {
-  const { aapneFor, vindu } = useEndringVindu({ jegId, erAdmin, revisjon, valg, endringer });
+  const { aapneFor, aapneNy, vindu } = useEndringVindu({ jegId, erAdmin, revisjon, valg, endringer, ansatte });
   const godkjennRevisjon = erAdmin ? revisjon : null;
   const today = useMemo(() => isoWeek(todayUtc()), []);
   // Kommer du fra Admin, starter visningen på teamet til personen, ellers er raden ikke i listen.
@@ -216,6 +216,11 @@ export function UkeplanClient({
   return (
     <section aria-label="Ukeplan">
       <div className="ukeplan-toolbar">
+        {aapneNy && (
+          <button type="button" onClick={aapneNy} className="uke-btn uke-btn--today">
+            Registrer
+          </button>
+        )}
         <label className="select-field">
           <span>Team</span>
           <select value={team} onChange={(e) => setTeam(e.target.value)}>

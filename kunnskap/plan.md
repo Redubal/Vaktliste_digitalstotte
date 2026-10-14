@@ -217,6 +217,8 @@ er kjent; JSON-fila brukes fortsatt under utvikling hvis ønsket.
 **Verifisering:** du ser samme Ukeplan og samme endringslogg som før flyttingen, og en endring i Admin
 står der etter at appen er startet på nytt.
 
+Fase 38 ✅ 2026-10-14 — detaljer i logg
+
 Ikke med: drift/hosting (gamle Fase 5) og «Min plan»; de planlegges når Fase 32 er levert.
 
 ---

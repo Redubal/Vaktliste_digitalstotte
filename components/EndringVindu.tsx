@@ -12,6 +12,7 @@ import {
   type Tidsrom,
 } from "@/lib/domene";
 import { tidTekst, type UkeplanCelle } from "@/lib/ukeplan";
+import { formatIsoDate, todayUtc } from "@/lib/uker";
 import type { Ansatt, Endring } from "@/lib/vaktlista";
 import { Feil } from "./AdminFelles";
 import { hva, periode } from "./Godkjenning";
@@ -33,8 +34,11 @@ const STANDARD_TIL = "16:00";
 /** Hva vinduet viser: skjema for en endring, skjema for en ny (`null`), eller lista over dagens endringer. */
 type Valgt = Endring | "liste" | null;
 
-/** `endringer` er dagens endringer (tom når vinduet åpnes direkte på én endring, fra Godkjenning). */
-type AapenDag = { person: VinduPerson; iso: string; endringer: Endring[]; valgt: Valgt };
+/**
+ * `endringer` er dagens endringer (tom når vinduet åpnes direkte på én endring, fra Godkjenning).
+ * `person` er `null` når administrator åpner «Registrer»: da velger administrator personen i vinduet.
+ */
+type AapenDag = { person: VinduPerson | null; iso: string; endringer: Endring[]; valgt: Valgt };
 
 /**
  * Hva som vises når en dag klikkes: ingen endringer gir et tomt skjema; én endring du kan rette åpnes
@@ -54,6 +58,8 @@ type Oppsett = {
   valg: EndringValg | null;
   /** Alle endringer som er synlige; vinduet varsler om overlapp med dem som tilhører samme person. */
   endringer: Endring[];
+  /** Personene «Registrer» kan velge blant; uten dem finnes ikke `aapneNy`. */
+  ansatte?: VinduPerson[];
 };
 
 /**
@@ -61,8 +67,14 @@ type Oppsett = {
  * ingen har valgt seg selv, raden er en annens (og du er ikke administrator), eller personen er
  * ikke aktiv den dagen. `vindu` settes inn ett sted i visningen.
  */
-export function useEndringVindu({ jegId, erAdmin, revisjon, valg, endringer }: Oppsett) {
+export function useEndringVindu({ jegId, erAdmin, revisjon, valg, endringer, ansatte }: Oppsett) {
   const [aapen, setAapen] = useState<AapenDag | null>(null);
+
+  /** «Registrer»: tomt skjema for i dag, med personvelger. Bare administrator; ellers `undefined`. */
+  const aapneNy: (() => void) | undefined =
+    erAdmin && jegId && typeof revisjon === "number" && valg && ansatte
+      ? () => setAapen({ person: null, iso: formatIsoDate(todayUtc()), endringer: [], valgt: null })
+      : undefined;
 
   function aapneFor(person: Ansatt, celle: UkeplanCelle): (() => void) | undefined {
     // `!`/`typeof` og ikke `=== null`: etter en kodeendring kan siden ha gamle data uten feltene.
@@ -81,19 +93,20 @@ export function useEndringVindu({ jegId, erAdmin, revisjon, valg, endringer }: O
     aapen && jegId && typeof revisjon === "number" && valg ? (
       <Vindu
         // Ny nøkkel per dag og visning: feltene starter på nytt hver gang vinduet åpnes eller bytter visning.
-        key={`${aapen.person.id}-${aapen.iso}-${valgtNøkkel(aapen.valgt)}`}
+        key={`${aapen.person?.id ?? "ingen"}-${aapen.iso}-${valgtNøkkel(aapen.valgt)}`}
         dag={aapen}
         jegId={jegId}
         erAdmin={erAdmin}
         revisjon={revisjon}
         valg={valg}
         alle={endringer}
+        ansatte={ansatte ?? []}
         onVelg={(v) => setAapen({ ...aapen, valgt: v })}
         onLukk={() => setAapen(null)}
       />
     ) : null;
 
-  return { aapneFor, vindu };
+  return { aapneFor, aapneNy, vindu };
 }
 
 /**
@@ -128,13 +141,14 @@ export function useRettVindu({
 
   const vindu = aapen ? (
     <Vindu
-      key={`${aapen.person.id}-${valgtNøkkel(aapen.valgt)}`}
+      key={`${aapen.person?.id}-${valgtNøkkel(aapen.valgt)}`}
       dag={aapen}
       jegId={jegId}
       erAdmin
       revisjon={revisjon}
       valg={valg}
       alle={endringer}
+      ansatte={[]}
       onVelg={() => {}}
       onLukk={() => setAapen(null)}
     />
@@ -160,6 +174,7 @@ function Vindu({
   revisjon,
   valg,
   alle,
+  ansatte,
   onVelg,
   onLukk,
 }: {
@@ -169,6 +184,7 @@ function Vindu({
   revisjon: number;
   valg: EndringValg;
   alle: Endring[];
+  ansatte: VinduPerson[];
   onVelg: (valgt: Valgt) => void;
   onLukk: () => void;
 }) {
@@ -178,7 +194,10 @@ function Vindu({
     if (ref.current && !ref.current.open) ref.current.showModal();
   }, []);
 
-  const { person, valgt } = dag;
+  const { valgt } = dag;
+  // «Registrer» åpner uten person: den som velges i skjemaet styrer lokasjonslista, overlappvarselet og tittelen.
+  const [personId, setPersonId] = useState("");
+  const person = dag.person ?? ansatte.find((a) => a.id === personId) ?? null;
   const aktør = { id: jegId, erAdmin };
   // Endringen rettes bare når du får lov; ellers legger vinduet inn en ny.
   const retter =
@@ -205,7 +224,7 @@ function Vindu({
   const [tilTid, setTilTid] = useState(retter?.toTime || STANDARD_TIL);
   // Varsel (aldri en sperre): andre endringer for samme person som det du fyller ut overlapper.
   const kandidat: Tidsrom = {
-    personId: person.id,
+    personId: person?.id ?? "",
     fromDate: fra,
     toDate: til,
     fromTime: medTid ? fraTid : "",
@@ -216,19 +235,17 @@ function Vindu({
   const type = valg.endringstyper.find((t) => t.id === typeId);
   // Lokasjon spørres alltid om: typer som «Flyttet» kan ligge i «Annet». Påkrevd for lokasjonstyper.
   const lokasjonPaakrevd = type?.kategori === "lokasjon";
-  const lokasjoner = valg.lokasjoner.filter((l) => l.teamId === person.teamId);
+  const lokasjoner = valg.lokasjoner.filter((l) => l.teamId === person?.teamId);
   const lokasjonsvalg = lokasjoner.length > 0 ? lokasjoner : valg.lokasjoner;
-  const klar = Boolean(typeId) && Boolean(fra) && (!lokasjonPaakrevd || Boolean(lokasjonId));
+  const klar = Boolean(person) && Boolean(typeId) && Boolean(fra) && (!lokasjonPaakrevd || Boolean(lokasjonId));
 
-  const egen = person.id === jegId;
-  const tittel = retter
-    ? `Rett endring${egen ? "" : ` for ${person.name}`}`
-    : `Ny endring${egen ? "" : ` for ${person.name}`}`;
+  const forNavn = person && person.id !== jegId ? ` for ${person.name}` : "";
+  const tittel = retter ? `Rett endring${forNavn}` : `Ny endring${forNavn}`;
 
   if (valgt === "liste") {
     return (
       <dialog ref={ref} className="endring-vindu" aria-labelledby="endring-vindu-tittel" onClose={onLukk}>
-        <h2 id="endring-vindu-tittel">Endringer samme dag{egen ? "" : ` for ${person.name}`}</h2>
+        <h2 id="endring-vindu-tittel">Endringer samme dag{forNavn}</h2>
         <ul className="vindu-liste">
           {dag.endringer.map((e) => (
             <li key={e.id}>
@@ -272,7 +289,25 @@ function Vindu({
       <form action={lagre} onChange={lagreFeil.skjul} className="vindu-skjema">
         <input type="hidden" name="revisjon" value={revisjon} />
         <input type="hidden" name="id" value={retter?.id ?? ""} />
-        <input type="hidden" name="brukerId" value={person.id} />
+        {dag.person ? (
+          <input type="hidden" name="brukerId" value={dag.person.id} />
+        ) : (
+          <label className="vindu-felt">
+            <span>Hvem gjelder det?</span>
+            <select name="brukerId" value={personId} onChange={(e) => setPersonId(e.target.value)} required>
+              <option value="" disabled>
+                Velg …
+              </option>
+              {[...ansatte]
+                .sort((a, b) => a.name.localeCompare(b.name, "nb"))
+                .map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name}
+                  </option>
+                ))}
+            </select>
+          </label>
+        )}
 
         <label className="vindu-felt">
           <span>Hva gjelder det?</span>

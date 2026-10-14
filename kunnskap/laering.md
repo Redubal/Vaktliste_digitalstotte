@@ -1,5 +1,14 @@
 # Læringslogg
 
+## 2026-10-14 (avslutning Fase 38) — «Registrer»-knapp
+
+**Evaluering av forrige økts punkter:**
+- `[forelder-layout]` — ikke utløst: knappen står i verktøylinja, ikke i en celle eller firkant. TODO punkt 6 (ukenummer i Måned) kan utløse det, så det videreføres uten å øke runden (2. runde).
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** én økt uten `/compact`, inkludert planmodus. Ingen deling foreslått.
+
 ## 2026-10-14 (avslutning, liten økt) — Mobilkalenderen i Måned
 
 **Evaluering av forrige økts punkter:**

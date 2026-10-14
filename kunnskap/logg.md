@@ -1,5 +1,18 @@
 # Logg
 
+## 2026-10-14 (ny økt) — Fase 38 ✅ «Registrer»-knapp for administrator
+
+- **Ønske:** TODO punkt 5 (Ståle, 2026-10-13): en kjapp vei for administrator til å registrere en endring uten å lete opp personen i kalenderen.
+- **Beslutning (Ståle, plassering):** knappen står først i verktøylinja på Ukeplan (anbefalt alternativ), ikke ved «Admin»-lenka og ikke i fanelinja. Begrunnelse: enklest, og `erAdmin`, `ansatte` og `valg` er allerede i scope i `UkeplanClient`; ulempen er at den bare vises på Ukeplan-fanen.
+- **Funn (utforsker, lest i koden, ikke kjørt):** serveren støttet allerede at administrator registrerer for andre: `lagreEndring` tar `brukerId` fra skjemaet og `sjekkEndring` tillater det for administrator. Fasen ble derfor bare klient.
+- **Levert:** `EndringVindu.tsx`: `AapenDag.person` kan være `null`, `useEndringVindu` tar `ansatte` og gir `aapneNy()` (dato i dag, bare administrator), `Vindu` viser «Hvem gjelder det?» når personen mangler og utleder `person` fra valget (lokasjonsliste, overlappvarsel, tittel, `klar`). `UkeplanClient.tsx`: «Registrer» først i `.ukeplan-toolbar`. Ingen endring i `globals.css`, `handlinger.ts`, `utfor.ts` eller `domene.ts`.
+- **Verifisert av Ståle:** «Dette fungerer» (uten å nevne hvert punkt i verifiseringen). Ikke oppgitt hver for seg: ansatt uten adminstatus ser ikke knappen, smalt vindu.
+- **Sjekk:** `tsc --noEmit -p tsconfig.json` ren og `npm run lint` ren etter siste kodeendring; `next build` ikke kjørt. Første `tsc`-forsøk uten `-p` skrev bare hjelpeteksten (feil mappe), ikke en kodefeil.
+- **Sikkerhet:** ingen nye data til klienten; `erAdmin` avgjøres på serveren, og en forfalsket `brukerId` fra en ansatt avvises av `sjekkEndring` (lest, ikke prøvd).
+- **Fasesnitt:** planlagt i planmodus, bygd og verifisert i én økt uten `/compact`.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 6 treff. Datauttrekk i git 0.
+- STATUS: 43 linjer. fase-slutt: 13:19–13:21, 2 min.
+
 ## 2026-10-14 (ny økt) — Mobilkalenderen i Måned: fem kolonner
 
 - **Observert (skjermbilde fra Ståle):** `.mkal` hadde sju kolonner (M–S), men dagene er bare man–fre. Mandag 5. okt. sto under «L», og alt etter det var forskjøvet (TODO punkt 9 var hypotese til nå).
