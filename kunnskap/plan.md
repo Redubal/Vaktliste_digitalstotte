@@ -227,13 +227,7 @@ deaktiverte) får fasenummer først når det er bestemt hvordan den skal løses.
 
 Fase 39 ✅ 2026-10-14 — detaljer i logg
 
-**Fase 40 — Dag-visning.**
-Ny fane «Dag» som bare viser dagens hendelser (hvem er borte, flyttet eller på kurs i dag), med
-valg av dato og pil for forrige/neste dag. Den som kan legge inn endringer i Uke og Måned, kan også
-gjøre det herfra (samme vindu som «Registrer», `useEndringVindu`). Mobilvennlig fra start.
-**Verifisering:** du åpner «Dag» og ser bare dagens hendelser; du bytter til en annen dag og lista
-følger med; du trykker «Registrer», legger inn en endring og ser den i lista; som ansatt uten
-adminstatus ser du den du la inn som «venter».
+Fase 40 ✅ 2026-10-14 — detaljer i logg
 
 **Fase 41 — Ukenummer i Måned (TODO punkt 6).**
 Ukenummer vises i Måned (og i mobilkalenderen) med `isoWeek` fra `lib/uker.ts`/`lib/ukeplan.ts`.

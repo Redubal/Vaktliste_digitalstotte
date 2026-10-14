@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
+import { DagClient } from "@/components/DagClient";
 import type { EndringValg } from "@/components/EndringVindu";
 import { IdentitetsVelger } from "@/components/IdentitetsVelger";
 import { MaanedClient } from "@/components/MaanedClient";
@@ -54,10 +55,27 @@ export default async function Home({
   // nytt, så teamet følger personen som er valgt (ellers blir forrige persons team stående).
   const visningsNokkel = jegId ?? "ingen";
 
-  // Ansatte ser Uke og Måned. Administrator ser i tillegg ansattlista og
+  // Ansatte ser Dag, Uke og Måned. Administrator ser i tillegg ansattlista og
   // lenken til admin-sidene. Utvalget gjøres her, på serveren, slik at innhold
   // en ansatt ikke skal se heller ikke sendes til nettleseren.
   const tabs: TabDefinition[] = [
+    {
+      id: "dag",
+      label: "Dag",
+      content: (
+        <DagClient
+          key={visningsNokkel}
+          team={team}
+          ansatte={ansatteUt}
+          endringer={endringer}
+          dager={dager}
+          erAdmin={erAdmin}
+          jegId={jegId}
+          revisjon={revisjon}
+          valg={valg}
+        />
+      ),
+    },
     {
       id: "ukeplan",
       label: "Uke",
@@ -132,7 +150,7 @@ export default async function Home({
         </div>
       </header>
 
-      <Tabs initialTabId={typeof fane === "string" && tabs.some((t) => t.id === fane) ? fane : "ukeplan"} tabs={tabs} />
+      <Tabs initialTabId={typeof fane === "string" && tabs.some((t) => t.id === fane) ? fane : "dag"} tabs={tabs} />
     </main>
   );
 }

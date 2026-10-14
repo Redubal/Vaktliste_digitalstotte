@@ -54,7 +54,7 @@ const CELLE_KLASSE: Record<CelleType, string> = {
  * Innholdet i én dag, likt i tabellen og kortlisten. `revisjon` gir «Godkjenn» (bare administratorer);
  * `onAapne` gjør teksten til en knapp som åpner vinduet for endringer.
  */
-function Celle({
+export function Celle({
   celle,
   person,
   jegId,
@@ -218,7 +218,7 @@ export function UkeplanClient({
     <section aria-label="Uke">
       <div className="ukeplan-toolbar">
         {aapneNy && (
-          <button type="button" onClick={aapneNy} className="uke-btn uke-btn--today">
+          <button type="button" onClick={() => aapneNy()} className="uke-btn uke-btn--today">
             Registrer
           </button>
         )}

@@ -1,5 +1,17 @@
 # Logg
 
+## 2026-10-14 (ny økt) — Fase 40 ✅ Dag-visning
+
+- **Levert:** ny fane «Dag» (`components/DagClient.tsx`, fane-id `dag`): bare personer med en endring valgt dag, med team-valg, datovelger (`<input type="date">`), «← Forrige», «Neste →» og «I dag». Radene bruker `Celle` fra `UkeplanClient.tsx` (nå eksportert): «venter»-merke, farge, klokkeslett, Godkjenn/Avvis og klikk for å rette. `beregnDag` i `lib/ukeplan.ts` regner én dag med de samme celleregler som Uke og Måned. «Registrer» (administrator) åpner vinduet på valgt dato: `aapneNy(iso?)` i `EndringVindu.tsx`; knappen i Uke ble justert til `() => aapneNy()`, ellers ville klikkhendelsen blitt tatt for en dato. `.select-field input` fikk samme stil som `select` i `globals.css`.
+- **Beslutning (Ståle, plassering og start):** «Dag» står til venstre for «Uke» og er fanen som åpnes uten `?fane=`. Begrunnelse: Dag er den raskeste visningen for «hvem er borte i dag». Følge: «Vis i ukeplan» fra Admin (`?person=` uten fane) havner nå på Dag, ikke Uke; `?fane=ukeplan` virker som før. Ståle har ikke tatt stilling til det første.
+- **Beslutning (Claude, uten spørsmål):** pilene går ett døgn om gangen, helg tas med (en endring kan ligge i helg); Dag starter på teamet til den som er valgt, som Uke.
+- **Observert (Ståle, etter første versjon):** «(meg) må stå øverst også på dag». Første versjon brukte ikke `forstFor` slik Uke og Måned gjør; rettet med `forstFor` på de filtrerte radene. Den som har valgt seg selv, vises bare når personen har en endring den dagen, siden lista bare har personer med hendelser.
+- **Verifisert av Ståle:** «Verifisert» etter tre justeringer (plassering, start, valgt person øverst). Ikke oppgitt hver for seg: smalt vindu, «venter» for ansatt uten adminstatus, en dato med mange hendelser, helg, retting av en endring fra Dag.
+- **Fasesnitt:** kartlegging (Explore-agent), bygging og tre justeringer i én økt uten `/compact`. Ingen deling foreslått.
+- **Sjekk:** `tsc --noEmit -p` og `npm run lint` rene etter siste kodeendring (kjørt kl. 13:56). `next build` ikke kjørt.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 4 treff. Datauttrekk i git 0.
+- STATUS: 45 linjer. fase-slutt: 13:55–13:58, 3 min.
+
 ## 2026-10-14 (ny økt) — Fase 39 ✅ «Uke» i stedet for «Ukeplan», og dagens dato utheves
 
 - **Planen:** Fase 39–41 ble skrevet inn i `plan.md` tidligere i økten etter TODO punkt 10, 11 og 6 (snittet godkjent av Ståle: «går fint»). Planen ble skrevet på Sonnet, ikke tyngste modell, fordi Ståle ikke byttet; fasene er mekaniske.

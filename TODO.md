@@ -109,5 +109,4 @@ Rammen styres av `--idag-ramme` i `globals.css`. Ikke i planen; trenger fasenumm
 Levert i Fase 39 (2026-10-14), se logg 2026-10-14. Dagens dato har bare ramme, uten fyll; fargen kan Admin velge senere (punkt 12).
 
 ## 11. Ny «Dag»-visning
-Ønsket 2026-10-14: vise bare dagens hendelser; bruker må kunne legge inn og registrere her.
-I planen som Fase 40.
+Levert i Fase 40 (2026-10-14), se logg 2026-10-14.

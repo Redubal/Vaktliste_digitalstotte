@@ -1,5 +1,16 @@
 # Læringslogg
 
+## 2026-10-14 (avslutning Fase 40) — Dag-visning
+
+**Evaluering av forrige økts punkter:**
+- `[farge-mot-palett]` — ikke utløst: Fase 40 innførte ingen ny farge (fargene kommer fra `Celle`). Videreføres, rundetallet står: TODO punkt 12 (rammefarge) og senere faser kan utløse det.
+
+**Nye punkter:**
+- `[sosken-visning]` En ny visning av samme data skal sammenlignes med søsken-visningene (Uke, Måned) for felles oppførsel — valgt person øverst, filtre, start på eget team — før den leveres, ikke etter at Ståle ser den. Belegg: Dag manglet «valgt person øverst» (`forstFor`), og Ståle måtte si det.
+
+**Fasesnitt:** én økt uten `/compact`. Ingen deling foreslått.
+**Issue til pakkerepoet:** ikke aktuelt.
+
 ## 2026-10-14 (avslutning Fase 39) — «Uke» og dagens dato
 
 **Evaluering av forrige økts punkter:**

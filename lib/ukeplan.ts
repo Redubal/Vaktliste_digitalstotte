@@ -274,6 +274,26 @@ export function beregnMaaned(opts: {
   return { aar: opts.aar, maaned: opts.maaned, dager, merknader, rader };
 }
 
+/** Én dag: samme celleregler som ukeplanen, én celle per person. Brukes av Dag-visningen. */
+export function beregnDag(opts: {
+  team: TeamFilter;
+  iso: string;
+  ansatte: Ansatt[];
+  endringer: Endring[];
+  dager: Dag[];
+}): { merknader: string[]; rader: { person: Ansatt; celle: UkeplanCelle }[] } {
+  const merknader = opts.dager.filter((d) => overlapsDate(d.fromDate, d.toDate, opts.iso)).map((d) => d.comment);
+  const endringerPerPerson = synligePerPerson(opts.endringer);
+  const rader = sorterAnsatte(opts.ansatte, opts.team)
+    .filter((p) => opts.team === ALLE_TEAM || p.teamId === opts.team)
+    .filter((p) => inActivePeriod(p, opts.iso))
+    .map((person) => ({
+      person,
+      celle: beregnCelle(person, opts.iso, endringerPerPerson.get(person.id) ?? [], opts.dager),
+    }));
+  return { merknader, rader };
+}
+
 export function forrigeMaaned(aar: number, maaned: number): { aar: number; maaned: number } {
   return maaned === 1 ? { aar: aar - 1, maaned: 12 } : { aar, maaned: maaned - 1 };
 }

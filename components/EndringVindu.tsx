@@ -70,10 +70,10 @@ type Oppsett = {
 export function useEndringVindu({ jegId, erAdmin, revisjon, valg, endringer, ansatte }: Oppsett) {
   const [aapen, setAapen] = useState<AapenDag | null>(null);
 
-  /** «Registrer»: tomt skjema for i dag, med personvelger. Bare administrator; ellers `undefined`. */
-  const aapneNy: (() => void) | undefined =
+  /** «Registrer»: tomt skjema for `iso` (ellers i dag), med personvelger. Bare administrator; ellers `undefined`. */
+  const aapneNy: ((iso?: string) => void) | undefined =
     erAdmin && jegId && typeof revisjon === "number" && valg && ansatte
-      ? () => setAapen({ person: null, iso: formatIsoDate(todayUtc()), endringer: [], valgt: null })
+      ? (iso) => setAapen({ person: null, iso: iso ?? formatIsoDate(todayUtc()), endringer: [], valgt: null })
       : undefined;
 
   function aapneFor(person: Ansatt, celle: UkeplanCelle): (() => void) | undefined {
