@@ -219,6 +219,28 @@ står der etter at appen er startet på nytt.
 
 Fase 38 ✅ 2026-10-14 — detaljer i logg
 
+### Uke, Dag og ukenummer (godkjent 2026-10-14)
+
+Ønskene nederst i `TODO.md` (punkt 10–11) og punkt 6. Alle tre fasene er mekaniske (Sonnet): ingen
+nye rettighetsregler, og endringsvinduet fra Fase 38 gjenbrukes. Punkt 8 (lang liste med
+deaktiverte) får fasenummer først når det er bestemt hvordan den skal løses.
+
+Fase 39 ✅ 2026-10-14 — detaljer i logg
+
+**Fase 40 — Dag-visning.**
+Ny fane «Dag» som bare viser dagens hendelser (hvem er borte, flyttet eller på kurs i dag), med
+valg av dato og pil for forrige/neste dag. Den som kan legge inn endringer i Uke og Måned, kan også
+gjøre det herfra (samme vindu som «Registrer», `useEndringVindu`). Mobilvennlig fra start.
+**Verifisering:** du åpner «Dag» og ser bare dagens hendelser; du bytter til en annen dag og lista
+følger med; du trykker «Registrer», legger inn en endring og ser den i lista; som ansatt uten
+adminstatus ser du den du la inn som «venter».
+
+**Fase 41 — Ukenummer i Måned (TODO punkt 6).**
+Ukenummer vises i Måned (og i mobilkalenderen) med `isoWeek` fra `lib/uker.ts`/`lib/ukeplan.ts`.
+Sjekk at kolonnen ikke tar plass på smal skjerm.
+**Verifisering:** du åpner Måned og ser riktig ukenummer foran hver uke, også for en måned som
+krysser årsskiftet; du ser at siden holder i et smalt vindu.
+
 Ikke med: drift/hosting (gamle Fase 5) og «Min plan»; de planlegges når Fase 32 er levert.
 
 ---

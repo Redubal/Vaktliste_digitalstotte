@@ -24,7 +24,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Digital Støtte - Vaktlista",
-  description: "Ukeplan og ansatt-katalog for teamene i Digital støtte, Vestfold fylkeskommune.",
+  description: "Uke, måned og ansatt-katalog for teamene i Digital støtte, Vestfold fylkeskommune.",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {

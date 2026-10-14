@@ -34,7 +34,7 @@ export default async function DagerSide() {
           <span className="counter">{dager.length} dager</span>
         </div>
         <p className="admin-ingress">
-          Teksten vises over dagene i Ukeplan og i Måned. La «til» stå tom for én enkelt dag.
+          Teksten vises over dagene i Uke og i Måned. La «til» stå tom for én enkelt dag.
         </p>
         <DagAdmin dager={dager} revisjon={v.revisjon} />
       </section>

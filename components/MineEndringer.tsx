@@ -25,7 +25,7 @@ export function MineEndringer({ endringer }: { endringer: MinEndring[] }) {
       </div>
 
       {endringer.length === 0 ? (
-        <p className="empty-row">Du har ingen endringer. Klikk på en dag i Ukeplan eller Måned for å legge inn en.</p>
+        <p className="empty-row">Du har ingen endringer. Klikk på en dag i Uke eller Måned for å legge inn en.</p>
       ) : (
         <>
           <div className="table-wrapper visning-tabell">

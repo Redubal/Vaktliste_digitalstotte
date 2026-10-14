@@ -658,6 +658,41 @@ tbody tr:nth-child(even) {
   font-weight: 700;
 }
 
+/* Dagens dato i Uke og Måned: bare en ramme, uten fyll, så den ikke blandes med endringsfargene.
+   Rammen tegnes som innvendig skygge (inni cella, ikke utenpå), én kant per celle som til sammen
+   gir en ramme rundt hele kolonnen. */
+:root {
+  --idag-ramme: var(--heading);
+}
+
+.ukeplan-table td.dag--idag,
+.maaned-table td.dag--idag {
+  box-shadow: inset 2px 0 0 var(--idag-ramme), inset -2px 0 0 var(--idag-ramme);
+}
+
+.ukeplan-table tbody tr:last-child td.dag--idag,
+.maaned-table tbody tr:last-child td.dag--idag {
+  box-shadow: inset 2px 0 0 var(--idag-ramme), inset -2px 0 0 var(--idag-ramme), inset 0 -2px 0 var(--idag-ramme);
+}
+
+.ukeplan-table thead th.dag--idag,
+.maaned-table thead th.dag--idag {
+  box-shadow: inset 2px 0 0 var(--idag-ramme), inset -2px 0 0 var(--idag-ramme), inset 0 2px 0 var(--idag-ramme);
+}
+
+/* Smal skjerm, Uke: raden for dagen får en ramme og ordet «I dag». */
+.kort-dag.dag--idag {
+  border: 2px solid var(--idag-ramme);
+  border-radius: 6px;
+  padding: 4px 6px;
+}
+
+.idag-merke {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--idag-ramme);
+}
+
 .day-notes {
   display: flex;
   flex-direction: column;
@@ -1782,6 +1817,12 @@ a.uke-btn {
   justify-content: center;
   font-size: 0.75rem;
   color: var(--heading);
+}
+
+/* Dagens dato i mobilkalenderen: mørk ring inni firkanten (utsiden er opptatt av «venter»/«godkjent»). */
+.mkal .mkal-dag--idag {
+  box-shadow: inset 0 0 0 3px var(--idag-ramme);
+  font-weight: 800;
 }
 
 @media (max-width: 768px) {

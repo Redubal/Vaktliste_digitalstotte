@@ -1,6 +1,17 @@
 # Logg
 
-## 2026-10-14 (ny økt) — Fase 38 ✅ «Registrer»-knapp for administrator
+## 2026-10-14 (ny økt) — Fase 39 ✅ «Uke» i stedet for «Ukeplan», og dagens dato utheves
+
+- **Planen:** Fase 39–41 ble skrevet inn i `plan.md` tidligere i økten etter TODO punkt 10, 11 og 6 (snittet godkjent av Ståle: «går fint»). Planen ble skrevet på Sonnet, ikke tyngste modell, fordi Ståle ikke byttet; fasene er mekaniske.
+- **Levert:** visningsteksten «Ukeplan» heter «Uke» (fane, seksjonsnavn, tekster i Admin → Dager og Godkjenning, Ansatte-kolonnen, «Mine endringer»). Fane-id `ukeplan` i adressen er beholdt, så gamle lenker virker. Dagens dato utheves i Uke (overskrift og celler i tabellen, raden på smal skjerm med ordet «I dag») og i Måned (overskrift og celler, og mobilkalenderen `.mkal-dag--idag`). `aria-current="date"` på hver. Filene: `UkeplanClient.tsx`, `MaanedClient.tsx`, `globals.css`, pluss tekster i `page.tsx`, `layout.tsx`, `AnsattAdmin.tsx`, `MineEndringer.tsx`, `admin/dager/page.tsx`, `admin/godkjenning/page.tsx`.
+- **Observert (Ståle, etter første versjon):** første utheving var en lys blå bakgrunn (`--accent`) i kolonnen; Ståle sa fargen var «veldig lik andre farger». Endret til bare ramme uten fyll, tegnet som innvendig skygge (en kant per celle, som til sammen gir ramme rundt kolonnen). Fargen styres av `--idag-ramme` (nå `--heading`, mørk marineblå).
+- **Beslutning (Ståle, farge på rammen):** rammen uten farge nå; administrator skal senere kunne velge fargen selv i Admin. Det er utenfor Fase 39 og parkert som `TODO.md` punkt 12 (Claude foreslo, Ståle sa ja). Begrunnelse: scope-vakten; ønsket var nytt arbeid, ikke en justering av fasen.
+- **Beslutning (Claude, ringen i mobilkalenderen):** innvendig `box-shadow` i `.mkal-dag--idag`, ikke `outline`, fordi «venter» og «godkjent» allerede bruker `outline` utenpå firkanten. Reglene til `.mkal` og `.prikk--*` ble lest før plassering (arbeidsmåte `[forelder-layout]`).
+- **Verifisert av Ståle:** «bekreftet ok» etter rammeversjonen. Ikke oppgitt hver for seg: dagens dato i mobilkalenderen med «venter»-ring, dag med flere endringer i Uke (høy celle), rammens nederste kant i siste rad, og at Admin-tekstene står riktig.
+- **Fasesnitt:** planlegging, bygging og én justering i én økt uten `/compact`. Ingen deling foreslått.
+- **Sjekk:** `tsc --noEmit -p` og `npm run lint` rene etter siste endring (kjørt ved faseslutt kl. 13:40); `next build` ikke kjørt.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 60 treff. Datauttrekk i git 0.
+- STATUS: 44 linjer. fase-slutt: 13:39–13:42, 3 min. «Registrer»-knapp for administrator
 
 - **Ønske:** TODO punkt 5 (Ståle, 2026-10-13): en kjapp vei for administrator til å registrere en endring uten å lete opp personen i kalenderen.
 - **Beslutning (Ståle, plassering):** knappen står først i verktøylinja på Ukeplan (anbefalt alternativ), ikke ved «Admin»-lenka og ikke i fanelinja. Begrunnelse: enklest, og `erAdmin`, `ansatte` og `valg` er allerede i scope i `UkeplanClient`; ulempen er at den bare vises på Ukeplan-fanen.

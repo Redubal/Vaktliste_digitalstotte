@@ -164,6 +164,7 @@ export function UkeplanClient({
   const { aapneFor, aapneNy, vindu } = useEndringVindu({ jegId, erAdmin, revisjon, valg, endringer, ansatte });
   const godkjennRevisjon = erAdmin ? revisjon : null;
   const today = useMemo(() => isoWeek(todayUtc()), []);
+  const idagIso = useMemo(() => todayUtc().toISOString().slice(0, 10), []);
   // Kommer du fra Admin, starter visningen på teamet til personen, ellers er raden ikke i listen.
   // Ellers starter den på teamet til den som har valgt seg selv, av samme grunn.
   const [team, setTeam] = useState<TeamFilter>(
@@ -214,7 +215,7 @@ export function UkeplanClient({
   });
 
   return (
-    <section aria-label="Ukeplan">
+    <section aria-label="Uke">
       <div className="ukeplan-toolbar">
         {aapneNy && (
           <button type="button" onClick={aapneNy} className="uke-btn uke-btn--today">
@@ -269,8 +270,13 @@ export function UkeplanClient({
                 </th>
                 {ukeplan.dager.map((d, i) => {
                   const noter = ukeplan.merknader[i];
+                  const erIdag = d.toISOString().slice(0, 10) === idagIso;
                   return (
-                    <th key={d.toISOString()} className="col-day">
+                    <th
+                      key={d.toISOString()}
+                      className={erIdag ? "col-day dag--idag" : "col-day"}
+                      aria-current={erIdag ? "date" : undefined}
+                    >
                       <div className="day-head">
                         <span className="day-short">{formatDayShort(d)}</span>
                         <span className="day-number">{formatDayNumber(d)}</span>
@@ -335,7 +341,7 @@ export function UkeplanClient({
                             .join("\n")
                         : undefined;
                     return (
-                      <td key={celle.iso} title={tooltip}>
+                      <td key={celle.iso} title={tooltip} className={celle.iso === idagIso ? "dag--idag" : undefined}>
                         <Celle
                           celle={celle}
                           person={rad.person.name}
@@ -386,9 +392,14 @@ export function UkeplanClient({
                     const d = ukeplan.dager[i];
                     const noter = ukeplan.merknader[i];
                     return (
-                      <li key={celle.iso} className="kort-dag">
+                      <li
+                        key={celle.iso}
+                        className={celle.iso === idagIso ? "kort-dag dag--idag" : "kort-dag"}
+                        aria-current={celle.iso === idagIso ? "date" : undefined}
+                      >
                         <span className="kort-dag-navn">
                           {formatDayShort(d)} {formatDayNumber(d)}
+                          {celle.iso === idagIso && <span className="idag-merke">I dag</span>}
                           {noter.length > 0 && <span className="kort-dag-note">{noter.join(", ")}</span>}
                         </span>
                         <Celle

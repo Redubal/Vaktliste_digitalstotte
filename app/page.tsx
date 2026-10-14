@@ -54,13 +54,13 @@ export default async function Home({
   // nytt, så teamet følger personen som er valgt (ellers blir forrige persons team stående).
   const visningsNokkel = jegId ?? "ingen";
 
-  // Ansatte ser Ukeplan og Måned. Administrator ser i tillegg ansattlista og
+  // Ansatte ser Uke og Måned. Administrator ser i tillegg ansattlista og
   // lenken til admin-sidene. Utvalget gjøres her, på serveren, slik at innhold
   // en ansatt ikke skal se heller ikke sendes til nettleseren.
   const tabs: TabDefinition[] = [
     {
       id: "ukeplan",
-      label: "Ukeplan",
+      label: "Uke",
       content: (
         <UkeplanClient
           key={visningsNokkel}

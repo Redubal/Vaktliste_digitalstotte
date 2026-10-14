@@ -44,7 +44,7 @@ Levert i Fase 38 2026-10-14 (knapp først i verktøylinja på Ukeplan, personvel
 Ønsket av Ståle 2026-10-13, under Fase 26. Ukenummer skal vises i kalenderen
 (Måned, og eventuelt mobilkalenderen). Ikke vurdert i koden. `lib/uker.ts` og
 `lib/ukeplan.ts` har allerede ISO-ukeregning (`isoWeek`), men ingen visning av
-ukenummer i Måned. Må få fasenummer i planen før den gjøres.
+ukenummer i Måned. I planen som Fase 41 (2026-10-14).
 
 ## 7. Kolonnene i Admin → Ansatte overlapper
 
@@ -63,6 +63,11 @@ ikke listes uendelig. Ikke vurdert hvordan det skal løses. Trenger plan.
 Rettet 2026-10-14, se logg. Kalenderen `.mkal` hadde 7 kolonner mot hverdager fra
 `beregnMaaned`; nå fem (M–F). **Beslutning (Ståle, fem kolonner):** lørdag og søndag
 har aldri innhold i vaktlista, så de fjernes heller enn å holdes tomme.
+
+## 12. Administrator velger fargen på rammen for dagens dato
+Ønsket 2026-10-14 under Fase 39: den første fargen var for lik endringsfargene, så rammen er nå
+bare en mørk ramme uten fyll. Admin skal selv kunne velge fargen (Admin → innstillinger).
+Rammen styres av `--idag-ramme` i `globals.css`. Ikke i planen; trenger fasenummer.
 
 ## Levert (pekere)
 - Tydelig ulagret (rødt) / lagret (grønt) — Fase 8 gjaldt hele Admin, se logg 2026-10-13. Ønsket sa «over alt»; om endringsvinduet i Ukeplan/Måned trenger det samme, er ikke vurdert.
@@ -100,7 +105,9 @@ har aldri innhold i vaktlista, så de fjernes heller enn å holdes tomme.
 - Dytte til Outlook, f.eks. ved sykdom — merknad i Fase 33 (samme Graph-tilgang).
 - Varsel utenfor appen (e-post eller Teams) når en endring blir godkjent, avvist eller får annen status. Spurt av Ståle 2026-10-13 under Fase 23. Beskjeden **i appen** er Fase 24 og skal komme uansett: «det må likevel være en del av siden». Varsel utenfor appen trenger Graph-tilgang som Fase 30 og 32–33, og vet først hvem mottakeren er når e-post kommer fra Entra.
 
-## 
-Ukeplan blir Uke
-Legge til Dag (vise kun dagens hendelser, bruker må kunne legge inn og registrere her)
-Highligte hvilken dag det er i Uke og Måned for enklere visuelt.
+## 10. «Ukeplan» blir «Uke», og dagens dato utheves
+Levert i Fase 39 (2026-10-14), se logg 2026-10-14. Dagens dato har bare ramme, uten fyll; fargen kan Admin velge senere (punkt 12).
+
+## 11. Ny «Dag»-visning
+Ønsket 2026-10-14: vise bare dagens hendelser; bruker må kunne legge inn og registrere her.
+I planen som Fase 40.

@@ -166,7 +166,7 @@ function AnsattRad({
       <AktivKnapp ansatt={ansatt} revisjon={revisjon} />
       <Link className="uke-btn" href={`/?person=${encodeURIComponent(ansatt.brukerId)}`}>
         <span className="bare-smal">Vis i ukeplan</span>
-        <span className="bare-bred">Ukeplan</span>
+        <span className="bare-bred">Uke</span>
       </Link>
       </div>
     </li>

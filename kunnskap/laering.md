@@ -1,5 +1,16 @@
 # Læringslogg
 
+## 2026-10-14 (avslutning Fase 39) — «Uke» og dagens dato
+
+**Evaluering av forrige økts punkter:**
+- `[forelder-layout]` — fulgt: ringen i mobilkalenderen kom etter at reglene til `.mkal` og `.prikk--venter`/`--godkjent` var lest, og ble lagt inni firkanten (innvendig skygge). Strykes som innarbeidet.
+
+**Nye punkter:**
+- `[farge-mot-palett]` Ny farge til en utheving skal sammenlignes med fargene som allerede står i `globals.css` (`--accent`, `.prikk--*`) før den velges, helst som ramme eller form i stedet for en ny flate. Belegg: første utheving brukte `--accent` som fyll i kolonnen, og Ståle sa at den var «veldig lik andre farger».
+
+**Fasesnitt:** én økt uten `/compact`, inkludert planskriving. Ingen deling foreslått.
+**Issue til pakkerepoet:** ikke aktuelt.
+
 ## 2026-10-14 (avslutning Fase 38) — «Registrer»-knapp
 
 **Evaluering av forrige økts punkter:**

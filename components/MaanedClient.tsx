@@ -125,6 +125,7 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
     const t = todayUtc();
     return { aar: t.getUTCFullYear(), maaned: t.getUTCMonth() + 1 };
   }, []);
+  const idagIso = useMemo(() => todayUtc().toISOString().slice(0, 10), []);
   // Har noen valgt seg selv, starter visningen på teamet deres, så de står i listen.
   const [team, setTeam] = useState<TeamFilter>(
     ansatte.find((a) => a.id === jegId)?.teamId ?? alleTeam[0]?.id ?? ALLE_TEAM,
@@ -255,10 +256,12 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
                 </th>
                 {plan.dager.map((d, i) => {
                   const noter = plan.merknader[i];
+                  const erIdag = d.toISOString().slice(0, 10) === idagIso;
                   return (
                     <th
                       key={d.toISOString()}
-                      className={d.getUTCDay() === 1 ? "col-mdag--uke" : undefined}
+                      className={[d.getUTCDay() === 1 && "col-mdag--uke", erIdag && "dag--idag"].filter(Boolean).join(" ") || undefined}
+                      aria-current={erIdag ? "date" : undefined}
                       title={noter.length > 0 ? noter.join(", ") : undefined}
                     >
                       <div className="mdag-head">
@@ -306,7 +309,11 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
                       <td
                         key={celle.iso}
                         title={tittel}
-                        className={dag.getUTCDay() === 1 ? "col-mdag--uke" : undefined}
+                        className={
+                          [dag.getUTCDay() === 1 && "col-mdag--uke", celle.iso === idagIso && "dag--idag"]
+                            .filter(Boolean)
+                            .join(" ") || undefined
+                        }
                       >
                         {aapne ? (
                           <button
@@ -366,10 +373,12 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
                     const dag = plan.dager[i];
                     const tittel = tittelFor(celle, dag, jegId, erAdmin);
                     const aapne = aapneFor(rad.person, celle);
+                    const erIdag = celle.iso === idagIso;
                     const felles = {
-                      className: `mkal-dag ${prikkKlasse(celle, jegId)}`,
+                      className: `mkal-dag ${prikkKlasse(celle, jegId)}${erIdag ? " mkal-dag--idag" : ""}`,
                       style: prikkStil(celle),
                       "data-antall": antallFor(celle),
+                      "aria-current": erIdag ? ("date" as const) : undefined,
                       title: tittel,
                     };
                     return aapne ? (

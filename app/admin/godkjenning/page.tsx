@@ -61,7 +61,7 @@ export default async function GodkjenningSide() {
           {avvistTil
             ? `En avvist endring får statusen «${avvistTil.name}» og vises ikke i planen.`
             : "Ingen status betyr «Avvist» ennå. Legg til en under Endringstyper og statuser før du avviser."}{" "}
-          Endringer som venter, vises med merke i Ukeplan og Måned.
+          Endringer som venter, vises med merke i Uke og Måned.
         </p>
         {venter.length === 0 ? (
           <p className="empty-row">Ingen endringer venter på godkjenning.</p>
