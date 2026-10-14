@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { EndringValg } from "@/components/EndringVindu";
 import { GodkjenningListe } from "@/components/GodkjenningListe";
-import { avvistStatus, godkjentStatus } from "@/lib/domene";
+import { avvistStatus, finnOverlapp, godkjentStatus } from "@/lib/domene";
 import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
 import { lesVaktliste } from "@/lib/lager";
 import { getAnsatte, getEndringer } from "@/lib/vaktlista";
@@ -30,7 +30,10 @@ export default async function GodkjenningSide() {
   for (const a of ansatte) teamAvPerson[a.id] ??= a.teamId;
   const tilStatus = godkjentStatus(v.statuser);
   const avvistTil = avvistStatus(v.statuser);
-  const venter = getEndringer()
+  const ikkeAvvist = getEndringer().filter((e) => e.virkning !== "avvist");
+  // Regnes ut her på serveren: en ventende endring som overlapper en godkjent eller en annen ventende.
+  const overlappIder = [...finnOverlapp(ikkeAvvist)];
+  const venter = ikkeAvvist
     .filter((e) => e.virkning === "venter")
     .sort((a, b) => a.fromDate.localeCompare(b.fromDate) || a.person.localeCompare(b.person, "nb"));
 
@@ -65,6 +68,8 @@ export default async function GodkjenningSide() {
         ) : (
           <GodkjenningListe
             endringer={venter}
+            alleEndringer={ikkeAvvist}
+            overlappIder={overlappIder}
             revisjon={v.revisjon}
             jegId={jeg.id}
             valg={valg}

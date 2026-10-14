@@ -30,9 +30,9 @@ verifiseringen av Fase 1, punkt 9.
 
 ## 4. Flere endringer på samme dag, med klokkeslett
 
-Fase 35 levert 2026-10-13 (klokkeslett og flere linjer i Ukeplan, se logg). Fase 36
-(Måned) og 37 (varsel ved overlapp) gjenstår i `plan.md`. Ønsket av Ståle under Fase 24.
-Max-tilfellet (endring flyttet til en «okkupert» dag vises ikke riktig) er ikke
+Levert i Fase 35 (klokkeslett, flere linjer i Ukeplan), 36 (Måned, delt firkant) og 37
+(varsel ved overlapp), se logg 2026-10-13 og 2026-10-14. Ønsket av Ståle under Fase 24.
+**Åpent:** Max-tilfellet (endring flyttet til en «okkupert» dag vises ikke riktig) er ikke
 bekreftet mot hans data.
 
 ## 5. Hurtigknapp «Registrer» for administrator, foran Ukeplan

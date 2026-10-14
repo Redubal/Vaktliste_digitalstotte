@@ -20,7 +20,7 @@ import {
   type UkeplanCelle,
 } from "@/lib/ukeplan";
 import { useEndringVindu, type EndringValg } from "./EndringVindu";
-import { BehandleKnapper, GodkjentMerke, hva, periode, VenterMerke, VenterPanel } from "./Godkjenning";
+import { BehandleKnapper, GodkjentMerke, hva, OverlappMerke, periode, VenterMerke, VenterPanel } from "./Godkjenning";
 import { ariaSort, forstFor, sorterRader } from "@/lib/sortering";
 import { formatDayNumber, formatDayShort, formatWeekRange, isoWeek, todayUtc } from "@/lib/uker";
 import { PERSON_KOLONNER, PERSON_VERDIER, STANDARD_PERSON_SORTERING } from "./personSortering";
@@ -95,6 +95,7 @@ function Celle({
               </span>
               {e.newLocation && <span className="celle-badge">{e.type}</span>}
               {eVenter && <VenterMerke />}
+              {celle.overlapp?.includes(e.id) && <OverlappMerke />}
               {jegId !== null && e.virkning === "godkjent" && e.personId === jegId && <GodkjentMerke />}
               {eVenter && revisjon !== null && (
                 <BehandleKnapper
@@ -160,7 +161,7 @@ export function UkeplanClient({
   valg,
   utheves,
 }: Props) {
-  const { aapneFor, vindu } = useEndringVindu({ jegId, erAdmin, revisjon, valg });
+  const { aapneFor, vindu } = useEndringVindu({ jegId, erAdmin, revisjon, valg, endringer });
   const godkjennRevisjon = erAdmin ? revisjon : null;
   const today = useMemo(() => isoWeek(todayUtc()), []);
   // Kommer du fra Admin, starter visningen på teamet til personen, ellers er raden ikke i listen.
@@ -320,6 +321,7 @@ export function UkeplanClient({
                                 e.newLocation ? `→ ${e.newLocation}` : null,
                                 e.comment || null,
                                 e.virkning === "venter" ? "– venter på godkjenning" : null,
+                                celle.overlapp?.includes(e.id) ? "– overlapper en annen endring" : null,
                                 `(${e.id})`,
                               ]
                                 .filter(Boolean)

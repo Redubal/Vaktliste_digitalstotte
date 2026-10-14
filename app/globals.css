@@ -792,6 +792,27 @@ tbody tr:nth-child(even) {
   white-space: nowrap;
 }
 
+/* Overlapp mellom to endringer for samme person: bare et varsel. Teksten bærer betydningen. */
+.overlapp-merke {
+  align-self: flex-start;
+  background: #fff4d9;
+  border: 1px solid #7a5a00;
+  border-radius: 999px;
+  padding: 1px 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #7a5a00;
+  white-space: nowrap;
+}
+
+.overlapp-merke::before {
+  content: "! ";
+}
+
+.venter-tabell .overlapp-merke {
+  font-size: 0.75rem;
+}
+
 /* «Mine endringer»: Status-kolonnen tar bredden merket trenger, resten deler det som er igjen. */
 .logg-tabell.mine-tabell {
   table-layout: auto;
@@ -1284,6 +1305,38 @@ button.mkal-dag {
 
 .mkal .prikk--godkjent {
   box-shadow: none;
+}
+
+/* I mobilkalenderen er firkantene store og tett: utropstegnet og antallet ligger inni hjørnene, ikke på kanten. */
+.mkal .prikk--overlapp::before {
+  top: 3px;
+  right: 3px;
+}
+
+.mkal .prikk[data-antall]::after {
+  right: 3px;
+  bottom: 3px;
+}
+
+/* Overlapp: utropstegn i hjørnet øverst til høyre (antallet ved over to endringer står nederst til høyre). */
+.prikk--overlapp {
+  position: relative;
+}
+
+.prikk--overlapp::before {
+  content: "!";
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #7a5a00;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 11px;
+  text-align: center;
 }
 
 /* --- Identitet og admin --- */

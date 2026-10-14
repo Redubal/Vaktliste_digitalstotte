@@ -58,6 +58,43 @@ export function virkningFor(statusId: string | null, statuser: Status[]): Virkni
   return statuser.find((s) => s.id === statusId)?.virkning ?? "venter";
 }
 
+/** Det overlappsjekken trenger av en endring; visningen `Endring` (tomme verdier som "") passer. */
+export type Tidsrom = {
+  personId: string;
+  fromDate: string;
+  toDate: string;
+  fromTime: string;
+  toTime: string;
+  virkning: Virkning;
+};
+
+/**
+ * To endringer overlapper når de gjelder samme person, ingen er avvist, periodene deler en dag og
+ * klokkeslettene møtes. Uten klokkeslett er det hele dagen. Klokkeslettet gjelder hver dag i
+ * perioden, så det holder å sammenligne klokkeslettene én gang. 08–12 og 12–16 overlapper ikke.
+ */
+export function overlapper(a: Tidsrom, b: Tidsrom): boolean {
+  if (a.personId !== b.personId || a.virkning === "avvist" || b.virkning === "avvist") return false;
+  if (!a.fromDate || !b.fromDate) return false;
+  if (a.fromDate > (b.toDate || b.fromDate) || b.fromDate > (a.toDate || a.fromDate)) return false;
+  // En manglende grense er åpen: fra midnatt, til midnatt.
+  return (a.fromTime || "00:00") < (b.toTime || "24:00") && (b.fromTime || "00:00") < (a.toTime || "24:00");
+}
+
+/** Id-ene til endringene som overlapper en annen endring i lista (samme person, ikke avvist). */
+export function finnOverlapp(endringer: (Tidsrom & { id: string })[]): Set<string> {
+  const ider = new Set<string>();
+  for (let i = 0; i < endringer.length; i++) {
+    for (let j = i + 1; j < endringer.length; j++) {
+      if (overlapper(endringer[i], endringer[j])) {
+        ider.add(endringer[i].id);
+        ider.add(endringer[j].id);
+      }
+    }
+  }
+  return ider;
+}
+
 /** Statusen en endring får når den godkjennes: den første godkjente i navnerekkefølge. */
 export function godkjentStatus(statuser: Status[]): Status | null {
   const godkjente = statuser

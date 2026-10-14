@@ -1,3 +1,4 @@
+import { finnOverlapp } from "./domene";
 import type { Ansatt, Dag, Endring } from "./vaktlista";
 import {
   addDays,
@@ -20,6 +21,8 @@ export type UkeplanCelle = {
   endringer: Endring[];
   /** Den første av `endringer`. */
   endring?: Endring;
+  /** Id-ene til endringene i cella som overlapper en annen endring samme dag (Fase 37). */
+  overlapp?: string[];
   utenforPeriode?: boolean;
   /** Dagen er merket fri i Admin → Dager og personen har ingen egen endring den dagen. */
   fridag?: boolean;
@@ -86,6 +89,11 @@ export function egenGodkjent(celle: UkeplanCelle, jegId: string | null): boolean
   );
 }
 
+/** Cella har endringer som overlapper hverandre denne dagen. */
+export function harOverlapp(celle: UkeplanCelle): boolean {
+  return !celle.utenforPeriode && (celle.overlapp?.length ?? 0) > 0;
+}
+
 function erFridag(dager: Dag[], dagIso: string): boolean {
   return dager.some((d) => d.fri && overlapsDate(d.fromDate, d.toDate, dagIso));
 }
@@ -109,7 +117,14 @@ function beregnCelle(person: Ansatt, dagIso: string, personEndringer: Endring[],
   }
   const treff = personEndringer.filter((e) => overlapsDate(e.fromDate, e.toDate, dagIso)).sort(sorterPaaTid);
   if (treff.length > 0) {
-    return { iso: dagIso, primær: treff.map(endringLabel).join(" + "), endringer: treff, endring: treff[0] };
+    const overlapp = [...finnOverlapp(treff)];
+    return {
+      iso: dagIso,
+      primær: treff.map(endringLabel).join(" + "),
+      endringer: treff,
+      endring: treff[0],
+      ...(overlapp.length > 0 && { overlapp }),
+    };
   }
   if (erFridag(dager, dagIso)) return { iso: dagIso, primær: "Fri", endringer: [], fridag: true };
   return { iso: dagIso, primær: person.location || "—", endringer: [] };

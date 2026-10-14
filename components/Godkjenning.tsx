@@ -30,6 +30,15 @@ export function VenterMerke() {
   return <span className="venter-merke">Venter</span>;
 }
 
+/** Tekstmerket på en endring som overlapper en annen for samme person. Bare et varsel: ingenting sperres. */
+export function OverlappMerke() {
+  return (
+    <span className="overlapp-merke" title="Overlapper med en annen endring for samme person">
+      Overlapper
+    </span>
+  );
+}
+
 /** Tekstmerket på ens egen godkjente endring. */
 export function GodkjentMerke() {
   return <span className="godkjent-merke">Godkjent</span>;
@@ -167,10 +176,13 @@ export function VenterListe({
   endringer,
   revisjon,
   onRett,
+  overlappIder,
 }: {
   endringer: Endring[];
   revisjon: number | null;
   onRett?: (e: Endring) => () => void;
+  /** Id-ene som overlapper en annen endring (regnet ut på serveren); de får et merke ved Periode. */
+  overlappIder?: string[];
 }) {
   return (
     <div className="table-wrapper">
@@ -190,7 +202,15 @@ export function VenterListe({
             <tr key={e.id}>
               <td>{e.person}</td>
               <td>{hva(e)}</td>
-              <td>{periode(e)}</td>
+              <td>
+                {periode(e)}
+                {overlappIder?.includes(e.id) && (
+                  <>
+                    {" "}
+                    <OverlappMerke />
+                  </>
+                )}
+              </td>
               <td>{e.status || "Ingen status"}</td>
               <td>{e.comment}</td>
               {revisjon !== null && (

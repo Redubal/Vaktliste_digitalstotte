@@ -182,21 +182,7 @@ Fase 35 ✅ 2026-10-13 — detaljer i logg
 
 Fase 36 ✅ 2026-10-14 — detaljer i logg
 
-**Fase 37 — Varsel ved overlapp.**
-- `overlapper`/`finnOverlapp` i `lib/domene.ts`.
-- **I vinduet, før lagring:** vinduet får personens andre endringer og viser en gul merknad
-  («Overlapper med avspasering 12–16») mens du fyller ut. Lagre er aldri sperret av den.
-  `utforSom` endres ikke.
-- **I cella:** et lite varselmerke på linjene som overlapper, i Ukeplan og i Måned.
-- **I Admin → Godkjenning:** siden regner ut `finnOverlapp` på serveren og sender inn id-ene, og
-  `VenterListe` viser et merke ved Periode.
-- Sjekk: et midlertidig Node-skript mot `overlapper`, med disse tilfellene: 08–12 og 12–16 (nei),
-  08–12 og 11–16 (ja), hele dagen og 08–12 (ja), man–ons 08–12 og tirsdag 10–14 (ja), en avvist
-  endring (nei), og forskjellige personer (nei).
-
-**Verifisering:** du retter avspaseringen fra Fase 35 til 11–16 og ser den gule merknaden i
-vinduet; du lagrer likevel og ser varselmerket i cella og i Admin → Godkjenning; du retter tilbake
-til 12–16 og ser at merkene forsvinner; en ny endring samme dag uten klokkeslett gir også varsel.
+Fase 37 ✅ 2026-10-14 — detaljer i logg
 
 ## Senere (Entra og database)
 Parkert 2026-10-13 etter ønske fra bruker. Fasene er uendret bortsett fra nummer (var 16–19, så 21–24,

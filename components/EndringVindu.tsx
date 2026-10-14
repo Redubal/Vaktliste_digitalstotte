@@ -6,8 +6,10 @@ import {
   ENDRING_KOMMENTAR_MAKSLENGDE,
   kanEndreEndring,
   kanSletteEndring,
+  overlapper,
   type Kategori,
   type Svar,
+  type Tidsrom,
 } from "@/lib/domene";
 import { tidTekst, type UkeplanCelle } from "@/lib/ukeplan";
 import type { Ansatt, Endring } from "@/lib/vaktlista";
@@ -50,6 +52,8 @@ type Oppsett = {
   erAdmin: boolean;
   revisjon: number | null;
   valg: EndringValg | null;
+  /** Alle endringer som er synlige; vinduet varsler om overlapp med dem som tilhører samme person. */
+  endringer: Endring[];
 };
 
 /**
@@ -57,7 +61,7 @@ type Oppsett = {
  * ingen har valgt seg selv, raden er en annens (og du er ikke administrator), eller personen er
  * ikke aktiv den dagen. `vindu` settes inn ett sted i visningen.
  */
-export function useEndringVindu({ jegId, erAdmin, revisjon, valg }: Oppsett) {
+export function useEndringVindu({ jegId, erAdmin, revisjon, valg, endringer }: Oppsett) {
   const [aapen, setAapen] = useState<AapenDag | null>(null);
 
   function aapneFor(person: Ansatt, celle: UkeplanCelle): (() => void) | undefined {
@@ -83,6 +87,7 @@ export function useEndringVindu({ jegId, erAdmin, revisjon, valg }: Oppsett) {
         erAdmin={erAdmin}
         revisjon={revisjon}
         valg={valg}
+        alle={endringer}
         onVelg={(v) => setAapen({ ...aapen, valgt: v })}
         onLukk={() => setAapen(null)}
       />
@@ -101,11 +106,13 @@ export function useRettVindu({
   revisjon,
   valg,
   teamAvPerson,
+  endringer,
 }: {
   jegId: string;
   revisjon: number;
   valg: EndringValg;
   teamAvPerson: Record<string, string>;
+  endringer: Endring[];
 }) {
   const [aapen, setAapen] = useState<AapenDag | null>(null);
 
@@ -127,6 +134,7 @@ export function useRettVindu({
       erAdmin
       revisjon={revisjon}
       valg={valg}
+      alle={endringer}
       onVelg={() => {}}
       onLukk={() => setAapen(null)}
     />
@@ -151,6 +159,7 @@ function Vindu({
   erAdmin,
   revisjon,
   valg,
+  alle,
   onVelg,
   onLukk,
 }: {
@@ -159,6 +168,7 @@ function Vindu({
   erAdmin: boolean;
   revisjon: number;
   valg: EndringValg;
+  alle: Endring[];
   onVelg: (valgt: Valgt) => void;
   onLukk: () => void;
 }) {
@@ -189,7 +199,20 @@ function Vindu({
   const [typeId, setTypeId] = useState(retter?.typeId ?? "");
   const [lokasjonId, setLokasjonId] = useState(retter?.lokasjonId ?? "");
   const [fra, setFra] = useState(retter?.fromDate || dag.iso);
+  const [til, setTil] = useState(retter?.toDate || dag.iso);
   const [medTid, setMedTid] = useState(Boolean(retter?.fromTime));
+  const [fraTid, setFraTid] = useState(retter?.fromTime || STANDARD_FRA);
+  const [tilTid, setTilTid] = useState(retter?.toTime || STANDARD_TIL);
+  // Varsel (aldri en sperre): andre endringer for samme person som det du fyller ut overlapper.
+  const kandidat: Tidsrom = {
+    personId: person.id,
+    fromDate: fra,
+    toDate: til,
+    fromTime: medTid ? fraTid : "",
+    toTime: medTid ? tilTid : "",
+    virkning: "venter",
+  };
+  const overlappMed = alle.filter((e) => e.id !== retter?.id && overlapper(kandidat, e));
   const type = valg.endringstyper.find((t) => t.id === typeId);
   // Lokasjon spørres alltid om: typer som «Flyttet» kan ligge i «Annet». Påkrevd for lokasjonstyper.
   const lokasjonPaakrevd = type?.kategori === "lokasjon";
@@ -284,7 +307,7 @@ function Vindu({
           </label>
           <label className="vindu-felt">
             <span>Til</span>
-            <input type="date" name="toDate" defaultValue={retter?.toDate || dag.iso} min={fra} />
+            <input type="date" name="toDate" value={til} onChange={(e) => setTil(e.target.value)} min={fra} />
           </label>
         </div>
 
@@ -296,11 +319,25 @@ function Vindu({
             <div className="vindu-datoer">
               <label className="vindu-felt">
                 <span>Fra kl.</span>
-                <input type="time" name="fromTime" step={TID_STEG} defaultValue={retter?.fromTime || STANDARD_FRA} required />
+                <input
+                  type="time"
+                  name="fromTime"
+                  step={TID_STEG}
+                  value={fraTid}
+                  onChange={(e) => setFraTid(e.target.value)}
+                  required
+                />
               </label>
               <label className="vindu-felt">
                 <span>Til kl.</span>
-                <input type="time" name="toTime" step={TID_STEG} defaultValue={retter?.toTime || STANDARD_TIL} required />
+                <input
+                  type="time"
+                  name="toTime"
+                  step={TID_STEG}
+                  value={tilTid}
+                  onChange={(e) => setTilTid(e.target.value)}
+                  required
+                />
               </label>
             </div>
             <p className="vindu-info">Gjelder endringen flere dager, er klokkeslettet det samme hver dag.</p>
@@ -323,6 +360,13 @@ function Vindu({
               ? "Endringen gjelder med en gang."
               : "Endringen venter på godkjenning fra en administrator."}
         </p>
+
+        {overlappMed.length > 0 && (
+          <p className="vindu-merknad vindu-merknad--overlapp" role="status">
+            {overlappMed.map((e) => `Overlapper med ${hva(e).toLowerCase()} ${periode(e)}`).join(". ")}. Du kan
+            lagre likevel.
+          </p>
+        )}
 
         <Feil svar={lagreFeil.synlig} />
 

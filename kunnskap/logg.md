@@ -1,5 +1,19 @@
 # Logg
 
+## 2026-10-14 — Fase 37 ✅ Varsel ved overlapp
+
+- **Verifisert av Ståle:** sendte skjermbilde av vinduet «Rett endring» som viste den gule merknaden med tre treff (avspasering, ferie og mappeoppgave, hver med dato og klokkeslett), og så Måned i mobilkalenderen. Skrev «ferdig med denne fasen» som egen melding. **Ikke oppgitt:** merket «Overlapper» i Ukeplan-cella, merket ved Periode i Admin → Godkjenning, at merkene forsvinner når han retter tilbake til 12–16, og ny endring samme dag uten klokkeslett.
+- **Levert (koden):** `overlapper`/`finnOverlapp` og typen `Tidsrom` i `lib/domene.ts` (samme person, ingen avvist, periodene deler en dag, klokkeslettene møtes; uten klokkeslett = hele dagen; manglende grense er åpen). `UkeplanCelle.overlapp` (id-er) fylles per dag i `beregnCelle`, så bare dagen der de faktisk overlapper får merket; `harOverlapp` i `lib/ukeplan.ts`. `OverlappMerke` i `Godkjenning.tsx` (Ukeplan-linjer og Periode-kolonnen). Måned: `.prikk--overlapp::before` (utropstegn) og en linje i forklaringen. Vinduet (`EndringVindu.tsx`) fikk `alle`/`endringer` og kontrollerte felt for til-dato og klokkeslett, så merknaden følger det du skriver. Admin → Godkjenning regner `finnOverlapp` på serveren og sender `overlappIder` og `alleEndringer` til `GodkjenningListe`. `utforSom` og lagringsreglene er uendret: Lagre sperres aldri.
+- **Observert (Node, oppdiktede rader):** planens seks tilfeller pluss ulike dager og tom til-dato ga riktig svar, og `finnOverlapp` ga id 1 og 2 men ikke 3 (9 av 9). Skriptet lå i økt-mappa, ikke i repoet.
+- **Beslutning (Claude, overlapp per dag i cella):** merket settes bare på dagen der endringene faktisk overlapper, ikke på hele perioden. Begrunnelse: man–ons 08–12 og tirsdag 10–14 skal ikke merke mandag. Ståle har ikke uttalt seg om dette.
+- **Overraskelse (mobilkalenderen):** første plassering av utropstegnet (−6 px, på kanten) og av antallet (−5 px) så rotete ut i `.mkal` (Ståle: «ikke helt pent»). Begge ligger nå 3 px inni hjørnene, bare i `.mkal`. Ståle skrev «ble bra».
+- **Observert, ikke løst:** i vinduet sto «Sletter …» fast og Lagre var grå etter «Ja, slett» (skjermbilde fra Ståle). Jeg fant ingen kobling til Fase 37 i koden (`slettEndring` er urørt), men har ikke sett dev-serverens utskrift. **Hypotese:** lagring mot låst fil på Windows, eller dev-serveren etter mange kodeendringer under kjøring. Avgjøres av: feilmelding i terminalen der dev-serveren kjører, og om det henger igjen etter omstart.
+- **Ikke gjort:** `node_modules/next/dist/docs/` ikke lest (ingen nye Next-API-er, bare klientkomponenter og CSS); `next build` ikke kjørt. Måned-merket i det store (ikke mobile) rutenettet er ikke sett av Ståle.
+- **Fasesnitt:** én økt, uten `/compact`.
+- **Sjekk:** `tsc --noEmit` og `npm run lint` grønne etter siste kodeendring i `.ts`/`.tsx`; deretter bare CSS endret to ganger (utropstegn og antall inn i hjørnene), og sjekkene ble ikke kjørt på nytt etter det.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 6 treff. Datauttrekk i git 0.
+- STATUS: 43 linjer. fase-slutt: 08:42–08:44, 2 min (målt til commit; klarsignal på plan- og TODO-forslag ventet inn).
+
 ## 2026-10-14 — Fase 36 ✅ Flere endringer i Måned (delt firkant)
 
 - **Verifisert av Ståle:** skrev «ok, ser bra ut» etter å ha sett Måned med dagen som har flere endringer (han nevnte «4 i eksemplet», så tallet i hjørnet er sett). Han sa ikke hvert punkt for seg. **Ikke oppgitt:** mobilkalenderen (`.mkal`, smalt vindu), klikk som åpner dagens liste (planens tredje punkt), dag med nøyaktig to endringer, og ringen for «venter» på en dag med flere endringer.

@@ -11,6 +11,7 @@ import {
   egenFarge,
   egenGodkjent,
   forrigeMaaned,
+  harOverlapp,
   nesteMaaned,
   tidTekst,
   venterPaaGodkjenning,
@@ -42,7 +43,7 @@ type Props = {
 /** Prikkens klasse, med merke for en endring som venter, eller for ens egen godkjente. */
 function prikkKlasse(celle: UkeplanCelle, jegId: string | null): string {
   const merke = venterPaaGodkjenning(celle) ? " prikk--venter" : egenGodkjent(celle, jegId) ? " prikk--godkjent" : "";
-  return PRIKK_KLASSE[classifyCelle(celle)] + merke;
+  return PRIKK_KLASSE[classifyCelle(celle)] + merke + (harOverlapp(celle) ? " prikk--overlapp" : "");
 }
 
 // Samme farger som `.prikk--*` i globals.css; trengs her fordi en delt firkant bygges som fargeovergang.
@@ -76,6 +77,7 @@ function tittelFor(celle: UkeplanCelle, dag: Date, jegId: string | null, erAdmin
         e.comment || null,
         e.virkning === "venter" ? "venter på godkjenning" : null,
         godkjent(e) ? "godkjent" : null,
+        celle.overlapp?.includes(e.id) ? "overlapper en annen endring" : null,
       ]
         .filter(Boolean)
         .join(" · "),
@@ -118,7 +120,7 @@ const FORKLARING: { type: CelleType; tekst: string }[] = [
 ];
 
 export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmin, jegId, revisjon, valg }: Props) {
-  const { aapneFor, vindu } = useEndringVindu({ jegId, erAdmin, revisjon, valg });
+  const { aapneFor, vindu } = useEndringVindu({ jegId, erAdmin, revisjon, valg, endringer });
   const today = useMemo(() => {
     const t = todayUtc();
     return { aar: t.getUTCFullYear(), maaned: t.getUTCMonth() + 1 };
@@ -211,6 +213,10 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
         <li>
           <span className="prikk prikk--endring-status prikk--venter" aria-hidden="true" />
           Venter på godkjenning
+        </li>
+        <li>
+          <span className="prikk prikk--endring-status prikk--overlapp" aria-hidden="true" />
+          Endringer som overlapper
         </li>
         {jegId && (
           <li>

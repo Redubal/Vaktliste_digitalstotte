@@ -1,5 +1,15 @@
 # Læringslogg
 
+## 2026-10-14 (avslutning Fase 37) — Varsel ved overlapp
+
+**Evaluering av forrige økts punkter:**
+- `[nåtid-om-planlagt]` — fulgt: i åpningen skrev jeg «varselet finnes ikke ennå, det kommer i Fase 37». Strykes som innarbeidet.
+- `[forelder-layout]` — brutt igjen (2. runde): jeg la utropstegn og varsel i celler og firkanter uten å lese `.mkal`-reglene (rutenett, ring med `outline-offset`) først; med −6 px på kanten krasjet de i naboen og ringen, og Ståle måtte be om to rettinger.
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** 37 fikk plass i én økt uten `/compact`. Ingen deling foreslått.
+
 ## 2026-10-14 (avslutning Fase 36) — Flere endringer i Måned
 
 **Evaluering av forrige økts punkter:**
