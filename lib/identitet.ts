@@ -1,19 +1,25 @@
 import type { Ansatt } from "./vaktlista";
 
 /**
- * Hvem brukeren har valgt å være, lagret i en informasjonskapsel.
+ * Hvem brukeren er. Fra Fase 45 avgjøres det av innloggingen (`lib/innlogging.ts`): kapselen
+ * `OKT_COOKIE` bærer et tilfeldig token som slås opp i tabellen `okt`.
  *
- * Kapsel og ikke nettleserlagring, fordi serveren må kunne lese valget: det er
- * serveren som avgjør hvilke faner og hvilke sider brukeren får. Ligger valget
- * bare i nettleseren, må alt innhold sendes ut og skjules med CSS.
- *
- * Fila importerer med vilje ingenting som bare virker på serveren, slik at både
- * server- og klientkode kan bruke den.
- *
- * MERK: dette er ikke innlogging. Enhver kan velge hvem som helst i lista og få
- * admintilgang. Det er en feilsikring mot å klikke feil, ikke en sikkerhets-
- * grense. Ekte skille kommer med Entra SSO, og da skal dette fjernes — ikke
- * bygges videre på.
+ * Fila importerer med vilje ingenting som bare virker på serveren, slik at både server- og
+ * klientkode, og `proxy.ts`, kan bruke den.
+ */
+export const OKT_COOKIE = "vaktliste-okt";
+
+/**
+ * `AUTH_MODUS=lokal` i `.env.local` beholder «Du er»-velgeren i utvikling, uten passord. Gjelder
+ * aldri i produksjon (`next build`/`next start`), så en glemt variabel åpner ikke appen.
+ */
+export function lokalModus(): boolean {
+  return process.env.AUTH_MODUS === "lokal" && process.env.NODE_ENV !== "production";
+}
+
+/**
+ * Velgeren i lokal modus, lagret i en informasjonskapsel. Ikke innlogging: enhver kan velge
+ * hvem som helst, også en administrator. Brukes bare med `lokalModus()`.
  */
 export const IDENTITET_COOKIE = "vaktliste-identitet";
 

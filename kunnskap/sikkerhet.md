@@ -44,5 +44,36 @@ Lest: alle handlinger (`app/handlinger.ts`, `app/admin/handlinger.ts`), `lib/utf
 | F6 | `xlsx` 0.18.5 (prototype pollution, ReDoS); ingen retting på npm. Brukes bare i `npm run import` mot egen Excel-fil. | Lav (lokalt) | **Beslutning (Ståle, xlsx):** godtatt. Importen er en engangsjobb mot en fil teamet selv eier, ikke en fil fra utsiden. |
 | F7 | Kommentarer på andres endringer (godkjente og ventende) vises for alle i planen. Kan inneholde helseopplysninger. | Middels | **Rettet** (Ståle valgte «bare egne + admin»): kommentaren tømmes i `app/page.tsx` for andres endringer når den som ser ikke er administrator. Typen vises fortsatt. |
 | F8 | `braces` og `source-map-js`: bare i utviklingsverktøy (lint/bygg), ikke i appen som kjører. | Lav | **Delvis rettet** (Ståle sa ja): `npm audit fix` oppdaterte `source-map-js`. **Beslutning (Ståle, utviklingsverktøy):** `braces` (via `eslint-config-next`) godtas, fordi den bare brukes i lint og retting krever nedgradering av `eslint-config-next`. |
-| F10 | Dev-serveren lytter på alle nettverkskort (`Network: http://10.192.189.24:3000`), så andre på samme nett kan nå appen og velge en administrator. | Middels | **Beslutning (Ståle, nettverk):** godtatt, fordi appen fortsatt er i test og ikke har personopplysninger som faller inn under GDPR. Må tas opp igjen før ekte persondata tas inn (`-H 127.0.0.1` i `dev`-skriptet, eller Entra). |
+| F10 | Dev-serveren lytter på alle nettverkskort (`Network: http://10.192.189.24:3000`), så andre på samme nett kan nå appen og velge en administrator. | Middels | **Beslutning (Ståle, nettverk):** godtatt, fordi appen fortsatt er i test og ikke har personopplysninger som faller inn under GDPR. Må tas opp igjen før ekte persondata tas inn (`-H 127.0.0.1` i `dev`-skriptet, eller Entra). **Tatt opp i Fase 45 — Beslutning (Ståle, nettverk):** fortsatt godtatt; det gjør ikke noe at appen er synlig på nettet den ligger i. Nå kreves innlogging, men over http i dev sendes kapselen ukryptert og startpassordet er kjent (F11), så vurderingen gjelder bare så lenge det ikke er ekte persondata. |
 | F9 | Endringsloggen fører skrivinger, ikke oppslag (punkt 7). | Lav | **Beslutning (Ståle, oppslagslogg):** godtatt til Entra, fordi appen er i test uten GDPR-data og «Du er» uansett ikke viser hvem som faktisk ser. |
+
+## Fase 45: pålogging med e-post og passord (2026-10-15)
+
+F1 er erstattet av ekte innlogging; «Du er»-velgeren finnes bare med `AUTH_MODUS=lokal`, og bare
+utenfor produksjon. Kode: `lib/innlogging.ts`, `innlogget()` i `lib/utfor.ts`, `proxy.ts`.
+
+### Slik er det bygget
+- **Passord:** `crypto.scrypt` (N = 2^15, r = 8, p = 1, 16 byte salt, 64 byte nøkkel), sammenlignet med
+  `timingSafeEqual`. Lagret som `scrypt$N$salt$hash` i tabellen `innlogging`. Målt: ca. 60 ms per sjekk.
+- **Startpassord** fra miljøvariabelen `STARTPASSORD` i `.env.local`, ikke i koden: raden lages ved
+  første innlogging med `maaBytte` = 1, og appen slipper ingen videre før passordet er byttet.
+  Nytt passord: minst 10 tegn, ikke startpassordet og ikke det gamle.
+- **Økter:** 32 tilfeldige byte i kapselen `vaktliste-okt` (HttpOnly, SameSite=Lax, Secure i
+  produksjon, 7 dager); tabellen `okt` har bare SHA-256 av verdien. Utlogging sletter raden.
+  Passordbytte logger ut alle andre økter for personen.
+- **Gale forsøk:** telles per konto FØR passordet sjekkes (atomisk `UPDATE … RETURNING`), så
+  samtidige forsøk ikke slipper forbi. Fem gale gir 5 minutters pause. Adresser som ikke finnes, får
+  samme svar, samme regnetid og samme pause (teller i minnet), så skjemaet ikke avslører hvem som
+  har konto.
+- **Tilgang sjekkes der dataene er:** hver side og handling kaller `innlogget()`. `proxy.ts` sender
+  bare den uten kapsel til `/logg-inn` og ser ikke i databasen. Deaktiverte og personer uten team
+  får `null` fra `innlogget()` og kommer ikke inn, selv med gyldig økt.
+- **CSRF:** serverhandlinger i Next sjekker `Origin` mot `Host`; i tillegg SameSite=Lax.
+
+### Kjente svakheter
+| # | Svakhet | Alvor | Status |
+|---|---------|-------|--------|
+| F11 | Startpassordet (avtalt i planen) er svakt og kjent av alle. Den som kjenner en kollegas e-post, kan logge inn som vedkommende før vedkommende selv har gjort det første gang. | Høy før ekte data | Må byttes ut før ekte persondata (`TODO.md` punkt 1): enten et tilfeldig startpassord per person, eller Entra. |
+| F12 | Ingen «glemt passord» og ingen måte for admin å nullstille. Glemt passord = rad slettes i `innlogging` for hånd. | Lav i test | Bevisst utenfor fasen (planen: «Ikke med»). |
+| F13 | Pausen etter gale forsøk er per konto, ikke per maskin. Andre kan låse en kollega ute i 5 minutter med vilje. | Lav | Godtatt i prototypen; Entra løser det. |
+| F14 | Sikkerhetskopiene i `data/kopier/` inneholder passordhashene og øktene (som hash). | Lav | Samme vern som databasen; hashene er saltet scrypt, øktene er SHA-256 av 32 tilfeldige byte. |

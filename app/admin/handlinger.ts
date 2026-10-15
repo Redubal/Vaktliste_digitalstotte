@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
 import {
   avvisEndring,
   endringstypeBrukere,
@@ -28,9 +27,9 @@ import {
   type Svar,
   type Vaktliste,
 } from "@/lib/domene";
-import { IDENTITET_COOKIE, erAdministrator } from "@/lib/identitet";
+import { erAdministrator } from "@/lib/identitet";
 import { kjørSynk } from "@/lib/synk";
-import { tekst, utforSom, valgtAnsatt } from "@/lib/utfor";
+import { ikkeInnloggetMelding, innlogget, tekst, utforSom } from "@/lib/utfor";
 
 /** Fargen fra skjemaet: bare med når «Egen farge» er krysset av, ellers tom (= ingen egen farge). */
 function fargeFra(data: FormData): string {
@@ -99,9 +98,9 @@ export async function settSynk(_forrige: Svar | null, data: FormData): Promise<S
 
 /** «Synk nå». Går ikke gjennom `utfor`: synken lagrer selv, med egen avsender, og bare når noe er endret. */
 export async function synkNaa(): Promise<Svar> {
-  const jeg = await valgtAnsatt();
+  const jeg = await innlogget();
   if (!erAdministrator(jeg)) {
-    return { ok: false, melding: jeg ? "Du har ikke tilgang til å endre dette." : "Velg deg selv øverst på siden først." };
+    return { ok: false, melding: jeg ? "Du har ikke tilgang til å endre dette." : ikkeInnloggetMelding() };
   }
   const status = await kjørSynk(`${jeg?.name ?? "ukjent"} («Synk nå»)`);
   revalidatePath("/admin");
@@ -139,9 +138,9 @@ export async function giTeam(_forrige: Svar | null, data: FormData): Promise<Sva
   );
 }
 
-/** Id-en til den som er valgt i «Velg deg selv». `utfor` har allerede sjekket at personen er admin. */
+/** Id-en til den innloggede. `utfor` sjekker i tillegg at personen er admin. */
 async function minId(): Promise<string> {
-  return (await cookies()).get(IDENTITET_COOKIE)?.value ?? "";
+  return (await innlogget())?.id ?? "";
 }
 
 export async function endreAnsatt(_forrige: Svar | null, data: FormData): Promise<Svar> {

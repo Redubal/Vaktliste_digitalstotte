@@ -1,5 +1,17 @@
 # Læringslogg
 
+## 2026-10-15 (avslutning Fase 45) — Pålogging med e-post og passord
+
+**Evaluering av forrige økts punkter:**
+- `[farge-mot-palett]` — fulgt: innloggingssiden og kontoboksen bruker bare `--border`, `--heading`, `--muted` fra `globals.css`, ingen nye farger; ingen forhåndsvisning var lovet. Strykes som innarbeidet.
+
+**Nye punkter:**
+- `[rester-etter-feil]` Når en feil har skrevet tilstand (database, fil), skal rettingen også rydde det feilen alt skrev, og prøven skal starte fra den tilstanden. Belegg: første retting av pausetelleren hindret nye feiltellinger, men lot de gamle stå, så Ståle ble sperret på nytt etter pausen og trengte en ny runde.
+
+**Brudd på regel i `CLAUDE.md`:** `cd` i Bash (fjerde gang), i en lese-kommando tidlig i økten; sagt fra straks. Regelen står allerede; ikke ført som STATUS-punkt (én adresse).
+**Fasesnitt:** Fase 45 fikk plass i én økt uten `/compact`. Ingen deling foreslått.
+**Issue til pakkerepoet:** ikke aktuelt (kredensial-hooken er organisasjonens, ikke pakkens).
+
 ## 2026-10-15 (avslutning Fase 44) — Endringslogg, synkstatus og import i databasen
 
 **Evaluering av forrige økts punkter:**

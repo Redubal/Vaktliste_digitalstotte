@@ -1,9 +1,8 @@
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { TABELLER, lesEndringslogg, type LoggLinje } from "@/lib/endringslogg";
-import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
-import { getAnsatte } from "@/lib/vaktlista";
+import { erAdministrator } from "@/lib/identitet";
+import { innlogget } from "@/lib/utfor";
 
 export const dynamic = "force-dynamic";
 
@@ -42,8 +41,7 @@ export default async function LoggSide({
 }: {
   searchParams: Promise<{ [nøkkel: string]: string | string[] | undefined }>;
 }) {
-  const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
-  if (!erAdministrator(finnAnsatt(getAnsatte(), valgtId))) redirect("/");
+  if (!erAdministrator(await innlogget())) redirect("/");
 
   const p = await searchParams;
   const filter = TABELLER.find((t) => t.nøkkel === enkelt(p.tabell))?.nøkkel ?? null;

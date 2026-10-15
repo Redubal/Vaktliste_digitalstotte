@@ -1,20 +1,19 @@
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { EndringValg } from "@/components/EndringVindu";
 import { GodkjenningListe } from "@/components/GodkjenningListe";
 import { avvistStatus, finnOverlapp, godkjentStatus } from "@/lib/domene";
-import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
+import { erAdministrator } from "@/lib/identitet";
 import { lesVaktliste } from "@/lib/lager";
+import { innlogget } from "@/lib/utfor";
 import { getAnsatte, getEndringer } from "@/lib/vaktlista";
 
 export const dynamic = "force-dynamic";
 
 export default async function GodkjenningSide() {
-  const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
-  const ansatte = getAnsatte();
-  const jeg = finnAnsatt(ansatte, valgtId);
+  const jeg = await innlogget();
   if (!jeg || !erAdministrator(jeg)) redirect("/");
+  const ansatte = getAnsatte();
 
   const v = lesVaktliste();
   const valg: EndringValg = {

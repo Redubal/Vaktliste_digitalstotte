@@ -4,36 +4,40 @@
 **Gjenstående:** `TODO.md` i rotkatalogen
 
 ## Tilstand
-Fase 1–21, 22A, 22B, 23–31 og 35–44 ✅. **44** (endringslogg, synkstatus og import i databasen) verifisert av Ståle 2026-10-15: 76 gamle logglinjer flyttet, nye linjer etter endring, synk-tidspunktet står etter omstart. Planlagt og godkjent 2026-10-15: **Fase 45–46** (pålogging med e-post og passord, Docker); MySQL i Docker er ikke fasesatt. Fra eldre faser (detaljer i loggen): 42 mobilkalender uten fyll, vedlikehold; 41 måned over årsskiftet; 40 smalt vindu, «venter» for ansatt; 37–38 merkene for overlapp, ansatt uten admin ser ikke «Registrer»; 30 automatisk synk; 28 ekte telefon/pad; 26 radtellingen Excel «Dager» mot appen.
+Fase 1–21, 22A, 22B, 23–31 og 35–45 ✅. **45** (pålogging med e-post og passord) verifisert av Ståle 2026-10-15: innlogging, passordbytte, utlogging, kollega uten Admin, `/admin` uinnlogget, pause etter fem gale. Neste: **Fase 46** (Docker). MySQL i Docker er ikke fasesatt. Fra eldre faser (detaljer i loggen): 42 mobilkalender uten fyll, vedlikehold; 41 måned over årsskiftet; 40 smalt vindu; 37–38 overlapp; 30 automatisk synk; 28 ekte telefon/pad; 26 radtellingen Excel «Dager» mot appen.
 Administratorer: Espen, Ståle og Jens.
 Stack: Next.js 16.4.0 (nytt API, les `node_modules/next/dist/docs/` før kode), React 19, Tailwind v4, Node 26.8.2 med innebygd `node:sqlite`.
 Git-repoet ligger i `app/`, remote: github.com/Redubal/Vaktliste_digitalstotte (privat), gren `master`.
 
 ## Verifisert
-- `tsc --noEmit` og `npm run lint` grønne etter Fase 44; `next build` sist grønn etter Fase 43. Fase 29: funn F1–F10 i `sikkerhet.md`, alle rettet eller besluttet.
-- Databaselaget og logg/synkstatus-funksjonene prøvd med oppdiktede data i minnet (Fase 44: 9 av 9). Overlapp Fase 37 (9 av 9), klokkeslett Fase 35 (14 av 14), synk Fase 30 (37 av 37), farger Fase 42 (13 av 13).
-- Ikke prøvd: `npm run import` mot databasen, `logg-til-sqlite --overskriv`, retting og sletting fra Ukeplan, klikk i Måned, vedlikeholdsmodus mot en ansatt som lagrer, to faner samme dag, masseendring, lagring når databasefila er låst.
+- `tsc --noEmit`, lint og `next build` ved Fase 45-slutt (se loggen). Fase 29: funn F1–F10 i `sikkerhet.md`; Fase 45: F11–F14.
+- Prøvd i minnet med tom database: teller for gale forsøk (pause, rest etter utløpt pause), scrypt; Fase 44 logg/synkstatus 9 av 9; overlapp, klokkeslett, synk, farger i tidligere faser.
+- Ikke prøvd: innlogging etter utløpt pause etter andre retting, vedlikehold med innlogging, deaktivert med gyldig økt, `AUTH_MODUS=lokal`, `next start` (Secure-kapsel), `npm run import` mot databasen, masseendring, låst databasefil.
 
 ## Neste
-**Fase 45** (tyngste modell, sikkerhet): pålogging med e-post og passord. Les `authentication.md`, `proxy.md` og `cookies.md` i `node_modules/next/dist/docs/01-app/` først. Ubesluttet: «Vis i ukeplan» fra Admin åpner Dag; skal den åpne Uke?
+**Fase 46** (Sonnet): Docker for appen og SQL-oppstartsskript, se planen. Krever Docker Desktop (brukeren installerer). `STARTPASSORD` må inn i containerens miljø (ikke i bildet). Ubesluttet: «Vis i ukeplan» fra Admin åpner Dag; skal den åpne Uke?
 
 ## Arbeidsmåte neste økt
-- `[farge-mot-palett]` (2. runde) Ny farge til en utheving: sammenlign med `globals.css` (`--accent`, `.prikk--*`) før du velger, også startverdier, og bygg forhåndsvisningen planen lover eller si at den ble utelatt.
+- `[rester-etter-feil]` Retter du en feil som har skrevet tilstand, rydd også det den alt skrev, og prøv fra den tilstanden.
 
 ## Det en ny økt må vite
-- **Data ligger i `data/vaktliste.db` (SQLite, ikke i git).** `vaktliste.json` er urørt reserve. Skjema i `db/skjema.sql`; `lib/database.ts` gjør om mellom tabeller og `Vaktliste` og har også logg- og synkstatusfunksjonene (deles med skriptene, bare `import type`). `lib/tilkobling.ts` eier `database()`. Begrunnelser i `arkitektur.md` («Datalag: SQLite»).
-- Skriving av vaktlista går alltid gjennom `endreVaktliste` i `lib/lager.ts` (én transaksjon, revisjonssjekk, skriver bare endrede tabeller, `VACUUM INTO`-kopi etter lagring, 20 siste). **Ny tabell:** `CREATE TABLE IF NOT EXISTS` i `db/skjema.sql` (kjøres ved hver åpning, ingen versjonsøkning). **Ny kolonne i en eksisterende tabell:** ingen omgjøring finnes — øk `SKJEMA_VERSJON`, legg en `ALTER TABLE`-migrering i `lib/tilkobling.ts`, kolonnen i `db/skjema.sql` og i `TABELLER` i `lib/database.ts`.
-- `app/layout.tsx` kaller `cookies()` før `lesVaktliste()`, så `next build` ikke leser databasen. Hold det slik.
-- **Alle handlinger går gjennom `utforSom` i `lib/utfor.ts`** (`valgtAnsatt()`): Admin (`app/admin/handlinger.ts`) og planen (`app/handlinger.ts`). Hva en ansatt får gjøre sjekkes i `lib/domene.ts`.
-- **Endringsloggen** (`lib/endringslogg.ts`, tabellen `endringslogg`): nye tabeller eller felt må inn i `TABELLER` og `FELTNAVN`. `endretAv` er oppsettets id eller `SYNK_AVSENDER`.
-- **Synk (Fase 30):** `lib/synk.ts` (`testkilde`: `data/entra-test.json`), status i tabellen `synkstatus`, `kjørSynk`, `synkHvisForfalt` via `after()` i layouten; reglene i `lib/domene.ts`. Fase 32 bytter `aktivKilde()` til Graph.
-- **`npm run import`** (Excel) skriver mot databasen; uten `--overskriv` nekter den når databasen finnes. Med `--overskriv` byttes bare vaktlista (kopi først, revisjon +1); loggen beholdes.
-- **Innstillinger (skjemaversjon 15):** `vedlikehold`, `melding`, `idagFarge`, `idagFyll`; i databasen sammen med `synk` i tabellen `innstillinger`.
-- `lib/domene.ts` deles med skriptene og har ingen imports. Node importerer `.ts` direkte; i `node`-skript på Windows skrives absolutte stier som `file:///C:/...`.
-- **Godkjenning:** `Status.virkning` `godkjent|venter|avvist`. `EndringVindu.tsx` (`useEndringVindu`, `useRettVindu`), `Godkjenning.tsx`, `GodkjenningListe.tsx`. Flere endringer samme dag og overlapp: `UkeplanCelle.endringer`/`.overlapp`, `finnOverlapp` i domene.
-- **Visninger:** Dag (`DagClient.tsx`, `beregnDag`), Uke (fane-id `ukeplan`), Måned (`MaanedClient.tsx`, `.mkal` M–F på mobil). Tabell/kort bytter ved 768 px; ny kolonne må inn begge steder. Etter CSS-endringer: Ctrl+F5.
-- Admin-sider som leser fra disk trenger `export const dynamic = "force-dynamic"`. Admin-skjemaer er ukontrollerte (`useSkjemaStatus`, `defaultValue`). En `"use server"`-fil kan bare eksportere funksjoner.
-- **Sikkerhet:** F1–F10 i `kunnskap/sikkerhet.md`. Identitet er usignert cookie (`vaktliste-identitet`), byttes i Fase 45; dev-serveren lytter på nettet (F10).
+- **Data ligger i `data/vaktliste.db` (SQLite, ikke i git).** Skjema i `db/skjema.sql`; `lib/database.ts` gjør om mellom tabeller og `Vaktliste` og har logg- og synkstatusfunksjonene (deles med skriptene, bare `import type`). `lib/tilkobling.ts` eier `database()`. Begrunnelser i `arkitektur.md` («Datalag: SQLite»).
+- Skriving av vaktlista går alltid gjennom `endreVaktliste` i `lib/lager.ts` (én transaksjon, revisjonssjekk, `VACUUM INTO`-kopi, 20 siste). Den rører bare tabellene i `TABELLER`. **Ny tabell:** `CREATE TABLE IF NOT EXISTS` i `db/skjema.sql`. **Ny kolonne i en eksisterende tabell:** øk `SKJEMA_VERSJON`, `ALTER TABLE`-migrering i `lib/tilkobling.ts`, kolonnen i `db/skjema.sql` og i `TABELLER`.
+- **Innlogging (Fase 45):** `innlogget()` i `lib/utfor.ts` er eneste kilde til hvem brukeren er (layout, sider, handlinger); `null` når passord må byttes, eller personen er deaktivert/uten team. Logikk i `lib/innlogging.ts` (scrypt, tabellene `innlogging` og `okt`, kapselen `vaktliste-okt`); `proxy.ts` sjekker bare at kapselen finnes. Sider: `/logg-inn`, `/bytt-passord`; `components/Konto.tsx`. Handlinger i `app/innlogging/handlinger.ts`.
+- **Miljø (`app/.env.local`, ikke i git, Claude leser den ikke):** `STARTPASSORD` (startpassordet for første innlogging); `AUTH_MODUS=lokal` gir «Du er»-velgeren i stedet for innlogging, bare utenfor produksjon. Fila må ligge ved siden av `package.json`, ikke i `app/app/`.
+- E-post for innlogging er `upn` i `brukere`; den vises ikke i appen. Glemt passord: raden i `innlogging` slettes for hånd (F12).
+- **Organisasjonens kredensial-hook** (`C:\ProgramData\ClaudeCode\hooks\pretool-credential-scan.ps1`) stopper Write/Edit med `password|token|secret` fulgt av `=` eller `:`. Ikke skriv passord i kode; navngi variabler norsk (`oktId`).
+- `app/layout.tsx`: `innlogget()` leser kapselen før `lesVaktliste()`, så `next build` ikke leser databasen. Hold det slik. Under vedlikehold får uinnloggede sidene (så admin kan logge inn), innloggede ikke-admin meldingen.
+- **Alle handlinger går gjennom `utforSom` i `lib/utfor.ts`**: Admin (`app/admin/handlinger.ts`) og planen (`app/handlinger.ts`). Hva en ansatt får gjøre sjekkes i `lib/domene.ts`.
+- **Endringsloggen** (`lib/endringslogg.ts`): nye Vaktliste-tabeller eller felt må inn i `TABELLER` og `FELTNAVN`.
+- **Synk:** `lib/synk.ts` (`testkilde`: `data/entra-test.json`), `kjørSynk`, `synkHvisForfalt` via `after()` i layouten. Fase 32 bytter `aktivKilde()` til Graph.
+- **`npm run import`** (Excel) skriver mot databasen; `--overskriv` bytter bare vaktlista (kopi først, revisjon +1), loggen og innloggingen beholdes.
+- **Innstillinger (skjemaversjon 15):** `vedlikehold`, `melding`, `idagFarge`, `idagFyll`, `synk` i tabellen `innstillinger`.
+- `lib/domene.ts` deles med skriptene og har ingen imports. I `node`-skript på Windows: absolutte stier som `file:///C:/...`.
+- **Godkjenning:** `Status.virkning` `godkjent|venter|avvist`; `EndringVindu.tsx`, `Godkjenning.tsx`, `GodkjenningListe.tsx`; `finnOverlapp` i domene.
+- **Visninger:** Dag (`DagClient.tsx`), Uke (fane-id `ukeplan`), Måned (`MaanedClient.tsx`). Tabell/kort bytter ved 768 px; ny kolonne må inn begge steder. Etter CSS-endringer: Ctrl+F5.
+- Admin-sider trenger `export const dynamic = "force-dynamic"`. Admin-skjemaer er ukontrollerte (`useSkjemaStatus`). En `"use server"`-fil kan bare eksportere async-funksjoner (og typer).
+- **Sikkerhet:** F1–F14 i `kunnskap/sikkerhet.md`. F10 (dev-server på nettet) godtatt av Ståle også etter innlogging; F11 (felles startpassord) må løses før ekte data.
 - `python` finnes ikke i Git Bash her; skriv filer med Write/Edit. CSS-klassenavn uten æøå. Aldri lim ekte rader inn i logg, STATUS eller plan. Nøkler i lister: `teamId-id`.
-- Kortet ned ved Fase 43: detaljene om git-historikken (`refs/original/`), «Registrer», dagens dato, ukenummer, sortering, figur, Dager, «Mine endringer» og endringstypenes farge står i `git show 43ab5e2:kunnskap/STATUS.md` (siste commit før Fase 43).
-- Persondata-deny-settet er tilbudt i `.claude/settings.json`, ikke besluttet. Fila har en ucommittet endring som er brukerens egen godkjenning; den tas ikke med i faseslutt-commit. `TODO.md` har en ucommittet linje fra brukeren; heller ikke den tas med.
+- Eldre detaljer (git-historikk, «Registrer», ukenummer, sortering, figur, «Mine endringer») står i `git show 43ab5e2:kunnskap/STATUS.md`.
+- Persondata-deny-settet er tilbudt i `.claude/settings.json`, ikke besluttet. Fila og `TODO.md` har ucommittede endringer fra brukeren; de tas ikke med i faseslutt-commit.

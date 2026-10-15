@@ -1,15 +1,16 @@
-import { cookies } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { DagClient } from "@/components/DagClient";
 import type { EndringValg } from "@/components/EndringVindu";
-import { IdentitetsVelger } from "@/components/IdentitetsVelger";
+import { Konto } from "@/components/Konto";
 import { MaanedClient } from "@/components/MaanedClient";
 import { MineEndringer } from "@/components/MineEndringer";
 import { Tabs, type TabDefinition } from "@/components/Tabs";
 import { UkeplanClient } from "@/components/UkeplanClient";
 import { VaktlisteClient } from "@/components/VaktlisteClient";
-import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
+import { erAdministrator, lokalModus } from "@/lib/identitet";
 import { lesVaktliste } from "@/lib/lager";
+import { innlogget } from "@/lib/utfor";
 import { getAnsatte, getDager, getEndringer, getMineEndringer, getTeam } from "@/lib/vaktlista";
 
 export const dynamic = "force-dynamic";
@@ -19,15 +20,17 @@ export default async function Home({
 }: {
   searchParams: Promise<{ [nøkkel: string]: string | string[] | undefined }>;
 }) {
+  // Ingenting av planen leses eller sendes før det er klart hvem som spør. I lokal modus ser
+  // også den som ikke har valgt seg selv planen, som før Fase 45.
+  const jeg = await innlogget();
+  if (!jeg && !lokalModus()) redirect("/logg-inn");
+  const erAdmin = erAdministrator(jeg);
+
   const { person, fane } = await searchParams;
   const utheves = typeof person === "string" ? person : null;
   const ansatte = getAnsatte();
   const dager = getDager();
   const team = getTeam();
-
-  const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
-  const jeg = finnAnsatt(ansatte, valgtId);
-  const erAdmin = erAdministrator(jeg);
 
   // Til nettleseren: e-post og kommentar på ansatte brukes ikke i visningene, og avviste endringer
   // vises ikke i planen. Kommentaren på en endring kan handle om helse, så den sendes bare til
@@ -138,10 +141,7 @@ export default async function Home({
           <h1>Digital Støtte - Vaktlista</h1>
         </div>
         <div className="header-verktoy">
-          <IdentitetsVelger
-            valg={ansatte.map(({ id, name }) => ({ id, name }))}
-            valgtId={jeg?.id ?? null}
-          />
+          <Konto jeg={jeg} />
           {erAdmin ? (
             <Link className="uke-btn" href="/admin">
               Admin

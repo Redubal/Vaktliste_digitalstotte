@@ -1,17 +1,15 @@
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AnsattAdmin } from "@/components/AnsattAdmin";
 import { NyeAnsatte } from "@/components/NyeAnsatte";
-import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
+import { erAdministrator } from "@/lib/identitet";
 import { lesVaktliste } from "@/lib/lager";
-import { getAnsatte } from "@/lib/vaktlista";
+import { innlogget } from "@/lib/utfor";
 
 export const dynamic = "force-dynamic";
 
 export default async function AnsatteSide() {
-  const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
-  if (!erAdministrator(finnAnsatt(getAnsatte(), valgtId))) redirect("/");
+  if (!erAdministrator(await innlogget())) redirect("/");
 
   const v = lesVaktliste();
   const brukere = new Map(v.brukere.map((b) => [b.id, b]));

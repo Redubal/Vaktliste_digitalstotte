@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import { after } from "next/server";
 import { Figur } from "@/components/figur/Figur";
-import { IdentitetsVelger } from "@/components/IdentitetsVelger";
-import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
+import { Konto } from "@/components/Konto";
+import { erAdministrator, lokalModus } from "@/lib/identitet";
 import { lesVaktliste } from "@/lib/lager";
 import { synkHvisForfalt } from "@/lib/synk";
-import { getAnsatte } from "@/lib/vaktlista";
+import { innlogget } from "@/lib/utfor";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,28 +27,24 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  // `cookies()` først: da er siden dynamisk, og `next build` leser aldri databasen (Fase 43).
-  const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
+  // `innlogget()` leser kapselen først: da er siden dynamisk, og `next build` leser aldri databasen (Fase 43).
+  const jeg = await innlogget();
   const { innstillinger, synk } = lesVaktliste();
   // Ingen tidsplanlegger på serveren: en forfalt synk kjøres etter at siden er sendt, og vises ved neste lasting.
   after(() => synkHvisForfalt(synk));
-  const ansatte = getAnsatte();
-  const jeg = finnAnsatt(ansatte, valgtId);
   const erAdmin = erAdministrator(jeg);
 
   let innhold = children;
-  if (innstillinger.vedlikehold && !erAdmin) {
-    // Ingen av sidene rendres. «Velg deg selv» blir stående, ellers kommer ingen tilbake som administrator.
+  // Den som ikke er innlogget, får sidene (som sender til innlogging), så en administrator alltid kan
+  // logge inn under vedlikehold. Innloggede uten admin får meldingen.
+  if (innstillinger.vedlikehold && !erAdmin && (jeg || lokalModus())) {
     innhold = (
       <main className="page-shell">
         <section className="panel vedlikehold-side">
           <p className="eyebrow">Vedlikehold</p>
           <h1>Vaktlista er ikke tilgjengelig akkurat nå</h1>
           <p className="vedlikehold-tekst">{innstillinger.melding}</p>
-          <IdentitetsVelger
-            valg={ansatte.map(({ id, name }) => ({ id, name }))}
-            valgtId={jeg?.id ?? null}
-          />
+          <Konto jeg={jeg} />
         </section>
       </main>
     );

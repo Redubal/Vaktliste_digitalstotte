@@ -1,16 +1,14 @@
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { DagAdmin } from "@/components/DagAdmin";
-import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
+import { erAdministrator } from "@/lib/identitet";
 import { lesVaktliste } from "@/lib/lager";
-import { getAnsatte } from "@/lib/vaktlista";
+import { innlogget } from "@/lib/utfor";
 
 export const dynamic = "force-dynamic";
 
 export default async function DagerSide() {
-  const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
-  if (!erAdministrator(finnAnsatt(getAnsatte(), valgtId))) redirect("/");
+  if (!erAdministrator(await innlogget())) redirect("/");
 
   const v = lesVaktliste();
   // Nyeste dato øverst, så en dag du nettopp la inn står der du ser den.

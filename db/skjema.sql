@@ -129,3 +129,25 @@ CREATE TABLE IF NOT EXISTS synkstatus (
   ok INTEGER,
   melding TEXT
 );
+
+-- Fra Fase 45: pålogging med e-post og passord (lib/innlogging.ts). Ikke en del av `Vaktliste`,
+-- så lagring av lista og `npm run import` rører dem ikke. Raden lages ved første innlogging med
+-- startpassordet og `maaBytte` = 1. `passordHash` er `scrypt$N$salt$hash` (base64).
+-- `feilForsok` telles opp før passordet sjekkes og nullstilles ved riktig passord.
+CREATE TABLE IF NOT EXISTS innlogging (
+  brukerId TEXT PRIMARY KEY,
+  passordHash TEXT NOT NULL,
+  maaBytte INTEGER NOT NULL,
+  feilForsok INTEGER NOT NULL,
+  sperretTil TEXT,
+  endret TEXT NOT NULL
+);
+
+-- Innloggede økter. Nettleseren har tokenet i en HttpOnly-kapsel; her ligger bare SHA-256 av det,
+-- så en kopi av databasen ikke gir noen innlogging.
+CREATE TABLE IF NOT EXISTS okt (
+  tokenHash TEXT PRIMARY KEY,
+  brukerId TEXT NOT NULL,
+  opprettet TEXT NOT NULL,
+  utloper TEXT NOT NULL
+);

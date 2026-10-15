@@ -1,14 +1,13 @@
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { IdagFargeAdmin } from "@/components/IdagFargeAdmin";
 import { SynkAdmin } from "@/components/SynkAdmin";
 import { VedlikeholdAdmin } from "@/components/VedlikeholdAdmin";
 import { sisteSynkTidspunkt, virkningFor } from "@/lib/domene";
-import { IDENTITET_COOKIE, erAdministrator, finnAnsatt } from "@/lib/identitet";
+import { erAdministrator, lokalModus } from "@/lib/identitet";
 import { lesVaktliste } from "@/lib/lager";
 import { aktivKilde, lesSynkStatus } from "@/lib/synk";
-import { getAnsatte } from "@/lib/vaktlista";
+import { innlogget } from "@/lib/utfor";
 
 function tidspunkt(iso: string | Date): string {
   const d = new Date(iso);
@@ -22,8 +21,7 @@ function tidspunkt(iso: string | Date): string {
 export const dynamic = "force-dynamic";
 
 export default async function AdminSide() {
-  const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
-  const jeg = finnAnsatt(getAnsatte(), valgtId);
+  const jeg = await innlogget();
   if (!erAdministrator(jeg)) redirect("/");
   const v = lesVaktliste();
   const antallVenter = v.endringer.filter((e) => virkningFor(e.statusId, v.statuser) === "venter").length;
@@ -86,11 +84,12 @@ export default async function AdminSide() {
           </Link>
         </div>
         <VedlikeholdAdmin innstillinger={v.innstillinger} revisjon={v.revisjon} />
-        <p className="admin-advarsel">
-          Identiteten over er et midlertidig valg, ikke innlogging. Hvem som helst kan velge
-          en administrator i nedtrekkslisten og komme hit. Ekte tilgangsstyring kommer med
-          Entra SSO.
-        </p>
+        {lokalModus() ? (
+          <p className="admin-advarsel">
+            Lokal modus (<code>AUTH_MODUS=lokal</code>): identiteten er et valg, ikke innlogging. Hvem
+            som helst kan velge en administrator og komme hit.
+          </p>
+        ) : null}
       </section>
 
       <section className="panel">

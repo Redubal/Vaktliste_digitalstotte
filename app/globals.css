@@ -1421,6 +1421,54 @@ button.mkal-dag {
   font-weight: 600;
 }
 
+/* Den innloggede øverst: navn over knappene «Bytt passord» og «Logg ut» (Fase 45). */
+.konto {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.konto-navn {
+  color: var(--heading);
+  font-weight: 700;
+}
+
+.konto-knapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.innlogging-side {
+  max-width: 420px;
+  margin: 8vh auto 0;
+  display: grid;
+  gap: 14px;
+}
+
+.innlogging-skjema {
+  display: grid;
+  gap: 12px;
+}
+
+.innlogging-felt {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.innlogging-felt input {
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  color: var(--heading);
+}
+
 /* Admin-lenken låner knappestilen, men er en <a> og må nulle ut understreking. */
 a.uke-btn {
   display: inline-flex;
@@ -1882,6 +1930,10 @@ a.uke-btn {
 
   .identitet {
     flex: 1 1 auto;
+  }
+
+  .konto {
+    align-items: flex-start;
   }
 
   .stats-grid {
