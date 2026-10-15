@@ -4,19 +4,18 @@
 **Gjenstående:** `TODO.md` i rotkatalogen
 
 ## Tilstand
-Fase 1–21, 22A, 22B, 23–31 og 35–45 ✅. **Fase 46** (Docker) er skrevet 2026-10-15, men ikke verifisert: Docker finnes bare på Ståles hjemme-pc, og ingenting er bygget eller kjørt der ennå. MySQL i Docker er ikke fasesatt. Fra eldre faser (detaljer i loggen): 42 mobilkalender uten fyll, vedlikehold; 41 måned over årsskiftet; 40 smalt vindu; 37–38 overlapp; 30 automatisk synk; 28 ekte telefon/pad; 26 radtellingen Excel «Dager» mot appen.
+Fase 1–21, 22A, 22B, 23–31 og 35–46 ✅. **46** (Docker) verifisert av Ståle 2026-10-15 på hjemme-pc: bygg, oppstart uten feilmeldinger, innlogging med kopiert database, `up` og `down` fungerer. MySQL i Docker er ikke fasesatt. Fra eldre faser (detaljer i loggen): 42 mobilkalender uten fyll, vedlikehold; 41 måned over årsskiftet; 40 smalt vindu; 37–38 overlapp; 30 automatisk synk; 28 ekte telefon/pad; 26 radtellingen Excel «Dager» mot appen.
 Administratorer: Espen, Ståle og Jens.
 Stack: Next.js 16.4.0 (nytt API, les `node_modules/next/dist/docs/` før kode), React 19, Tailwind v4, Node 26.8.2 med innebygd `node:sqlite`.
 Git-repoet ligger i `app/`, remote: github.com/Redubal/Vaktliste_digitalstotte (privat), gren `master`.
 
 ## Verifisert
 - `tsc --noEmit` og lint rene etter Fase 46 (endring i `next.config.ts`); `next build` sist ved Fase 45-slutt. Fase 29: funn F1–F10 i `sikkerhet.md`; Fase 45: F11–F14.
-- Prøvd i minnet med tom database: teller for gale forsøk (pause, rest etter utløpt pause), scrypt; Fase 44 logg/synkstatus 9 av 9; overlapp, klokkeslett, synk, farger i tidligere faser.
-- Ikke prøvd: alt i Docker (bygg, oppstart, innlogging med kopiert database, overlevelse over `down`/`up`), innlogging etter utløpt pause etter andre retting, vedlikehold med innlogging, deaktivert med gyldig økt, `AUTH_MODUS=lokal`, `next start` (Secure-kapsel), `npm run import` mot databasen, masseendring, låst databasefil.
+- Fase 46 hos Ståle: bygg, oppstart, innlogging, `up`/`down` (rapportert, utskrifter ikke sett). Prøvd i minnet med tom database: teller for gale forsøk, scrypt; Fase 44 logg/synkstatus 9 av 9; overlapp, klokkeslett, synk, farger i tidligere faser.
+- Ikke prøvd: at en konkret endring overlevde `down`/`up` (ikke sagt med ord), innlogging etter utløpt pause etter andre retting, vedlikehold med innlogging, deaktivert med gyldig økt, `AUTH_MODUS=lokal`, `next start` (Secure-kapsel), `npm run import` mot databasen, masseendring, låst databasefil.
 
 ## Neste
-**Fase 46, verifisering hos Ståle (hjemme-pc):** filene flyttes for hånd (ikke GitHub); følg `DOCKER.md` (bygg, `create`, kopier `vaktliste.db` inn, `up`). Feil limes inn uten persondata; Claude retter. Ubesluttet: «Vis i ukeplan» fra Admin åpner Dag; skal den åpne Uke?
-**Verifisering:** `docker compose up`, åpne `http://localhost:3000`, logg inn, se at en endring overlever `docker compose down` og `up`.
+Planen har ikke flere fasenummer før Fase 32 (Entra). Åpne ønsker i `TODO.md`: punkt 16 (visningen forskyver seg ved bytte mellom Dag, Uke, Måned, Mine endringer og Ansatte, ikke undersøkt), MySQL-fasen (punkt 13 og 15), Fase 32–33. Ståle velger rekkefølge; punkt 16 er det lille og irriterende, og trenger en plan før koding. Ubesluttet: «Vis i ukeplan» fra Admin åpner Dag; skal den åpne Uke?
 
 ## Arbeidsmåte neste økt
 - `[rester-etter-feil]` Retter du en feil som har skrevet tilstand, rydd også det den alt skrev, og prøv fra den tilstanden.
@@ -25,7 +24,7 @@ Git-repoet ligger i `app/`, remote: github.com/Redubal/Vaktliste_digitalstotte (
 ## Det en ny økt må vite
 - **Data ligger i `data/vaktliste.db` (SQLite, ikke i git).** Skjema i `db/skjema.sql`; `lib/database.ts` gjør om mellom tabeller og `Vaktliste` og har logg- og synkstatusfunksjonene (deles med skriptene, bare `import type`). `lib/tilkobling.ts` eier `database()`. Begrunnelser i `arkitektur.md` («Datalag: SQLite»).
 - Skriving av vaktlista går alltid gjennom `endreVaktliste` i `lib/lager.ts` (én transaksjon, revisjonssjekk, `VACUUM INTO`-kopi, 20 siste). Den rører bare tabellene i `TABELLER`. **Ny tabell:** `CREATE TABLE IF NOT EXISTS` i `db/skjema.sql`. **Ny kolonne i en eksisterende tabell:** øk `SKJEMA_VERSJON`, `ALTER TABLE`-migrering i `lib/tilkobling.ts`, kolonnen i `db/skjema.sql` og i `TABELLER`.
-- **Docker (Fase 46):** `Dockerfile`, `docker-compose.yml`, `docker-start.sh`, `DOCKER.md`. Standalone-bygg bare med `BYGG_STANDALONE=1` (satt i bildet). Ny database har ingen brukere, så `data/vaktliste.db` kopieres inn for hånd; **Beslutning (Ståle):** alle dataene med, kun for dev.
+- **Docker (Fase 46):** `Dockerfile`, `docker-compose.yml`, `docker-start.sh`, `DOCKER.md`. Standalone-bygg bare med `BYGG_STANDALONE=1` (satt i bildet). Ny database har ingen brukere, så `data/vaktliste.db` kopieres inn for hånd (**Beslutning (Ståle):** alle dataene med, kun for dev). Passordene følger databasen: startpassordet virker bare for de som ikke har byttet.
 - **Innlogging (Fase 45):** `innlogget()` i `lib/utfor.ts` er eneste kilde til hvem brukeren er (layout, sider, handlinger); `null` når passord må byttes, eller personen er deaktivert/uten team. Logikk i `lib/innlogging.ts` (scrypt, tabellene `innlogging` og `okt`, kapselen `vaktliste-okt`); `proxy.ts` sjekker bare at kapselen finnes. Sider: `/logg-inn`, `/bytt-passord`; `components/Konto.tsx`. Handlinger i `app/innlogging/handlinger.ts`.
 - **Miljø (`app/.env.local`, ikke i git, Claude leser den ikke):** `STARTPASSORD` (startpassordet for første innlogging); `AUTH_MODUS=lokal` gir «Du er»-velgeren i stedet for innlogging, bare utenfor produksjon. Fila må ligge ved siden av `package.json`, ikke i `app/app/`. E-post for innlogging er `upn` i `brukere` (vises ikke i appen); glemt passord: raden i `innlogging` slettes for hånd (F12).
 - **Organisasjonens kredensial-hook** (`C:\ProgramData\ClaudeCode\hooks\pretool-credential-scan.ps1`) stopper Write/Edit med `password|token|secret` fulgt av `=` eller `:`. Ikke skriv passord i kode; navngi variabler norsk (`oktId`).

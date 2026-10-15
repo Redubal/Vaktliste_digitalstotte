@@ -245,12 +245,7 @@ Fase 44 ✅ 2026-10-15 — detaljer i logg
 
 Fase 45 ✅ 2026-10-15 — detaljer i logg
 
-**Fase 46 — Docker for appen og SQL-oppstartsskript (Sonnet).** `Dockerfile` (Next
-`output: "standalone"`, Node-versjon låst), `docker-compose.yml` med volum for databasefila,
-`.dockerignore` uten `data/` og Excel-fila; oppstartsskript som lager tomme tabeller fra
-`db/skjema.sql`. Krever Docker Desktop (brukeren installerer).
-**Verifisering:** `docker compose up`, åpne `http://localhost:3000`, logg inn, se at en endring
-overlever `docker compose down` og `up`.
+Fase 46 ✅ 2026-10-15 — detaljer i logg
 
 **Ikke med:** MySQL i Docker (webserver + mysql) — egen fase etter 46; driveren velges da, og
 kallestedene får `await`. Glemt passord på e-post, Entra (Fase 32–33).

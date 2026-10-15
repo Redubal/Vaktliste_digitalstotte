@@ -1,5 +1,12 @@
 # Læringslogg
 
+## 2026-10-15 (avslutning Fase 46, verifisert) — Docker for appen
+
+- `[rester-etter-feil]` — ikke utløst: ingen feil skrev tilstand. Gjenstående faser (MySQL, Entra) kan utløse den; videreføres uten rundetall.
+- `[verifisering-krever-data]` — skrevet tidligere i økten og ikke satt på prøve ennå; videreføres uten rundetall.
+- Nye punkter: ingen. **Fasesnitt:** Fase 46 (skriving og verifisering hos Ståle) fikk plass i én økt uten `/compact`. Ingen deling foreslått.
+- **Issue til pakkerepoet:** ikke aktuelt.
+
 ## 2026-10-15 (avslutning Fase 46, midt i fasen) — Docker for appen
 
 **Evaluering av forrige økts punkter:**
