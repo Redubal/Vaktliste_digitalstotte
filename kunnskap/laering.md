@@ -1,5 +1,16 @@
 # Læringslogg
 
+## 2026-10-15 (avslutning Fase 44) — Endringslogg, synkstatus og import i databasen
+
+**Evaluering av forrige økts punkter:**
+- `[kommando-med-mappe]` — fulgt: flyttingen ble gitt som kopierbar blokk som startet med `cd app`, og skriptet kjørte uten feil første gang. Strykes som innarbeidet.
+- `[farge-mot-palett]` — ikke utløst (ingen ny farge). Fase 45 (innloggingsside) kan utløse den; videreføres, rundetallet står (2. runde).
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** Fase 44 fikk plass i én økt uten `/compact`. Ingen deling foreslått.
+**Issue til pakkerepoet:** ikke aktuelt.
+
 ## 2026-10-15 (avslutning Fase 43) — SQLite i stedet for JSON
 
 **Evaluering av forrige økts punkter:**

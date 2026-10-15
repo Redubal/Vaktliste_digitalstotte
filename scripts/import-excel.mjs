@@ -1,19 +1,23 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, readFileSync, mkdirSync, rmSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { fileURLToPath } from "node:url";
 import XLSX from "xlsx";
+import { lesAlt, opprettSkjema, skrivAlt, TABELLER } from "../lib/database.ts";
 import { oppgraderVaktliste } from "../lib/domene.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const APP_ROOT = resolve(__dirname, "..");
 const EXCEL_PATH = resolve(APP_ROOT, "Vaktliste_2026-2027_Team_Ost_og_Vest.xlsx");
 const DATA_DIR = resolve(APP_ROOT, "data");
-const MAL = resolve(DATA_DIR, "vaktliste.json");
+const MAL = resolve(DATA_DIR, "vaktliste.db");
+const SKJEMA = resolve(APP_ROOT, "db", "skjema.sql");
+const overskriv = process.argv.includes("--overskriv");
 
 // Appen eier dataene etter første innlasting; en ny import ville slette alt som er endret i Admin.
-if (existsSync(MAL) && !process.argv.includes("--overskriv")) {
-  console.error("data/vaktliste.json finnes allerede. En ny import overskriver endringer gjort i Admin.");
-  console.error("Kjør `npm run import -- --overskriv` hvis det er meningen.");
+if (existsSync(MAL) && !overskriv) {
+  console.error("data/vaktliste.db finnes allerede. En ny import overskriver endringer gjort i Admin.");
+  console.error("Kjør `npm run import -- --overskriv` hvis det er meningen (stopp appen først).");
   process.exit(1);
 }
 
@@ -215,7 +219,46 @@ const vaktliste = oppgraderVaktliste({
   endringer,
   dager,
 });
-writeFileSync(MAL, JSON.stringify(vaktliste, null, 2) + "\n", "utf8");
+
+// Ny database, eller (med --overskriv) bytt ut vaktlista i den eksisterende. Endringsloggen og
+// synkstatusen ligger i samme database og beholdes. Revisjonen øker, så en åpen side fra før
+// importen får «Listen er endret av noen andre» i stedet for å lagre over den nye lista.
+const fantFraFør = existsSync(MAL);
+mkdirSync(DATA_DIR, { recursive: true });
+const db = new DatabaseSync(MAL);
+try {
+  db.exec("PRAGMA busy_timeout = 5000");
+  opprettSkjema(db, SKJEMA);
+  if (fantFraFør) {
+    const meta = db.prepare("SELECT revisjon FROM meta WHERE id = 1").get();
+    if (meta) vaktliste.revisjon = meta.revisjon + 1;
+    const kopiDir = resolve(DATA_DIR, "sikkerhetskopi");
+    mkdirSync(kopiDir, { recursive: true });
+    const tid = new Date().toISOString().replace(/[:.]/g, "-");
+    db.prepare("VACUUM INTO ?").run(resolve(kopiDir, `vaktliste-${tid}-for-import.db`));
+  }
+  db.exec("BEGIN IMMEDIATE");
+  try {
+    skrivAlt(db, vaktliste);
+    db.exec("COMMIT");
+  } catch (e) {
+    if (db.isTransaction) db.exec("ROLLBACK");
+    throw e;
+  }
+  // Kontroll: tilbake fra databasen skal radtallene være de samme.
+  const tilbake = lesAlt(db);
+  for (const t of TABELLER) {
+    if (tilbake[t.navn].length !== vaktliste[t.navn].length) {
+      throw new Error(`Kontrollen fant avvik i ${t.navn}: ${vaktliste[t.navn].length} inn, ${tilbake[t.navn].length} ut`);
+    }
+  }
+} catch (e) {
+  db.close();
+  if (!fantFraFør) rmSync(MAL, { force: true });
+  console.error(`Stoppet: ${e.message}`);
+  process.exit(1);
+}
+db.close();
 for (const [navn, rader] of Object.entries(vaktliste)) {
   if (Array.isArray(rader)) console.log(`  ${navn}: ${rader.length} rader`);
 }

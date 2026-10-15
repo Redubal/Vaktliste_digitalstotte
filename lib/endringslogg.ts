@@ -1,8 +1,6 @@
-import fs from "node:fs";
-import path from "node:path";
+import { leggTilLogglinjer, lesLogglinjer } from "./database";
 import { KATEGORIER, SYNK_AVSENDER, SYNK_INTERVALLER, VIRKNINGER, type Vaktliste } from "./domene";
-
-const LOGG_FIL = path.join(path.resolve(process.cwd(), "data"), "endringslogg.jsonl");
+import { database } from "./tilkobling";
 
 type Rad = { id: string } & Record<string, unknown>;
 
@@ -21,7 +19,7 @@ export type Tabellnøkkel =
 
 export type LoggFelt = { felt: string; gammel: string | null; ny: string | null };
 
-/** Én linje i `data/endringslogg.jsonl`. Navn er slått opp og lagret, så linjen tåler at raden slettes senere. */
+/** Én linje i tabellen `endringslogg`. Navn er slått opp og lagret, så linjen tåler at raden slettes senere. */
 export type LoggLinje = {
   tid: string;
   endretAvId: string;
@@ -102,7 +100,7 @@ export const TABELLER: Tabellinfo[] = [
     refs: {},
     etikett: () => "Innstillinger",
   },
-  // Også ett objekt. Når synken kjørte, står i `data/synkstatus.json`, ikke her.
+  // Også ett objekt. Når synken kjørte, står i tabellen `synkstatus`, ikke her.
   {
     nøkkel: "synk",
     entall: "synk-innstilling",
@@ -224,22 +222,10 @@ export function beregnEndringer(før: Vaktliste, etter: Vaktliste, endretAvId: s
 }
 
 export function skrivEndringer(linjer: LoggLinje[]) {
-  if (linjer.length === 0) return;
-  fs.mkdirSync(path.dirname(LOGG_FIL), { recursive: true });
-  fs.appendFileSync(LOGG_FIL, linjer.map((l) => JSON.stringify(l)).join("\n") + "\n", "utf8");
+  leggTilLogglinjer(database(), linjer);
 }
 
-/** Nyeste først. Linjer som ikke lar seg lese hoppes over; én ødelagt linje skal ikke skjule resten. */
+/** Nyeste først. */
 export function lesEndringslogg(): LoggLinje[] {
-  if (!fs.existsSync(LOGG_FIL)) return [];
-  const linjer: LoggLinje[] = [];
-  for (const rå of fs.readFileSync(LOGG_FIL, "utf8").split("\n")) {
-    if (!rå.trim()) continue;
-    try {
-      linjer.push(JSON.parse(rå) as LoggLinje);
-    } catch {
-      // hoppes over
-    }
-  }
-  return linjer.reverse();
+  return lesLogglinjer(database());
 }

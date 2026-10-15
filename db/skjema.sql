@@ -103,3 +103,29 @@ CREATE TABLE IF NOT EXISTS dager (
   comment TEXT NOT NULL,
   fri INTEGER NOT NULL
 );
+
+-- Fra Fase 44. Endringsloggen er bare tillegg og vokser uten tak, og er ikke en del av `Vaktliste`
+-- (ingen revisjon, ingen sikkerhetskopi per linje). `felt` er en JSON-liste av {felt, gammel, ny}.
+-- Nyeste først sorteres på `tid`, deretter `id` (linjene fra én lagring har samme `tid`).
+CREATE TABLE IF NOT EXISTS endringslogg (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tid TEXT NOT NULL,
+  endretAvId TEXT NOT NULL,
+  endretAv TEXT NOT NULL,
+  handling TEXT NOT NULL,
+  tabell TEXT NOT NULL,
+  radId TEXT NOT NULL,
+  rad TEXT NOT NULL,
+  felt TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS endringslogg_tid ON endringslogg (tid);
+
+-- Når synken sist kjørte. Én rad. Egen tabell, ikke i `innstillinger`: en synk uten endringer
+-- skal ikke gi ny revisjon («Listen er endret av noen andre») eller sikkerhetskopi.
+CREATE TABLE IF NOT EXISTS synkstatus (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  sistForsok TEXT,
+  sistOk TEXT,
+  ok INTEGER,
+  melding TEXT
+);

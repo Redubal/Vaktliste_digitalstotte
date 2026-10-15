@@ -241,11 +241,7 @@ leverer i praksis Fase 34. `lib/lager.ts` beholder signaturene `lesVaktliste`/`e
 
 Fase 43 ✅ 2026-10-15 — detaljer i logg
 
-**Fase 44 — Endringslogg, synkstatus og import inn i databasen (Sonnet).** `lib/endringslogg.ts`
-(`endringslogg.jsonl`) og `synkstatus.json` blir tabeller; signaturene beholdes; gamle linjer flyttes
-av skriptet fra 43; `npm run import` skriver mot databasen.
-**Verifisering:** `/admin/logg` viser alle gamle linjer og en ny linje etter en endring; «Synk nå»
-viser nytt tidspunkt etter omstart.
+Fase 44 ✅ 2026-10-15 — detaljer i logg
 
 **Fase 45 — Pålogging med e-post og passord (tyngste modell, sikkerhet).** Les `authentication.md`,
 `proxy.md`, `cookies.md` i `node_modules/next/dist/docs/01-app/` først. Tabellene `innlogging`

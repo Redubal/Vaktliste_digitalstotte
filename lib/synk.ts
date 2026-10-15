@@ -10,13 +10,12 @@ import {
   type KildePerson,
   type SynkInnstillinger,
 } from "./domene";
+import { hentSynkstatus, lagreSynkstatus } from "./database";
 import { skrivEndringer } from "./endringslogg";
 import { endreVaktliste, lesVaktliste } from "./lager";
+import { DATA_DIR, database } from "./tilkobling";
 
-const DATA_DIR = path.resolve(process.cwd(), "data");
 const TESTFIL = path.join(DATA_DIR, "entra-test.json");
-// Egen fil, ikke i vaktliste.json: en synk uten endringer skal ikke gi ny revisjon og sikkerhetskopi.
-const STATUSFIL = path.join(DATA_DIR, "synkstatus.json");
 
 /** Hvor personene kommer fra. Feiler med en `Error` som har en melding som kan vises i Admin. */
 export type SynkKilde = { navn: string; hentPersoner: () => Promise<KildePerson[]> };
@@ -54,18 +53,11 @@ export type SynkStatus = {
 };
 
 export function lesSynkStatus(): SynkStatus {
-  const tom: SynkStatus = { sistForsøk: null, sistOk: null, ok: null, melding: null };
-  if (!fs.existsSync(STATUSFIL)) return tom;
-  try {
-    return { ...tom, ...(JSON.parse(fs.readFileSync(STATUSFIL, "utf8")) as Partial<SynkStatus>) };
-  } catch {
-    return tom;
-  }
+  return hentSynkstatus(database());
 }
 
 function skrivSynkStatus(s: SynkStatus) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  fs.writeFileSync(STATUSFIL, JSON.stringify(s, null, 2) + "\n", "utf8");
+  lagreSynkstatus(database(), s);
 }
 
 /** Én linje i endringsloggen per kjøring. Endringene i personer har egne linjer fra `endreVaktliste`. */
