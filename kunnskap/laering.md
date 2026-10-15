@@ -1,5 +1,17 @@
 # Læringslogg
 
+## 2026-10-15 (avslutning Fase 46, midt i fasen) — Docker for appen
+
+**Evaluering av forrige økts punkter:**
+- `[rester-etter-feil]` — ikke utløst: ingen feil skrev tilstand i denne økten. Gjenstående faser (MySQL, Entra) kan utløse den; videreføres uten rundetall.
+
+**Nye punkter:**
+- `[verifisering-krever-data]` Før en fase skrives der verifiseringen er «logg inn» eller «se dataene», sjekk først at miljøet der det skal skje har data, og si hva som må flyttes dit. Belegg: planens Fase 46-verifisering sier «logg inn», men en ny database har ingen brukere; det kom fram først etter at alle Docker-filene var skrevet, og krevde et spørsmål til Ståle.
+
+**Brudd på regel i `CLAUDE.md`:** `cd` i Bash (femte gang), `cd /dev/null` i et grep-kall; kallet gjorde ingenting. Regelen står allerede; ikke ført som STATUS-punkt (én adresse).
+**Fasesnitt:** skrivingen fikk plass i én økt uten `/compact`, men verifiseringen venter på hjemme-pc-en. Ingen deling foreslått; planens verifiseringslinje bør likevel nevne at databasefila kopieres inn (foreslått, ikke endret).
+**Issue til pakkerepoet:** ikke aktuelt.
+
 ## 2026-10-15 (avslutning Fase 45) — Pålogging med e-post og passord
 
 **Evaluering av forrige økts punkter:**

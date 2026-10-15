@@ -1,0 +1,14 @@
+services:
+  vaktliste:
+    build: .
+    # Bare denne maskinen når appen. Fjern «127.0.0.1:» for å åpne den for nettverket.
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      STARTPASSORD: ${STARTPASSORD:?Sett STARTPASSORD i .env ved siden av docker-compose.yml}
+    volumes:
+      - vaktliste-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  vaktliste-data:

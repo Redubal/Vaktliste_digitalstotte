@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+.claude
+kunnskap
+data
+.env*
+*.xlsx
+~$*
+*.tsbuildinfo
+npm-debug.log*
