@@ -229,11 +229,7 @@ Fase 39 ✅ 2026-10-14 — detaljer i logg
 
 Fase 40 ✅ 2026-10-14 — detaljer i logg
 
-**Fase 41 — Ukenummer i Måned (TODO punkt 6).**
-Ukenummer vises i Måned (og i mobilkalenderen) med `isoWeek` fra `lib/uker.ts`/`lib/ukeplan.ts`.
-Sjekk at kolonnen ikke tar plass på smal skjerm.
-**Verifisering:** du åpner Måned og ser riktig ukenummer foran hver uke, også for en måned som
-krysser årsskiftet; du ser at siden holder i et smalt vindu.
+Fase 41 ✅ 2026-10-15 — detaljer i logg
 
 Ikke med: drift/hosting (gamle Fase 5) og «Min plan»; de planlegges når Fase 32 er levert.
 

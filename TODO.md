@@ -41,10 +41,7 @@ Levert i Fase 38 2026-10-14 (knapp først i verktøylinja på Ukeplan, personvel
 
 ## 6. Ukenummer i kalenderen
 
-Ønsket av Ståle 2026-10-13, under Fase 26. Ukenummer skal vises i kalenderen
-(Måned, og eventuelt mobilkalenderen). Ikke vurdert i koden. `lib/uker.ts` og
-`lib/ukeplan.ts` har allerede ISO-ukeregning (`isoWeek`), men ingen visning av
-ukenummer i Måned. I planen som Fase 41 (2026-10-14).
+Levert i Fase 41 2026-10-15 (egen rad «Uke N» i Måned, tall først i hver rad i mobilkalenderen); se logg 2026-10-15. Ønsket av Ståle 2026-10-13.
 
 ## 7. Kolonnene i Admin → Ansatte overlapper
 
@@ -110,3 +107,6 @@ Levert i Fase 39 (2026-10-14), se logg 2026-10-14. Dagens dato har bare ramme, u
 
 ## 11. Ny «Dag»-visning
 Levert i Fase 40 (2026-10-14), se logg 2026-10-14.
+
+##
+Overgang til SQLlite i MS Studio Code for enklere overgang til annen database

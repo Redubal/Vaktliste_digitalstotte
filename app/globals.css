@@ -1254,6 +1254,20 @@ button.mkal-dag {
   font-size: 0.72rem;
 }
 
+/* «Uke 41» i egen rad over dagene, midtstilt over ukas kolonner. */
+.maaned-table thead .mdag-uke {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  padding-bottom: 0;
+}
+
+/* Uke-raden har ingen linjer: verken under seg eller mellom ukene. */
+.maaned-ukerad th {
+  border-bottom: 0;
+}
+
 .mdag-navn {
   color: var(--muted);
   text-transform: uppercase;
@@ -1799,8 +1813,16 @@ a.uke-btn {
 
 .mkal {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: 1.4rem repeat(5, minmax(0, 1fr));
   gap: 4px;
+}
+
+/* Ukenummer først i hver rad. */
+.mkal-uke {
+  align-self: center;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--muted);
 }
 
 .mkal-uke-dag {

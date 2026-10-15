@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, type CSSProperties } from "react";
+import { Fragment, useMemo, useState, type CSSProperties } from "react";
 import type { Ansatt, Dag, Endring, Team } from "@/lib/vaktlista";
 import {
   ALLE_TEAM,
@@ -22,7 +22,7 @@ import {
 import { useEndringVindu, type EndringValg } from "./EndringVindu";
 import { VenterPanel } from "./Godkjenning";
 import { ariaSort, forstFor, sorterRader } from "@/lib/sortering";
-import { formatDayNumber, formatDayShort, formatMonthName, todayUtc } from "@/lib/uker";
+import { formatDayNumber, formatDayShort, formatMonthName, isoWeek, todayUtc } from "@/lib/uker";
 import { PERSON_KOLONNER, PERSON_VERDIER, STANDARD_PERSON_SORTERING } from "./personSortering";
 import { Rollevelger, useRollefilter } from "./Rollefilter";
 import { SorterKnapp, useSortering } from "./Sortering";
@@ -95,6 +95,11 @@ function tittelFor(celle: UkeplanCelle, dag: Date, jegId: string | null, erAdmin
   ]
     .filter(Boolean)
     .join(" · ");
+}
+
+/** Ukenummeret når dag `i` åpner en uke i listen (mandag, eller månedens første dag); ellers `null`. */
+function ukeStart(dager: Date[], i: number): number | null {
+  return i === 0 || dager[i].getUTCDay() === 1 ? isoWeek(dager[i]).week : null;
 }
 
 /** «5. okt» for én dag, «5. okt – 9. okt» for en periode. */
@@ -243,6 +248,21 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
         <div className="table-wrapper visning-tabell">
           <table className="maaned-table">
             <thead>
+              <tr className="maaned-ukerad">
+                <th className="col-person" />
+                {plan.dager.flatMap((_, i) => {
+                  const uke = ukeStart(plan.dager, i);
+                  if (uke === null) return [];
+                  // Uka strekker seg til neste mandag, eller til månedens slutt.
+                  let slutt = i + 1;
+                  while (slutt < plan.dager.length && plan.dager[slutt].getUTCDay() !== 1) slutt++;
+                  return [
+                    <th key={`uke-${i}`} colSpan={slutt - i} className="mdag-uke">
+                      Uke {uke}
+                    </th>,
+                  ];
+                })}
+              </tr>
               <tr>
                 <th className="col-person" aria-sort={ariaSort(sortering, sortering?.kolonne ?? "")}>
                   <div className="sorter-gruppe">
@@ -362,15 +382,23 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
                   </span>
                 </div>
                 <div className="mkal">
+                  <span />
                   {["M", "T", "O", "T", "F"].map((b, i) => (
                     <span key={i} className="mkal-uke-dag">{b}</span>
                   ))}
-                  {/* Dagene er bare man–fre; første dag får riktig ukedagskolonne (mandag = 0). */}
-                  {Array.from({ length: plan.dager[0].getUTCDay() - 1 }, (_, i) => (
-                    <span key={`tom-${i}`} />
-                  ))}
                   {rad.celler.map((celle, i) => {
                     const dag = plan.dager[i];
+                    const uke = ukeStart(plan.dager, i);
+                    // Ukenummeret står først i hver rad. Dagene er bare man–fre; første dag får riktig
+                    // ukedagskolonne (mandag = 0), så den første raden fylles med tomme ruter foran.
+                    const foran = [
+                      uke && (
+                        <span key={`uke-${celle.iso}`} className="mkal-uke" title={`Uke ${uke}`}>
+                          {uke}
+                        </span>
+                      ),
+                      ...(i === 0 ? Array.from({ length: dag.getUTCDay() - 1 }, (_, j) => <span key={`tom-${j}`} />) : []),
+                    ];
                     const tittel = tittelFor(celle, dag, jegId, erAdmin);
                     const aapne = aapneFor(rad.person, celle);
                     const erIdag = celle.iso === idagIso;
@@ -381,20 +409,19 @@ export function MaanedClient({ team: alleTeam, ansatte, endringer, dager, erAdmi
                       "aria-current": erIdag ? ("date" as const) : undefined,
                       title: tittel,
                     };
-                    return aapne ? (
-                      <button
-                        key={celle.iso}
-                        type="button"
-                        {...felles}
-                        onClick={aapne}
-                        aria-label={`${tittel}. Legg inn eller endre`}
-                      >
-                        {dag.getUTCDate()}
-                      </button>
-                    ) : (
-                      <span key={celle.iso} {...felles} aria-label={tittel}>
-                        {dag.getUTCDate()}
-                      </span>
+                    return (
+                      <Fragment key={celle.iso}>
+                        {foran}
+                        {aapne ? (
+                          <button type="button" {...felles} onClick={aapne} aria-label={`${tittel}. Legg inn eller endre`}>
+                            {dag.getUTCDate()}
+                          </button>
+                        ) : (
+                          <span {...felles} aria-label={tittel}>
+                            {dag.getUTCDate()}
+                          </span>
+                        )}
+                      </Fragment>
                     );
                   })}
                 </div>

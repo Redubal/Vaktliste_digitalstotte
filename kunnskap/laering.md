@@ -1,5 +1,16 @@
 # Læringslogg
 
+## 2026-10-15 (avslutning Fase 41) — Ukenummer i Måned
+
+**Evaluering av forrige økts punkter:**
+- `[farge-mot-palett]` — ikke utløst: ukenummeret bruker `--muted`, ingen ny utheving. Videreføres, rundetallet står: TODO punkt 12 (rammefarge i Admin) kan utløse det.
+- `[sosken-visning]` — ikke utløst: Fase 41 la til en rad i Måned, ikke en ny visning. Videreføres, rundetallet står: en senere visning kan utløse det.
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** én økt uten `/compact`. Ingen deling foreslått.
+**Issue til pakkerepoet:** ikke aktuelt.
+
 ## 2026-10-14 (avslutning Fase 40) — Dag-visning
 
 **Evaluering av forrige økts punkter:**

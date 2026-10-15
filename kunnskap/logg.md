@@ -1,5 +1,16 @@
 # Logg
 
+## 2026-10-15 (ny økt) — Fase 41 ✅ Ukenummer i Måned
+
+- **Levert:** ukenummer i Måned. Bred tabell: egen rad `.maaned-ukerad` over dagene med «Uke 41» midtstilt over ukas kolonner (`colSpan`, uka strekker seg til neste mandag eller månedens slutt), uten linjer under raden eller mellom ukene. Mobilkalender: egen smal kolonne først i `.mkal` (`1.4rem`), ukenummeret som tall først i hver rad. Begge bruker `ukeStart` (i `MaanedClient.tsx`) og `isoWeek` fra `lib/uker.ts`, så uker over årsskiftet følger ISO-reglene.
+- **Observert (Ståle, etter første versjon):** «u41» over første dag var for lite og sto ikke midt over uka; ønsket «Uke xx», sentrert over kolonnene. Etter andre versjon: ingen horisontal linje under uke-raden og ingen vertikale streker mellom ukene i den raden. Rettet begge.
+- **Beslutning (Ståle, rammefarge):** dagens ramme skal kunne velges av administrator i Admin. Ligger som TODO punkt 12 (ikke bygd; fargen er fast, `--idag-ramme` i `globals.css`). Begrunnelse: Ståle var bestemt på at det skulle velges i Admin. Ikke tatt i denne fasen (utenfor snittet).
+- **Verifisert av Ståle:** ba om faseslutt 2026-10-15 etter å ha sett tabellen i nettleseren. Ikke oppgitt: måned som krysser årsskiftet (des 2025, jan 2027), smalt vindu, mobilkalenderen (viser tallet uten ordet «Uke»).
+- **Fasesnitt:** bygging og to justeringer i én økt uten `/compact`. Ingen deling foreslått.
+- **Sjekk:** `tsc --noEmit -p` og `npm run lint` rene etter siste kodeendring (ikke kjørt på nytt ved faseslutt; etterpå bare `kunnskap/`-filer). `next build` ikke kjørt.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 2 treff. Datauttrekk i git 0.
+- STATUS: 45 linjer. fase-slutt: 09:20–09:22, 2 min.
+
 ## 2026-10-14 (ny økt) — Fase 40 ✅ Dag-visning
 
 - **Levert:** ny fane «Dag» (`components/DagClient.tsx`, fane-id `dag`): bare personer med en endring valgt dag, med team-valg, datovelger (`<input type="date">`), «← Forrige», «Neste →» og «I dag». Radene bruker `Celle` fra `UkeplanClient.tsx` (nå eksportert): «venter»-merke, farge, klokkeslett, Godkjenn/Avvis og klikk for å rette. `beregnDag` i `lib/ukeplan.ts` regner én dag med de samme celleregler som Uke og Måned. «Registrer» (administrator) åpner vinduet på valgt dato: `aapneNy(iso?)` i `EndringVindu.tsx`; knappen i Uke ble justert til `() => aapneNy()`, ellers ville klikkhendelsen blitt tatt for en dato. `.select-field input` fikk samme stil som `select` i `globals.css`.
