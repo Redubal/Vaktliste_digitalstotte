@@ -4,18 +4,18 @@
 **Gjenstående:** `TODO.md` i rotkatalogen
 
 ## Tilstand
-Fase 1–21, 22A, 22B, 23–31 og 35–46 ✅. **46** (Docker) verifisert av Ståle 2026-10-15 på hjemme-pc: bygg, oppstart uten feilmeldinger, innlogging med kopiert database, `up` og `down` fungerer. MySQL i Docker er ikke fasesatt. Fra eldre faser (detaljer i loggen): 42 mobilkalender uten fyll, vedlikehold; 41 måned over årsskiftet; 40 smalt vindu; 37–38 overlapp; 30 automatisk synk; 28 ekte telefon/pad; 26 radtellingen Excel «Dager» mot appen.
+Fase 1–21, 22A, 22B, 23–31 og 35–47 ✅. **47** (siden hopper ikke sidelengs ved fanebytte, `scrollbar-gutter: stable` på `html`) verifisert av Ståle 2026-10-15. **46** (Docker) verifisert av Ståle 2026-10-15 på hjemme-pc: bygg, oppstart uten feilmeldinger, innlogging med kopiert database, `up` og `down` fungerer. MySQL i Docker er ikke fasesatt. Fra eldre faser (detaljer i loggen): 42 mobilkalender uten fyll, vedlikehold; 41 måned over årsskiftet; 40 smalt vindu; 37–38 overlapp; 30 automatisk synk; 28 ekte telefon/pad; 26 radtellingen Excel «Dager» mot appen.
 Administratorer: Espen, Ståle og Jens.
 Stack: Next.js 16.4.0 (nytt API, les `node_modules/next/dist/docs/` før kode), React 19, Tailwind v4, Node 26.8.2 med innebygd `node:sqlite`.
 Git-repoet ligger i `app/`, remote: github.com/Redubal/Vaktliste_digitalstotte (privat), gren `master`.
 
 ## Verifisert
-- `tsc --noEmit` og lint rene etter Fase 46 (endring i `next.config.ts`); `next build` sist ved Fase 45-slutt. Fase 29: funn F1–F10 i `sikkerhet.md`; Fase 45: F11–F14.
+- Fase 47 hos Ståle: ingenting flytter seg sidelengs ved fanebytte (bredt pc-vindu). `tsc --noEmit` og lint rene etter Fase 47; `next build` sist ved Fase 45-slutt. Fase 29: funn F1–F10 i `sikkerhet.md`; Fase 45: F11–F14.
 - Fase 46 hos Ståle: bygg, oppstart, innlogging, `up`/`down` (rapportert, utskrifter ikke sett). Prøvd i minnet med tom database: teller for gale forsøk, scrypt; Fase 44 logg/synkstatus 9 av 9; overlapp, klokkeslett, synk, farger i tidligere faser.
 - Ikke prøvd: at en konkret endring overlevde `down`/`up` (ikke sagt med ord), innlogging etter utløpt pause etter andre retting, vedlikehold med innlogging, deaktivert med gyldig økt, `AUTH_MODUS=lokal`, `next start` (Secure-kapsel), `npm run import` mot databasen, masseendring, låst databasefil.
 
 ## Neste
-Planen har ikke flere fasenummer før Fase 32 (Entra). Åpne ønsker i `TODO.md`: punkt 16 (visningen forskyver seg ved bytte mellom Dag, Uke, Måned, Mine endringer og Ansatte, ikke undersøkt), MySQL-fasen (punkt 13 og 15), Fase 32–33. Ståle velger rekkefølge; punkt 16 er det lille og irriterende, og trenger en plan før koding. Ubesluttet: «Vis i ukeplan» fra Admin åpner Dag; skal den åpne Uke?
+Planen har ikke flere fasenummer før Fase 32 (Entra). Åpne ønsker i `TODO.md`: MySQL-fasen (punkt 13 og 15), Fase 32–33. Ståle velger rekkefølge; vesentlig nytt arbeid trenger en plan før koding. Ubesluttet: «Vis i ukeplan» fra Admin åpner Dag; skal den åpne Uke? Lest i koden, ikke sett: Uke ruller til `?person=` igjen ved hver retur til fanen (`components/UkeplanClient.tsx:175-179`); står under punkt 16 i `TODO.md`.
 
 ## Arbeidsmåte neste økt
 - `[rester-etter-feil]` Retter du en feil som har skrevet tilstand, rydd også det den alt skrev, og prøv fra den tilstanden.
@@ -41,4 +41,4 @@ Planen har ikke flere fasenummer før Fase 32 (Entra). Åpne ønsker i `TODO.md`
 - **Sikkerhet:** F1–F14 i `kunnskap/sikkerhet.md`. F10 (dev-server på nettet) godtatt av Ståle også etter innlogging; F11 (felles startpassord) må løses før ekte data.
 - `python` finnes ikke i Git Bash her; skriv filer med Write/Edit. CSS-klassenavn uten æøå. Aldri lim ekte rader inn i logg, STATUS eller plan. Nøkler i lister: `teamId-id`.
 - Eldre detaljer (git-historikk, «Registrer», ukenummer, sortering, figur, «Mine endringer») står i `git show 43ab5e2:kunnskap/STATUS.md`.
-- Persondata-deny-settet er tilbudt i `.claude/settings.json`, ikke besluttet. Fila og `TODO.md` har ucommittede endringer fra brukeren; de tas ikke med i faseslutt-commit.
+- Persondata-deny-settet er tilbudt i `.claude/settings.json`, ikke besluttet. Fila og `TODO.md` har ucommittede endringer fra brukeren (i `TODO.md` ligger også Claudes merknad under punkt 16); de tas ikke med i faseslutt-commit.

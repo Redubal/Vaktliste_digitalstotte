@@ -26,6 +26,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* Holder alltid plass til rullefeltet, så siden ikke hopper sidelengs ved fanebytte (Fase 47). */
+  scrollbar-gutter: stable;
 }
 
 body {

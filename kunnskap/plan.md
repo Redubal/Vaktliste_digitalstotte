@@ -252,6 +252,8 @@ kallestedene får `await`. Glemt passord på e-post, Entra (Fase 32–33).
 
 Ikke med: drift/hosting (gamle Fase 5) og «Min plan»; de planlegges når Fase 32 er levert.
 
+Fase 47 ✅ 2026-10-15 — detaljer i logg
+
 ---
 
 **Fase 1 ✅ 2026-09-30** — ukeplan per team, Måned og normaliserte data; detaljer i logg. Mobilvisning utsatt, se `TODO.md` punkt 3.

@@ -1,5 +1,18 @@
 # Logg
 
+## 2026-10-15 (ny økt, Opus planla og rettet) — Fase 47 ✅ siden hopper ikke sidelengs ved fanebytte
+- Verifisert av Ståle 2026-10-15 i bredt pc-vindu: «nå er det ingenting som flytter seg». Dermed er årsaken (nedenfor) bekreftet ved at rettingen virket.
+- Levert: én linje i `app/globals.css`, `scrollbar-gutter: stable` på `html`. Ingen komponenter endret. TODO punkt 16 → Fase 47.
+- Årsak (lest i koden av Explore-agent, bekreftet av at rettingen virket): fanene er ulikt høye, så rullefeltet kom og gikk, og den sentrerte `.page-shell` (`max-width: 1200px; margin: 0 auto`) flyttet seg sidelengs. Fanene er én klientkomponent (`components/Tabs.tsx`) som bare viser den aktive fanen; ingen navigasjon.
+- **Beslutning (Ståle, hvilken forskyvning):** på spørsmål valgte Ståle «hopper sidelengs» (ikke opp/ned, ikke fanelinja selv). Dermed rettet vi bare rullefeltet.
+- **Beslutning (Claude, modell):** rettingen ble gjort på Opus i samme økt som planleggingen, ikke flyttet til Sonnet, fordi den var én CSS-linje. Brukeren hadde byttet til Opus for planmodus.
+- Funn lest i koden, ikke sett skje: Uke (`components/UkeplanClient.tsx:175-179`) kaller `scrollIntoView` til personen i `?person=` ved hver montering, og fanebyttet beholder parameteren i adressen. Loddrett hopp ved retur til Uke etter en lenke fra Admin. Ikke rettet; ført i `TODO.md` under punkt 16.
+- Sjekken: `tsc --noEmit` 0 feil og `npm run lint` rent, kjørt etter CSS-endringen (ren CSS, rutinen); etterpå bare `kunnskap/`-filer og `TODO.md` endret.
+- Rask sikkerhetssjekk: env-filer 0 (bare `.env.eksempel`), fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 1 treff. `data/` har ingen filer i git.
+- STATUS: 44 linjer (tak 45).
+- Plan: Fase 47 kollapset til én linje. TODO punkt 16 fortettet til pekerlinje (Ståle sa ja), men `TODO.md` ble ikke committet fordi den har Ståles ucommittede endringer.
+- fase-slutt: 13:22–13:24, 2 min (inkludert ventetid på svar).
+
 ## 2026-10-15 (ny økt, Sonnet) — Fase 46 ✅ Docker for appen
 - Verifisert av Ståle 2026-10-15 på hjemme-pc (rapportert i chatten, utskrifter ikke sett av Claude): bygget gikk, oppstart uten feilmeldinger, innlogging med den kopierte databasen virker, og `docker compose up` og `down` fungerer. Ståle sa «up og down fungerer»; at en konkret endring overlevde nedstenging er ikke sagt med ord, så ✅ hviler på den setningen.
 - Observert: første innlogging etter kopiering feilet med startpassordet. Hypotese (ikke sett i databasen): Ståle byttet passord under verifiseringen av Fase 45, og databasen bærer det nye passordet; da han brukte det, «funka det».

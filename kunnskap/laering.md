@@ -1,5 +1,12 @@
 # Læringslogg
 
+## 2026-10-15 (avslutning Fase 47, verifisert) — siden hopper ikke sidelengs
+
+- `[rester-etter-feil]` — ikke utløst: ingen feil skrev tilstand. Gjenstående faser (MySQL, Entra) kan utløse den; videreføres uten rundetall.
+- `[verifisering-krever-data]` — ikke utløst: verifiseringen var å se på fanebytte, og Ståles miljø har data. Gjenstående faser (MySQL, Entra) kan utløse den; videreføres uten rundetall.
+- Nye punkter: ingen. **Fasesnitt:** Fase 47 (undersøkelse, plan, én CSS-linje, verifisering) fikk plass i én økt uten `/compact`. Ingen deling foreslått.
+- **Issue til pakkerepoet:** ikke aktuelt.
+
 ## 2026-10-15 (avslutning Fase 46, verifisert) — Docker for appen
 
 - `[rester-etter-feil]` — ikke utløst: ingen feil skrev tilstand. Gjenstående faser (MySQL, Entra) kan utløse den; videreføres uten rundetall.
