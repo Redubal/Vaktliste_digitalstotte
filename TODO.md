@@ -61,10 +61,8 @@ Rettet 2026-10-14, se logg. Kalenderen `.mkal` hadde 7 kolonner mot hverdager fr
 `beregnMaaned`; nå fem (M–F). **Beslutning (Ståle, fem kolonner):** lørdag og søndag
 har aldri innhold i vaktlista, så de fjernes heller enn å holdes tomme.
 
-## 12. Administrator velger fargen på rammen for dagens dato
-Ønsket 2026-10-14 under Fase 39: den første fargen var for lik endringsfargene, så rammen er nå
-bare en mørk ramme uten fyll. Admin skal selv kunne velge fargen (Admin → innstillinger).
-Rammen styres av `--idag-ramme` i `globals.css`. Ikke i planen; trenger fasenummer.
+## 12. Administrator velger fargen på rammen for dagens dato ✅
+Levert i Fase 42 (2026-10-15, ramme og fyll i Admin → «Rammen for dagens dato»); se logg 2026-10-15. Begrunnelse for at standarden er bare mørk ramme uten fyll: Fase 39, den første fyllfargen var for lik endringsfargene.
 
 ## Levert (pekere)
 - Tydelig ulagret (rødt) / lagret (grønt) — Fase 8 gjaldt hele Admin, se logg 2026-10-13. Ønsket sa «over alt»; om endringsvinduet i Ukeplan/Måned trenger det samme, er ikke vurdert.
@@ -108,5 +106,7 @@ Levert i Fase 39 (2026-10-14), se logg 2026-10-14. Dagens dato har bare ramme, u
 ## 11. Ny «Dag»-visning
 Levert i Fase 40 (2026-10-14), se logg 2026-10-14.
 
-##
-Overgang til SQLlite i MS Studio Code for enklere overgang til annen database
+## 13. Overgang til SQLite for enklere overgang til annen database
+Ønsket 2026-10-15 (ordlyd fra brukeren: «Overgang til SQLlite i MS Studio Code for enklere overgang til annen database»).
+I dag ligger alle data i `data/vaktliste.json`, og skriving går gjennom `endreVaktliste` i `lib/lager.ts`. Ikke vurdert
+hvordan det skal løses, og ikke i planen; trenger fasenummer. Henger sammen med «Senere» (Entra og database, Fase 30 og 32–34).

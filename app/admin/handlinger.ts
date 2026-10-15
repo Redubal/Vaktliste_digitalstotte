@@ -19,6 +19,7 @@ import {
   sjekkRolle,
   sjekkStatus,
   sjekkTeam,
+  sjekkIdagFarge,
   sjekkInnstillinger,
   sjekkSynkInnstillinger,
   slugify,
@@ -49,12 +50,31 @@ export async function settVedlikehold(_forrige: Svar | null, data: FormData): Pr
     data,
     "/admin",
     (v) => {
-      const sjekket = sjekkInnstillinger({ vedlikehold, melding: tekst(data, "melding") });
+      const sjekket = sjekkInnstillinger({ vedlikehold, melding: tekst(data, "melding") }, v.innstillinger);
       if ("feil" in sjekket) return sjekket.feil;
       v.innstillinger = sjekket;
       return null;
     },
     vedlikehold ? "Vedlikehold er slått på." : "Vedlikehold er slått av.",
+  );
+}
+
+// --- Rammen for dagens dato ---
+
+export async function settIdagFarge(_forrige: Svar | null, data: FormData): Promise<Svar> {
+  return utfor(
+    data,
+    "/admin",
+    (v) => {
+      const sjekket = sjekkIdagFarge(
+        { ramme: fargeFra(data), fyll: data.get("egenFyll") === "on" ? tekst(data, "fyll") : "" },
+        v.innstillinger,
+      );
+      if ("feil" in sjekket) return sjekket.feil;
+      v.innstillinger = sjekket;
+      return null;
+    },
+    "Fargene for dagens dato er lagret.",
   );
 }
 

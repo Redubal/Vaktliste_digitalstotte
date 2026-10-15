@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { IdagFargeAdmin } from "@/components/IdagFargeAdmin";
 import { SynkAdmin } from "@/components/SynkAdmin";
 import { VedlikeholdAdmin } from "@/components/VedlikeholdAdmin";
 import { sisteSynkTidspunkt, virkningFor } from "@/lib/domene";
@@ -90,6 +91,14 @@ export default async function AdminSide() {
           en administrator i nedtrekkslisten og komme hit. Ekte tilgangsstyring kommer med
           Entra SSO.
         </p>
+      </section>
+
+      <section className="panel">
+        <div className="section-head">
+          <h2>Rammen for dagens dato</h2>
+          <span className="counter">{v.innstillinger.idagFarge ? "egen farge" : "standardfarge"}</span>
+        </div>
+        <IdagFargeAdmin innstillinger={v.innstillinger} revisjon={v.revisjon} />
       </section>
 
       <section className="panel">

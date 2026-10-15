@@ -688,6 +688,16 @@ tbody tr:nth-child(even) {
   padding: 4px 6px;
 }
 
+/* Fyll i dagens rute, bare når admin har valgt en (html har da data-idag-fyll). Ikke i mobilkalenderen:
+   der er firkanten selv statusfargen. */
+html[data-idag-fyll] .ukeplan-table td.dag--idag,
+html[data-idag-fyll] .maaned-table td.dag--idag,
+html[data-idag-fyll] .ukeplan-table th.dag--idag,
+html[data-idag-fyll] .maaned-table th.dag--idag,
+html[data-idag-fyll] .kort-dag.dag--idag {
+  background-color: var(--idag-fyll);
+}
+
 .idag-merke {
   font-size: 0.68rem;
   font-weight: 700;
@@ -2167,6 +2177,16 @@ a.uke-btn {
 .vedlikehold-tekst {
   font-size: 1.1rem;
   margin: 0;
+}
+
+.idagfarge-forhandsvis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--surface, #fff);
+  font-weight: 600;
 }
 
 .vedlikehold-skjema {

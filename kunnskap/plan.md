@@ -231,6 +231,8 @@ Fase 40 ✅ 2026-10-14 — detaljer i logg
 
 Fase 41 ✅ 2026-10-15 — detaljer i logg
 
+Fase 42 ✅ 2026-10-15 — detaljer i logg
+
 Ikke med: drift/hosting (gamle Fase 5) og «Min plan»; de planlegges når Fase 32 er levert.
 
 ---

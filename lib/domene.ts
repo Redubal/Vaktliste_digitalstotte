@@ -2,7 +2,7 @@
 // Node importerer .ts direkte, så filen må holde seg til syntaks som kan strippes (ingen enum).
 
 /** Eldre versjoner gjøres om ved lesing av `oppgraderVaktliste`; øk og legg til et steg der. */
-export const SKJEMA_VERSJON = 13;
+export const SKJEMA_VERSJON = 15;
 
 /** Rekkefølgen i tabellen er rekkefølgen i teamvelgeren. */
 export type Team = {
@@ -361,6 +361,10 @@ export type DagRad = {
 export type Innstillinger = {
   vedlikehold: boolean;
   melding: string;
+  /** Fargen på rammen for dagens dato, `#rrggbb`. `null` = standardfargen fra stilarket (`--idag-ramme`). */
+  idagFarge: string | null;
+  /** Fyllfargen i dagens rute, `#rrggbb`. `null` = ingen egen fyll (rutene ser ut som ellers). */
+  idagFyll: string | null;
 };
 
 export const VEDLIKEHOLD_MELDING_MAKSLENGDE = 300;
@@ -408,7 +412,7 @@ export function tomVaktliste(): Vaktliste {
     skjemaVersjon: SKJEMA_VERSJON,
     revisjon: 0,
     sistEndretAv: null,
-    innstillinger: { vedlikehold: false, melding: STANDARD_VEDLIKEHOLDSMELDING },
+    innstillinger: { vedlikehold: false, melding: STANDARD_VEDLIKEHOLDSMELDING, idagFarge: null, idagFyll: null },
     synk: { ...STANDARD_SYNK },
     team: [],
     lokasjoner: [],
@@ -567,9 +571,19 @@ export function sjekkEndringstype(
   if ("feil" in sjekket) return sjekket;
   const kategori = KATEGORIER.find((k) => k.id === rå.kategori);
   if (!kategori) return { feil: "Velg en kategori." };
-  // Tom farge = ingen egen farge. Alt annet enn `#rrggbb` avvises, siden fargen havner i en style-verdi.
-  if (rå.farge && !/^#[0-9a-fA-F]{6}$/.test(rå.farge)) return { feil: "Fargen må være på formen #rrggbb." };
-  return { name: sjekket.name, kategori: kategori.id, farge: rå.farge ? rå.farge.toLowerCase() : null };
+  const farge = sjekkFarge(rå.farge);
+  if (typeof farge === "object" && farge !== null) return farge;
+  return { name: sjekket.name, kategori: kategori.id, farge };
+}
+
+/**
+ * Tom farge = ingen egen farge (`null`). Alt annet enn `#rrggbb` avvises, siden fargen havner i en
+ * style-verdi. Gir fargen med små bokstaver.
+ */
+export function sjekkFarge(farge: string): { feil: string } | string | null {
+  if (!farge) return null;
+  if (!/^#[0-9a-fA-F]{6}$/.test(farge)) return { feil: "Fargen må være på formen #rrggbb." };
+  return farge.toLowerCase();
 }
 
 function navnPå(v: Vaktliste, brukerIder: Set<string>): string[] {
@@ -835,16 +849,40 @@ function tilVersjon13(v: RåVaktliste): RåVaktliste {
   return { ...v, skjemaVersjon: 13, synk: v.synk ?? { ...STANDARD_SYNK } };
 }
 
-/** Renser meldingen fra skjemaet. Tom melding blir standardmeldingen. */
-export function sjekkInnstillinger(rå: {
-  vedlikehold: boolean;
-  melding: string;
-}): { feil: string } | Innstillinger {
+// 13 → 14: `idagFarge` (null = standardfargen). En farge som allerede står der, beholdes.
+function tilVersjon14(v: RåVaktliste): RåVaktliste {
+  const innstillinger = v.innstillinger as Omit<Innstillinger, "idagFarge"> & { idagFarge?: string | null };
+  return { ...v, skjemaVersjon: 14, innstillinger: { ...innstillinger, idagFarge: innstillinger.idagFarge ?? null } };
+}
+
+// 14 → 15: `idagFyll` (null = ingen egen fyll). En farge som allerede står der, beholdes.
+function tilVersjon15(v: RåVaktliste): RåVaktliste {
+  const innstillinger = v.innstillinger as Omit<Innstillinger, "idagFyll"> & { idagFyll?: string | null };
+  return { ...v, skjemaVersjon: 15, innstillinger: { ...innstillinger, idagFyll: innstillinger.idagFyll ?? null } };
+}
+
+/** Renser meldingen fra skjemaet. Tom melding blir standardmeldingen. Rammen og fyllet røres ikke. */
+export function sjekkInnstillinger(
+  rå: { vedlikehold: boolean; melding: string },
+  gjeldende: Innstillinger,
+): { feil: string } | Innstillinger {
   const melding = rå.melding.replace(/\s+/g, " ").trim() || STANDARD_VEDLIKEHOLDSMELDING;
   if (melding.length > VEDLIKEHOLD_MELDING_MAKSLENGDE) {
     return { feil: `Meldingen kan ha opptil ${VEDLIKEHOLD_MELDING_MAKSLENGDE} tegn.` };
   }
-  return { vedlikehold: rå.vedlikehold, melding };
+  return { ...gjeldende, vedlikehold: rå.vedlikehold, melding };
+}
+
+/** Ramme og fyll for dagens dato fra skjemaet; tom = standard. Resten av innstillingene røres ikke. */
+export function sjekkIdagFarge(
+  rå: { ramme: string; fyll: string },
+  gjeldende: Innstillinger,
+): { feil: string } | Innstillinger {
+  const ramme = sjekkFarge(rå.ramme);
+  if (typeof ramme === "object" && ramme !== null) return ramme;
+  const fyll = sjekkFarge(rå.fyll);
+  if (typeof fyll === "object" && fyll !== null) return fyll;
+  return { ...gjeldende, idagFarge: ramme, idagFyll: fyll };
 }
 
 /** Sjekker en endring av adminstatus og aktiv for en person. Nekter at man tar fra seg selv tilgangen. */
@@ -879,6 +917,8 @@ export function oppgraderVaktliste(rå: RåVaktliste): Vaktliste {
   if (v.skjemaVersjon === 10) v = tilVersjon11(v);
   if (v.skjemaVersjon === 11) v = tilVersjon12(v);
   if (v.skjemaVersjon === 12) v = tilVersjon13(v);
+  if (v.skjemaVersjon === 13) v = tilVersjon14(v);
+  if (v.skjemaVersjon === 14) v = tilVersjon15(v);
   if (v.skjemaVersjon !== SKJEMA_VERSJON) {
     throw new Error(`data/vaktliste.json har skjemaversjon ${fra}, appen forventer ${SKJEMA_VERSJON}.`);
   }

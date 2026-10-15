@@ -68,6 +68,15 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="nb"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      // Fargene er validert som #rrggbb før de lagres. Uten egen farge gjelder `:root` i globals.css;
+      // fyllet slås på av `data-idag-fyll`, så rutene beholder sin egen bakgrunn når ingen fyll er valgt.
+      data-idag-fyll={innstillinger.idagFyll ? "" : undefined}
+      style={
+        {
+          ...(innstillinger.idagFarge ? { "--idag-ramme": innstillinger.idagFarge } : {}),
+          ...(innstillinger.idagFyll ? { "--idag-fyll": innstillinger.idagFyll } : {}),
+        } as React.CSSProperties
+      }
     >
       <body className="min-h-full flex flex-col">
         {/* Designmanualen: sidestilt logo på nett, minst 75 px høy, fri sone rundt. */}

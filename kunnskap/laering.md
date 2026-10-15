@@ -1,5 +1,16 @@
 # Læringslogg
 
+## 2026-10-15 (avslutning Fase 42) — Rammefarge og fyll
+
+**Evaluering av forrige økts punkter:**
+- `[farge-mot-palett]` — brutt igjen (2. runde): situasjonen oppsto (ny farge til en utheving). Standardene ble holdt (mørk ramme, ingen fyll), men startverdien i fyllvelgeren (`#ffe9a8`) ble valgt uten å sammenligne med `.prikk--*` («Annet» er gul `#f2c94c`), og forhåndsvisningen som skulle sette fargen mot endringsfargene ble ikke bygget.
+- `[sosken-visning]` — ikke utløst, og planen har ingen gjenstående fase. Strøket; en ny visning i et senere planarbeid må huske Uke/Måned/Dag-sammenligningen (står i Fase 40 i loggen).
+
+**Nye punkter:** ingen.
+
+**Fasesnitt:** én økt uten `/compact`. Ingen deling foreslått.
+**Issue til pakkerepoet:** ikke aktuelt.
+
 ## 2026-10-15 (avslutning Fase 41) — Ukenummer i Måned
 
 **Evaluering av forrige økts punkter:**

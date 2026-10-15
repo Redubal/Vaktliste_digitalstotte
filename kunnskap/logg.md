@@ -1,5 +1,18 @@
 # Logg
 
+## 2026-10-15 (ny økt, to) — Fase 42 ✅ Rammefarge og fyll for dagens dato (TODO punkt 12)
+
+- **Levert:** administrator velger rammen og fyllet i dagens rute i Admin → «Rammen for dagens dato» (`components/IdagFargeAdmin.tsx`, handling `settIdagFarge`). `Vaktliste.innstillinger` har `idagFarge` og `idagFyll` (`#rrggbb` eller `null`), skjemaversjon 13 → 15 (`tilVersjon14`, `tilVersjon15`). `sjekkFarge` er trukket ut av `sjekkEndringstype` og brukes begge steder; `sjekkInnstillinger` bevarer begge feltene. Layouten setter `--idag-ramme` og `--idag-fyll` på `<html>`; fyllet slås på av `data-idag-fyll`, så rutene beholder egen bakgrunn når ingen fyll er valgt. Endringsloggen: «Rammefarge for i dag», «Fyllfarge for i dag»; raden heter nå «Innstillinger».
+- **Observert (Ståle, første versjon):** bare rammen fikk ny farge; «ramme og feltet skal kunne endres». Fyll lagt til i samme økt (versjon 14 → 15, så en datafil som alt var lagret som 14 oppgraderes).
+- **Beslutning (Ståle, fyll):** fyll gjelder Uke og Måned (tabell, overskriftscelle, dagrad på smal skjerm), ikke mobilkalenderen. Begrunnelse: firkanten der er selve statusfargen, og et fyll ville skjult den. Valgt av Claude ved planlegging, ikke avvist av Ståle.
+- **Avvik fra planen:** forhåndsvisningen er en liten rute med valgt ramme og fyll; den viser ikke endringsfargene ved siden av, slik planen lovet. Ingen sperre mot farger som ligner endringsfargene.
+- **Verifisert av Ståle:** «ferdig» etter å ha prøvd i nettleseren, så «avslutt». Ikke oppgitt hva som ble sett utover det: mobilkalenderen uten fyll, vedlikeholdsmodus som beholder fargen, linjene i Endringslogg, smalt vindu.
+- **Prøvd i Node med oppdiktede verdier:** farge-reglene 8 av 8, ramme + fyll + oppgradering fra versjon 14: 5 av 5.
+- **Fasesnitt:** planmodus, bygging og én justering i én økt uten `/compact`. Ingen deling foreslått.
+- **Sjekk:** `tsc --noEmit` og `npm run lint` rene etter siste kodeendring (ikke kjørt på nytt ved faseslutt; etterpå bare `kunnskap/`-filer). `next build` ikke kjørt.
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 2 treff. Datauttrekk i git 0.
+- STATUS: 44 linjer. fase-slutt: 09:52–09:56, 4 min.
+
 ## 2026-10-15 (ny økt) — Fase 41 ✅ Ukenummer i Måned
 
 - **Levert:** ukenummer i Måned. Bred tabell: egen rad `.maaned-ukerad` over dagene med «Uke 41» midtstilt over ukas kolonner (`colSpan`, uka strekker seg til neste mandag eller månedens slutt), uten linjer under raden eller mellom ukene. Mobilkalender: egen smal kolonne først i `.mkal` (`1.4rem`), ukenummeret som tall først i hver rad. Begge bruker `ukeStart` (i `MaanedClient.tsx`) og `isoWeek` fra `lib/uker.ts`, så uker over årsskiftet følger ISO-reglene.

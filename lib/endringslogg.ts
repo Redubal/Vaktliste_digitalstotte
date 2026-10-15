@@ -100,7 +100,7 @@ export const TABELLER: Tabellinfo[] = [
     entall: "innstilling",
     overskrift: "Innstillinger",
     refs: {},
-    etikett: () => "Vedlikeholdsmodus",
+    etikett: () => "Innstillinger",
   },
   // Også ett objekt. Når synken kjørte, står i `data/synkstatus.json`, ikke her.
   {
@@ -148,6 +148,8 @@ const FELTNAVN: Record<string, string> = {
   avvistGrunn: "Begrunnelse for avvisning",
   vedlikehold: "Vedlikehold",
   melding: "Melding",
+  idagFarge: "Rammefarge for i dag",
+  idagFyll: "Fyllfarge for i dag",
   klokkeslett: "Klokkeslett",
   intervallTimer: "Hyppighet",
 };
