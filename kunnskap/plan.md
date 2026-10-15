@@ -243,18 +243,7 @@ Fase 43 ✅ 2026-10-15 — detaljer i logg
 
 Fase 44 ✅ 2026-10-15 — detaljer i logg
 
-**Fase 45 — Pålogging med e-post og passord (tyngste modell, sikkerhet).** Les `authentication.md`,
-`proxy.md`, `cookies.md` i `node_modules/next/dist/docs/01-app/` først. Tabellene `innlogging`
-(passordhash med `crypto.scrypt`, `timingSafeEqual`, `må_bytte`) og `okt` (token-hash, utløp);
-HttpOnly/SameSite=Lax/Secure-cookie; teller mot gale forsøk. Én `innlogget()` i `lib/utfor.ts` erstatter
-`valgtAnsatt()` og cookie-oppslagene i ni admin-sider, `app/page.tsx` og `app/layout.tsx`. `/logg-inn`,
-utlogging, «Bytt passord» (påkrevd første gang), `proxy.ts` som sender uinnloggede til innlogging
-(sjekkene i sider og handlinger står uansett). `AUTH_MODUS=lokal` beholder velgeren i utvikling.
-«testtest» er svakt og bare for prototypen: loggføres i `sikkerhet.md`, må byttes før ekte data
-(TODO 1). Sikkerhetsgjennomgang; F10 tas opp.
-**Verifisering:** du åpner appen og sendes til innlogging; logger inn med din e-post og «testtest»,
-bytter passord, ser navnet ditt øverst; logger ut og inn; en kollega uten adminstatus ser ikke Admin;
-admin-adresse uinnlogget sender deg til innlogging; fem gale passord gir pause.
+Fase 45 ✅ 2026-10-15 — detaljer i logg
 
 **Fase 46 — Docker for appen og SQL-oppstartsskript (Sonnet).** `Dockerfile` (Next
 `output: "standalone"`, Node-versjon låst), `docker-compose.yml` med volum for databasefila,
