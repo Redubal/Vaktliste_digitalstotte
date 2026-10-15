@@ -11,6 +11,32 @@ dager, ikke importert ferdig fra Excel. Database er utsatt fordi det foreløpig 
 er tilgang til en på utviklingsmaskinen. `data/` er gitignorert (navn, e-post,
 sykefravær). Se plan.md, «Avklarte beslutninger».
 
+## Datalag: SQLite i `data/vaktliste.db` (Fase 43, 2026-10-15) — erstatter JSON-fila
+
+- **Innebygd `node:sqlite`** (Node 26.8.2, SQLite 3.53.4, ingen advarsel), ikke `better-sqlite3`:
+  synkron som det gamle `lager.ts`, ingen innebygd binær å bygge, ingen ny avhengighet. Krever
+  `@types/node` ≥ 22 for typene (oppgradert til ^24).
+- **Én tabell per liste** i `db/skjema.sql`, kolonner med samme navn som feltene i `lib/domene.ts`,
+  pluss `rekkefolge` (rekkefølgen i lista er meningsbærende). `meta` og `innstillinger` er én rad
+  hver; `synk` ligger som `synkKlokkeslett`/`synkIntervallTimer` i `innstillinger`. Ja/nei er 0/1;
+  `erAdministrator` er `NULL` når feltet manglet, og leses tilbake uten feltet. **Ingen fremmednøkler:**
+  appen tåler pekere til slettede statuser/typer (`virkningFor`), og en FK ville nektet det.
+- **`lesVaktliste`/`endreVaktliste` har samme signatur**, så ingen kallesteder er endret.
+  `lib/database.ts` gjør om mellom objekt og tabeller og deles med `scripts/json-til-sqlite.mjs`
+  (bare `import type` fra domene, så Node kan laste den direkte). `endreVaktliste` er én
+  `BEGIN IMMEDIATE`-transaksjon med revisjonssjekk, og skriver bare tabeller som er endret
+  (sammenlignet med `JSON.stringify`). Tilkoblingen ligger på `globalThis` (overlever omlasting i dev).
+- **Sikkerhetskopi tas etter lagring** (`VACUUM INTO`, kan ikke gå i en transaksjon), med ny revisjon
+  i navnet; før var den tatt før lagring. En feil i kopien logges, som en feil i endringsloggen.
+- **Mangler databasen:** finnes `vaktliste.json`, stopper appen med beskjed om `npm run til-sqlite`;
+  ellers lages en tom database fra skjemaet (grunnlaget for Docker i Fase 46).
+- **Skjemaversjon:** `meta.skjemaVersjon` ulik `SKJEMA_VERSJON` gir feil. **Det finnes ingen
+  omgjøring i databasen ennå** — neste nye felt må få en migrering (`ALTER TABLE`) i `lib/lager.ts`
+  samtidig som `SKJEMA_VERSJON` økes. `oppgraderVaktliste` brukes nå bare av skriptene.
+- **`next build` leste data:** rotlayouten kalte `lesVaktliste()` før `cookies()`, så 404-siden ble
+  forhåndsbygd med data fra disk. Byttet rekkefølge; nå er alle sider dynamiske og byggingen rører
+  ikke `data/` (observert: bygging grønn uten database).
+
 ## Admin: egen datamodell i én fil (besluttet 2026-09-30, bygget i Fase 3 for lokasjoner)
 
 Status Fase 3: `data/vaktliste.json` er i bruk (`lib/lager.ts` leser og skriver atomisk med

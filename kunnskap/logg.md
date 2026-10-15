@@ -1,5 +1,22 @@
 # Logg
 
+## 2026-10-15 (samme økt, Opus) — Fase 43 ✅ SQLite i stedet for JSON
+- Verifisert av Ståle 2026-10-15: `npm run til-sqlite` uten avvik (team 2, lokasjoner 14, roller 7, statuser 3, endringstyper 10, brukere 50, oppsett 50, endringer 309, dager 22, revisjon 79); Dag, Uke og Måned som før; endring i Admin står etter omstart. Første forsøk feilet med ENOENT fordi kommandoen ble kjørt i mappa over `app/`.
+- Ikke oppgitt: hvilken endring i Admin som ble prøvd, og om den nye linja i Admin → Logg ble sett.
+- Sjekk ved faseslutt: `tsc`, lint og `next build` grønne kl. ~10:20 etter siste kodeendring (`app/layout.tsx`); etterpå bare `kunnskap/`-filer, så ikke kjørt igjen. Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 7 treff. STATUS: 39 linjer (kortet ned fra 45, med peker til forrige versjon i git). fase-slutt: 10:37–10:40, 3 min.
+- Bygget `db/skjema.sql`, `lib/database.ts`, ny `lib/lager.ts` og `npm run til-sqlite`; detaljer og begrunnelser i `arkitektur.md` («Datalag: SQLite»).
+- Observert: `node:sqlite` virker i Node 26.8.2 uten advarsel; Turbopack bygger den uten oppsett. `@types/node` 20 manglet typene; oppgradert til ^24.
+- Observert: `next build` feilet først på `/_not-found` fordi rotlayouten leste data før `cookies()` — byggingen har altså lest `data/` tidligere også. Rettet ved å bytte rekkefølge; bygging grønn.
+- Prøvd med oppdiktede data i minnet: rundtur objekt → tabeller → objekt, `skrivEndret`, duplisert id avvises og ruller tilbake (7 av 7). `tsc`, lint og `next build` grønne. Ikke prøvd mot ekte data: det er brukerens `npm run til-sqlite`.
+- Hypotese, ikke prøvd: `npm run import` (Excel) skriver fortsatt `vaktliste.json`, som appen ignorerer etter flyttingen — rettes i Fase 44.
+
+## 2026-10-15 (ny økt, tre) — Plan for SQLite, pålogging og Docker (TODO punkt 13 og 14), Fase 43–46
+Planlagt i planmodus (Sonnet, ikke tyngste modell; planen bør gjennomleses ved start av Fase 43). Pålogging fikk nummer 14 i TODO.md. Ingen kode endret.
+- **Beslutning (bruker, database):** SQLite først, MySQL senere. Begrunnelse: ingen server å starte, og en tynn lagringsflate (`lesVaktliste`/`endreVaktliste`) holder ca. 20 kallesteder urørt; MySQL i Docker blir egen fase fordi asynkron driver krever `await` overalt.
+- **Beslutning (bruker, pålogging):** e-post og passord per ansatt, felles startpassord «testtest» lagret som hash, bytte ved første innlogging. Begrunnelse: ren tekst-passord er ikke trygt når ekte persondata kommer (TODO 1).
+- **Beslutning (bruker, Entra):** passordpålogging er midlertidig; Fase 32 (Entra) står i planen.
+- Observert i koden (agent, lest): identitet er cookien `vaktliste-identitet` uten HttpOnly/signatur; ingen `proxy.ts`; cookie-oppslaget gjentas i ni admin-sider, `app/page.tsx` og `app/layout.tsx`. Ingen Dockerfile finnes. Plan i `plan.md`, avsnittet «SQLite, pålogging og Docker».
+
 ## 2026-10-15 (ny økt, to) — Fase 42 ✅ Rammefarge og fyll for dagens dato (TODO punkt 12)
 
 - **Levert:** administrator velger rammen og fyllet i dagens rute i Admin → «Rammen for dagens dato» (`components/IdagFargeAdmin.tsx`, handling `settIdagFarge`). `Vaktliste.innstillinger` har `idagFarge` og `idagFyll` (`#rrggbb` eller `null`), skjemaversjon 13 → 15 (`tilVersjon14`, `tilVersjon15`). `sjekkFarge` er trukket ut av `sjekkEndringstype` og brukes begge steder; `sjekkInnstillinger` bevarer begge feltene. Layouten setter `--idag-ramme` og `--idag-fyll` på `<html>`; fyllet slås på av `data-idag-fyll`, så rutene beholder egen bakgrunn når ingen fyll er valgt. Endringsloggen: «Rammefarge for i dag», «Fyllfarge for i dag»; raden heter nå «Innstillinger».

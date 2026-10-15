@@ -28,10 +28,11 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // `cookies()` først: da er siden dynamisk, og `next build` leser aldri databasen (Fase 43).
+  const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
   const { innstillinger, synk } = lesVaktliste();
   // Ingen tidsplanlegger på serveren: en forfalt synk kjøres etter at siden er sendt, og vises ved neste lasting.
   after(() => synkHvisForfalt(synk));
-  const valgtId = (await cookies()).get(IDENTITET_COOKIE)?.value ?? null;
   const ansatte = getAnsatte();
   const jeg = finnAnsatt(ansatte, valgtId);
   const erAdmin = erAdministrator(jeg);

@@ -233,6 +233,43 @@ Fase 41 ✅ 2026-10-15 — detaljer i logg
 
 Fase 42 ✅ 2026-10-15 — detaljer i logg
 
+### SQLite, pålogging og Docker (godkjent 2026-10-15)
+
+TODO punkt 13 og 14. SQLite først, MySQL senere; e-post og passord per ansatt (startpassord
+«testtest» som hash); passordpålogging er midlertidig, Entra (Fase 32) kommer etterpå. Fase 43–44
+leverer i praksis Fase 34. `lib/lager.ts` beholder signaturene `lesVaktliste`/`endreVaktliste`.
+
+Fase 43 ✅ 2026-10-15 — detaljer i logg
+
+**Fase 44 — Endringslogg, synkstatus og import inn i databasen (Sonnet).** `lib/endringslogg.ts`
+(`endringslogg.jsonl`) og `synkstatus.json` blir tabeller; signaturene beholdes; gamle linjer flyttes
+av skriptet fra 43; `npm run import` skriver mot databasen.
+**Verifisering:** `/admin/logg` viser alle gamle linjer og en ny linje etter en endring; «Synk nå»
+viser nytt tidspunkt etter omstart.
+
+**Fase 45 — Pålogging med e-post og passord (tyngste modell, sikkerhet).** Les `authentication.md`,
+`proxy.md`, `cookies.md` i `node_modules/next/dist/docs/01-app/` først. Tabellene `innlogging`
+(passordhash med `crypto.scrypt`, `timingSafeEqual`, `må_bytte`) og `okt` (token-hash, utløp);
+HttpOnly/SameSite=Lax/Secure-cookie; teller mot gale forsøk. Én `innlogget()` i `lib/utfor.ts` erstatter
+`valgtAnsatt()` og cookie-oppslagene i ni admin-sider, `app/page.tsx` og `app/layout.tsx`. `/logg-inn`,
+utlogging, «Bytt passord» (påkrevd første gang), `proxy.ts` som sender uinnloggede til innlogging
+(sjekkene i sider og handlinger står uansett). `AUTH_MODUS=lokal` beholder velgeren i utvikling.
+«testtest» er svakt og bare for prototypen: loggføres i `sikkerhet.md`, må byttes før ekte data
+(TODO 1). Sikkerhetsgjennomgang; F10 tas opp.
+**Verifisering:** du åpner appen og sendes til innlogging; logger inn med din e-post og «testtest»,
+bytter passord, ser navnet ditt øverst; logger ut og inn; en kollega uten adminstatus ser ikke Admin;
+admin-adresse uinnlogget sender deg til innlogging; fem gale passord gir pause.
+
+**Fase 46 — Docker for appen og SQL-oppstartsskript (Sonnet).** `Dockerfile` (Next
+`output: "standalone"`, Node-versjon låst), `docker-compose.yml` med volum for databasefila,
+`.dockerignore` uten `data/` og Excel-fila; oppstartsskript som lager tomme tabeller fra
+`db/skjema.sql`. Krever Docker Desktop (brukeren installerer).
+**Verifisering:** `docker compose up`, åpne `http://localhost:3000`, logg inn, se at en endring
+overlever `docker compose down` og `up`.
+
+**Ikke med:** MySQL i Docker (webserver + mysql) — egen fase etter 46; driveren velges da, og
+kallestedene får `await`. Glemt passord på e-post, Entra (Fase 32–33).
+
 Ikke med: drift/hosting (gamle Fase 5) og «Min plan»; de planlegges når Fase 32 er levert.
 
 ---

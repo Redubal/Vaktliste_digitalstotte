@@ -1,5 +1,16 @@
 # Læringslogg
 
+## 2026-10-15 (avslutning Fase 43) — SQLite i stedet for JSON
+
+**Evaluering av forrige økts punkter:**
+- `[farge-mot-palett]` — ikke utløst (ingen ny farge). Fase 45 (innloggingsside) kan utløse den; videreføres, rundetallet står (2. runde).
+
+**Nye punkter:**
+- `[kommando-med-mappe]` Når brukeren skal kjøre en kommando selv, gi den som en kopierbar blokk som starter med mappebyttet (`cd app`), ikke «i terminalen i `app/`». Belegg: `npm run til-sqlite` ble kjørt i mappa over og feilet med ENOENT; terminalen åpner i overmappa.
+
+**Fasesnitt:** planlegging og Fase 43 i én økt uten `/compact`. Ingen deling foreslått.
+**Issue til pakkerepoet:** ikke aktuelt.
+
 ## 2026-10-15 (avslutning Fase 42) — Rammefarge og fyll
 
 **Evaluering av forrige økts punkter:**

@@ -107,6 +107,11 @@ Levert i Fase 39 (2026-10-14), se logg 2026-10-14. Dagens dato har bare ramme, u
 Levert i Fase 40 (2026-10-14), se logg 2026-10-14.
 
 ## 13. Overgang til SQLite for enklere overgang til annen database
-Ønsket 2026-10-15 (ordlyd fra brukeren: «Overgang til SQLlite i MS Studio Code for enklere overgang til annen database»).
-I dag ligger alle data i `data/vaktliste.json`, og skriving går gjennom `endreVaktliste` i `lib/lager.ts`. Ikke vurdert
-hvordan det skal løses, og ikke i planen; trenger fasenummer. Henger sammen med «Senere» (Entra og database, Fase 30 og 32–34).
+Ønsket 2026-10-15 («Overgang til SQLlite … for enklere overgang til annen database»). Planlagt 2026-10-15:
+SQLite i Fase 43–44, Docker for appen med SQL-oppstartsskript i Fase 46, se `plan.md` og logg 2026-10-15.
+**Beslutning (bruker, database):** SQLite først, MySQL senere. **Åpent:** MySQL i Docker (webserver + mysql)
+har ikke fasenummer; egen fase etter 46.
+
+## 14. Legge til pålogging
+Ønsket 2026-10-15: e-post og passord, «testtest» i første omgang. Planlagt som Fase 45, se `plan.md` og logg
+2026-10-15. **Beslutning (bruker, pålogging):** passord per ansatt som hash, midlertidig før Entra (Fase 32).
