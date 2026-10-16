@@ -1,5 +1,18 @@
 # Logg
 
+## 2026-10-15–16 (Opus, ingen fase) — Docker på hjemme-pc: testfil, flytting via minnepinne, ny bygging
+- Observert (Ståle): «Synk nå» i Docker fant ikke `data/entra-test.json`. Årsak lest i koden: `.dockerignore` holder `data` utenfor bildet, og `/app/data` i containeren er volumet `vaktliste-data`, atskilt fra `data/` på disken. Testfila må inn med `docker compose cp` + `chown` som databasen (står ikke i `DOCKER.md`).
+- Flytting: robocopy til minnepinne og videre til `C:\vaktliste` på hjemme-pc, uten `node_modules`, `.next`, `data`, `.env*`, `*.xlsx`. Claude kjørte kopien til `D:\vaktliste` 2026-10-16: 0 feil, 0 filer kopiert (minnepinnen var allerede oppdatert).
+- Observert (Ståle): `.env` manglet i den nye mappa (ble ikke kopiert, med vilje), og compose stoppet med «Sett STARTPASSORD». Løst av Ståle; hvilken av sjekkene (filnavn `.env.txt`, linja, BOM) som slo ut er ikke sagt.
+- Observert (Ståle): etter flyttingen hoppet siden fortsatt i Docker, selv om `C:\vaktliste\app\globals.css` hadde `scrollbar-gutter: stable` og `docker ps` viste `vaktliste-vaktliste-1`. Etter `docker compose build --no-cache` + `up`: «de nye endringene ser ut til å være ført over». Årsak ikke avgjort; hypoteser: bildet var ikke bygget på nytt, eller nettleseren viste en gammel kopi. Avgjort ville vært `grep scrollbar-gutter` i `/app/.next/static/` i containeren før ny bygging (ikke kjørt, containeren var stoppet).
+- Hypotese (ikke sett): compose navngir volumet etter mappa (`<mappe>_vaktliste-data`), så å flytte prosjektet til en mappe med annet navn gir en tom database; løses med `-p <gammelt navn>`. Om Ståles innlogging etter flyttingen brukte gammelt eller nytt volum er ikke sagt.
+- Ståle nevnte en Cloudflare-lenke til appen. Oppsettet er ikke i repoet og ikke sett av Claude. Forbehold sagt i chatten: lenken gjør innloggingssiden åpen fra internett, mens databasen i Docker er en kopi med ekte navn.
+- **Beslutning (Ståle, oppfølging):** punkt 17 (`DOCKER.md` mangler flyttesteg) og 18 (Cloudflare-lenken) føres i `TODO.md`. Ståle svarte «ja» på forslaget.
+- Ingen kodefiler endret i økten, så typesjekk og lint er ikke kjørt på nytt (sist grønt etter Fase 47). Endret: `kunnskap/logg.md`, `kunnskap/STATUS.md`, `kunnskap/laering.md` og `TODO.md` (punkt 17–18).
+- Rask sikkerhetssjekk: env-filer 0, fødselsnummer-mønster 0, nøkkel-mønster 0, kontrollsøk 2 treff. Bare `.env.eksempel` er i git.
+- STATUS: 45 linjer (tak 45).
+- fase-slutt: 18:13–18:14, 1 min. `TODO.md` og `.claude/settings.json` har ucommittede endringer fra Ståle og tas ikke med i commit.
+
 ## 2026-10-15 (ny økt, Opus planla og rettet) — Fase 47 ✅ siden hopper ikke sidelengs ved fanebytte
 - Verifisert av Ståle 2026-10-15 i bredt pc-vindu: «nå er det ingenting som flytter seg». Dermed er årsaken (nedenfor) bekreftet ved at rettingen virket.
 - Levert: én linje i `app/globals.css`, `scrollbar-gutter: stable` på `html`. Ingen komponenter endret. TODO punkt 16 → Fase 47.

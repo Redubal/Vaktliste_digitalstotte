@@ -1,5 +1,12 @@
 # Læringslogg
 
+## 2026-10-16 (avslutning, ingen fase) — Docker-flytting til hjemme-pc
+
+- `[rester-etter-feil]` — ikke utløst: ingen feil skrev tilstand. Gjenstående faser (MySQL, Entra) kan utløse den; videreføres uten rundetall.
+- `[verifisering-krever-data]` — ikke utløst som fase (økten hadde ingen fase med verifisering). Miljøet manglet likevel `entra-test.json` og `.env`; Ståle møtte det første før Claude hadde nevnt det. Gjenstående faser kan utløse den; videreføres uten rundetall.
+- Nye punkter: ingen. **Fasesnitt:** økten var ikke en fase og fikk plass i én økt uten `/compact`. Ingen deling foreslått.
+- **Issue til pakkerepoet:** ikke aktuelt.
+
 ## 2026-10-15 (avslutning Fase 47, verifisert) — siden hopper ikke sidelengs
 
 - `[rester-etter-feil]` — ikke utløst: ingen feil skrev tilstand. Gjenstående faser (MySQL, Entra) kan utløse den; videreføres uten rundetall.
